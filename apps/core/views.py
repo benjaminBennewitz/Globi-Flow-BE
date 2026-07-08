@@ -3,8 +3,10 @@
 """Allgemeine API-Views und globale Suche."""
 
 import re
+from django.core.management import call_command
 from django.db import connection
 from django.db.models import Q
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.imports.models import ImportJob
@@ -27,6 +29,25 @@ class HealthView(APIView):
             cursor.fetchone()
 
         return Response({'status': 'ok', 'database': 'ok', 'service': 'Globi-Flow-BE'})
+
+
+class DemoDataResetView(APIView):
+    """Setzt die klinischen Demo-Daten reproduzierbar zurück."""
+
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        """Führt den Demo-Reset aus und liefert aktualisierte Eckdaten zurück."""
+        call_command('reset_clinical_demo_data', verbosity=0)
+        return Response({
+            'status': 'ok',
+            'message': 'Demo-Daten wurden zurückgesetzt.',
+            'patients': Patient.objects.count(),
+            'reports': LabReport.objects.count(),
+            'values': LabValue.objects.count(),
+            'reviews': ReviewCandidate.objects.count(),
+        }, status=status.HTTP_200_OK)
 
 
 class GlobalSearchView(APIView):

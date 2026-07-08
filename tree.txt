@@ -5,6 +5,7 @@ Globi-Flow-BE/
 │   │   │   ├── commands/
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── cleanup_empty_reports.py
+│   │   │   │   ├── reset_clinical_demo_data.py
 │   │   │   │   └── seed_demo_data.py
 │   │   │   └── __init__.py
 │   │   ├── migrations/

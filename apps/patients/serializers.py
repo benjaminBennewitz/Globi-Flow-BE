@@ -56,6 +56,9 @@ class PatientInputSerializer(serializers.Serializer):
     gewichtKg = serializers.DecimalField(max_digits=6, decimal_places=2, required=False, allow_null=True)
     groesseCm = serializers.IntegerField(required=False, allow_null=True, min_value=1, max_value=260)
     lebensstil = serializers.CharField(max_length=240, allow_blank=True, required=False)
+    nichtrauchen = serializers.BooleanField(required=False, default=False)
+    alkohol = serializers.BooleanField(required=False, default=False)
+    drogen = serializers.BooleanField(required=False, default=False)
     notiz = serializers.CharField(allow_blank=True, required=False)
     kontext = serializers.CharField(max_length=240, allow_blank=True, required=False)
     status = serializers.ChoiceField(choices=Patient.Status.choices, required=False)
@@ -90,6 +93,9 @@ class PatientInputSerializer(serializers.Serializer):
             weight_kg=validated_data.get('gewichtKg'),
             height_cm=validated_data.get('groesseCm'),
             lifestyle=validated_data.get('lebensstil', '').strip() or 'nicht angegeben',
+            non_smoker=validated_data.get('nichtrauchen', False),
+            drinks_alcohol=validated_data.get('alkohol', False),
+            uses_drugs=validated_data.get('drogen', False),
             context=validated_data.get('kontext', '').strip() or 'lokal angelegt',
             source=Patient.Source.MANUAL,
             status=validated_data.get('status', Patient.Status.EMPTY),
@@ -113,6 +119,9 @@ class PatientInputSerializer(serializers.Serializer):
         if 'groesseCm' in validated_data:
             instance.height_cm = validated_data.get('groesseCm')
         instance.lifestyle = validated_data.get('lebensstil', instance.lifestyle).strip() or 'nicht angegeben'
+        instance.non_smoker = validated_data.get('nichtrauchen', instance.non_smoker)
+        instance.drinks_alcohol = validated_data.get('alkohol', instance.drinks_alcohol)
+        instance.uses_drugs = validated_data.get('drogen', instance.uses_drugs)
         instance.context = validated_data.get('kontext', instance.context).strip() or instance.context
         instance.status = validated_data.get('status', instance.status)
         instance.note = validated_data.get('notiz', instance.note).strip()
@@ -149,6 +158,9 @@ class PatientFrontendSerializer(serializers.ModelSerializer):
             'gewichtKg': decimal_to_number(instance.weight_kg),
             'groesseCm': instance.height_cm,
             'lebensstil': instance.lifestyle,
+            'nichtrauchen': instance.non_smoker,
+            'alkohol': instance.drinks_alcohol,
+            'drogen': instance.uses_drugs,
             'kontext': instance.context,
             'quelle': instance.source,
             'status': visible_status,
