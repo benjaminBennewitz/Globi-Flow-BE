@@ -97,7 +97,9 @@ Globi-Flow-BE/
 │   └── imports/
 │       └── 2026/
 │           └── 07/
-│               └── testdaten-laborbefund-demo.pdf
+│               ├── testdaten-laborbefund-demo.pdf
+│               ├── testdaten-laborbefund-demo_5sYySEk.pdf
+│               └── testdaten-laborbefund-demo_Xi4iMak.pdf
 ├── .env.local
 ├── .env.prod
 ├── .gitignore
