@@ -1,0 +1,3494 @@
+{
+  "MOCK_LABORWERTE": [
+    {
+      "id": "lab-hb-001",
+      "key": "haemoglobin",
+      "name": "Hämoglobin",
+      "gruppe": "Blutbild",
+      "wert": 14.2,
+      "einheit": "g/dl",
+      "referenzMin": 13.5,
+      "referenzMax": 17.5,
+      "status": "normal",
+      "prioritaet": "niedrig",
+      "confidence": 98,
+      "trend": [
+        13.9,
+        14,
+        14.4,
+        14.2,
+        14.2
+      ],
+      "hinweis": "Im Referenzbereich und stabil im Verlauf."
+    },
+    {
+      "id": "lab-crp-001",
+      "key": "crp",
+      "name": "CRP",
+      "gruppe": "Entzündung",
+      "wert": 8.6,
+      "einheit": "mg/l",
+      "referenzMin": 0,
+      "referenzMax": 5,
+      "status": "hoch",
+      "prioritaet": "hoch",
+      "confidence": 91,
+      "trend": [
+        2.1,
+        3.4,
+        4.8,
+        6.7,
+        8.6
+      ],
+      "hinweis": "Oberhalb des Referenzbereichs und im Verlauf ansteigend."
+    },
+    {
+      "id": "lab-ferritin-001",
+      "key": "ferritin",
+      "name": "Ferritin",
+      "gruppe": "Eisenstoffwechsel",
+      "wert": 28,
+      "einheit": "µg/l",
+      "referenzMin": 30,
+      "referenzMax": 400,
+      "status": "niedrig",
+      "prioritaet": "mittel",
+      "confidence": 87,
+      "trend": [
+        44,
+        39,
+        35,
+        31,
+        28
+      ],
+      "hinweis": "Leicht unterhalb des Referenzbereichs."
+    },
+    {
+      "id": "lab-vitd-001",
+      "key": "vitamin_d",
+      "name": "Vitamin D",
+      "gruppe": "Vitamine",
+      "wert": 22,
+      "einheit": "ng/ml",
+      "referenzMin": 30,
+      "referenzMax": 100,
+      "status": "review",
+      "prioritaet": "mittel",
+      "confidence": 62,
+      "trend": [
+        18,
+        21,
+        19,
+        23,
+        22
+      ],
+      "hinweis": "Wert erkannt, Einheit und Referenzbereich müssen geprüft werden."
+    },
+    {
+      "id": "lab-tsh-001",
+      "key": "tsh",
+      "name": "TSH",
+      "gruppe": "Schilddrüse",
+      "wert": 2.1,
+      "einheit": "mIU/l",
+      "referenzMin": 0.4,
+      "referenzMax": 4,
+      "status": "normal",
+      "prioritaet": "niedrig",
+      "confidence": 96,
+      "trend": [
+        1.9,
+        2.2,
+        2,
+        2.1,
+        2.1
+      ],
+      "hinweis": "Unauffällig im Referenzbereich."
+    }
+  ],
+  "MOCK_LABORWERT_GRUPPEN": [
+    {
+      "key": "blutbild",
+      "name": "Blutbild",
+      "normal": 12,
+      "auffaellig": 0,
+      "review": 1
+    },
+    {
+      "key": "entzuendung",
+      "name": "Entzündung",
+      "normal": 2,
+      "auffaellig": 1,
+      "review": 0
+    },
+    {
+      "key": "stoffwechsel",
+      "name": "Stoffwechsel",
+      "normal": 8,
+      "auffaellig": 2,
+      "review": 2
+    },
+    {
+      "key": "schilddruese",
+      "name": "Schilddrüse",
+      "normal": 4,
+      "auffaellig": 0,
+      "review": 0
+    }
+  ],
+  "MOCK_DASHBOARD_TRENDS": [
+    {
+      "key": "crp",
+      "name": "CRP Verlauf",
+      "einheit": "mg/l",
+      "werte": [
+        2.1,
+        3.4,
+        4.8,
+        6.7,
+        8.6
+      ],
+      "referenzMin": 0,
+      "referenzMax": 5
+    },
+    {
+      "key": "ferritin",
+      "name": "Ferritin Verlauf",
+      "einheit": "µg/l",
+      "werte": [
+        44,
+        39,
+        35,
+        31,
+        28
+      ],
+      "referenzMin": 30,
+      "referenzMax": 400
+    },
+    {
+      "key": "vitamin_d",
+      "name": "Vitamin D Verlauf",
+      "einheit": "ng/ml",
+      "werte": [
+        18,
+        21,
+        19,
+        23,
+        22
+      ],
+      "referenzMin": 30,
+      "referenzMax": 100
+    }
+  ],
+  "MOCK_IMPORTJOBS": [
+    {
+      "id": "import-demo-001",
+      "dateiname": "testdaten-laborbefund-optimiert.pdf",
+      "testperson": "Demo Testperson",
+      "analyseArt": "demo",
+      "status": "review",
+      "fortschritt": 100,
+      "pipelineSchritt": "Review vorbereitet",
+      "ocrStatus": "nicht_erforderlich",
+      "erkannteWerte": 42,
+      "unsichereWerte": 5,
+      "confidence": 91,
+      "erstelltAm": "12.06.2026 · 10:18",
+      "aktualisiertAm": "12.06.2026 · 10:43",
+      "schritte": [
+        {
+          "key": "upload",
+          "name": "Upload geprüft",
+          "beschreibung": "Datei wurde validiert und lokal gespeichert.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "text",
+          "name": "Textschicht gelesen",
+          "beschreibung": "PDF-Textschicht wurde lokal extrahiert.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "ocr",
+          "name": "OCR-Fallback geprüft",
+          "beschreibung": "OCR war für diesen Befund nicht erforderlich.",
+          "status": "uebersprungen",
+          "abgeschlossen": true
+        },
+        {
+          "key": "table",
+          "name": "Tabellen erkannt",
+          "beschreibung": "Tabellenstruktur wurde für die Extraktion vorbereitet.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "values",
+          "name": "Werte extrahiert",
+          "beschreibung": "Laborwerte, Einheiten und Referenzen wurden erkannt.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "confidence",
+          "name": "Confidence berechnet",
+          "beschreibung": "Unsichere Werte wurden für Review markiert.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        }
+      ],
+      "datasets": [
+        {
+          "id": "dataset-blutbild",
+          "name": "Blutbild",
+          "werte": 11,
+          "review": 1,
+          "confidence": 96,
+          "status": "review"
+        },
+        {
+          "id": "dataset-leber",
+          "name": "Leberwerte",
+          "werte": 7,
+          "review": 0,
+          "confidence": 94,
+          "status": "normal"
+        },
+        {
+          "id": "dataset-niere",
+          "name": "Nierenwerte",
+          "werte": 6,
+          "review": 1,
+          "confidence": 88,
+          "status": "review"
+        },
+        {
+          "id": "dataset-fett",
+          "name": "Fettstoffwechsel",
+          "werte": 8,
+          "review": 2,
+          "confidence": 84,
+          "status": "review"
+        },
+        {
+          "id": "dataset-vitamine",
+          "name": "Vitamine",
+          "werte": 5,
+          "review": 1,
+          "confidence": 79,
+          "status": "review"
+        }
+      ],
+      "logEintraege": [
+        {
+          "id": "log-001-1",
+          "zeitpunkt": "10:18",
+          "titel": "Upload validiert",
+          "beschreibung": "PDF wurde lokal angenommen.",
+          "status": "abgeschlossen"
+        },
+        {
+          "id": "log-001-2",
+          "zeitpunkt": "10:23",
+          "titel": "Textschicht extrahiert",
+          "beschreibung": "Optimierte Testdaten konnten ohne OCR gelesen werden.",
+          "status": "abgeschlossen"
+        },
+        {
+          "id": "log-001-3",
+          "zeitpunkt": "10:36",
+          "titel": "42 Werte erkannt",
+          "beschreibung": "5 Werte wurden für den Review markiert.",
+          "status": "review"
+        }
+      ]
+    },
+    {
+      "id": "import-demo-002",
+      "dateiname": "befund-verlauf-demo-q2.pdf",
+      "testperson": "Testperson 12",
+      "analyseArt": "textschicht",
+      "status": "analysiert",
+      "fortschritt": 68,
+      "pipelineSchritt": "Tabellenstruktur erkennen",
+      "ocrStatus": "nicht_erforderlich",
+      "erkannteWerte": 31,
+      "unsichereWerte": 6,
+      "confidence": 84,
+      "erstelltAm": "12.06.2026 · 10:05",
+      "aktualisiertAm": "12.06.2026 · 10:31",
+      "schritte": [
+        {
+          "key": "upload",
+          "name": "Upload geprüft",
+          "beschreibung": "Datei wurde validiert und lokal gespeichert.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "text",
+          "name": "Textschicht gelesen",
+          "beschreibung": "PDF-Textschicht wurde lokal extrahiert.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "ocr",
+          "name": "OCR-Fallback geprüft",
+          "beschreibung": "OCR war für diesen Befund nicht erforderlich.",
+          "status": "uebersprungen",
+          "abgeschlossen": true
+        },
+        {
+          "key": "table",
+          "name": "Tabellen erkennen",
+          "beschreibung": "Tabellenstruktur wird aktuell normalisiert.",
+          "status": "aktiv",
+          "abgeschlossen": false
+        },
+        {
+          "key": "values",
+          "name": "Werte extrahieren",
+          "beschreibung": "Laborwerte werden nach Tabellenanalyse extrahiert.",
+          "status": "wartet",
+          "abgeschlossen": false
+        },
+        {
+          "key": "confidence",
+          "name": "Confidence berechnen",
+          "beschreibung": "Confidence wird nach Wertnormalisierung berechnet.",
+          "status": "wartet",
+          "abgeschlossen": false
+        }
+      ],
+      "datasets": [
+        {
+          "id": "dataset-blutbild-2",
+          "name": "Blutbild",
+          "werte": 9,
+          "review": 2,
+          "confidence": 88,
+          "status": "review"
+        },
+        {
+          "id": "dataset-stoffwechsel-2",
+          "name": "Stoffwechsel",
+          "werte": 6,
+          "review": 1,
+          "confidence": 82,
+          "status": "review"
+        },
+        {
+          "id": "dataset-niere-2",
+          "name": "Nierenwerte",
+          "werte": 5,
+          "review": 0,
+          "confidence": 90,
+          "status": "normal"
+        }
+      ],
+      "logEintraege": [
+        {
+          "id": "log-002-1",
+          "zeitpunkt": "10:05",
+          "titel": "Upload validiert",
+          "beschreibung": "Datei wurde lokal gespeichert.",
+          "status": "abgeschlossen"
+        },
+        {
+          "id": "log-002-2",
+          "zeitpunkt": "10:12",
+          "titel": "Textschicht gelesen",
+          "beschreibung": "PDF enthält eine auswertbare Textschicht.",
+          "status": "abgeschlossen"
+        },
+        {
+          "id": "log-002-3",
+          "zeitpunkt": "10:31",
+          "titel": "Tabellenanalyse aktiv",
+          "beschreibung": "Spalten und Referenzbereiche werden zugeordnet.",
+          "status": "analysiert"
+        }
+      ]
+    },
+    {
+      "id": "import-demo-003",
+      "dateiname": "scan-laborbefund-ocr-demo.pdf",
+      "testperson": "Testperson OCR",
+      "analyseArt": "ocr",
+      "status": "review",
+      "fortschritt": 100,
+      "pipelineSchritt": "OCR-Review erforderlich",
+      "ocrStatus": "abgeschlossen",
+      "erkannteWerte": 26,
+      "unsichereWerte": 9,
+      "confidence": 71,
+      "erstelltAm": "11.06.2026 · 16:40",
+      "aktualisiertAm": "11.06.2026 · 17:08",
+      "schritte": [
+        {
+          "key": "upload",
+          "name": "Upload geprüft",
+          "beschreibung": "Datei wurde validiert und lokal gespeichert.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "text",
+          "name": "Textschicht geprüft",
+          "beschreibung": "Keine brauchbare Textschicht gefunden.",
+          "status": "uebersprungen",
+          "abgeschlossen": true
+        },
+        {
+          "key": "ocr",
+          "name": "Lokale OCR ausgeführt",
+          "beschreibung": "Bildbasierte Seiten wurden lokal erkannt.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "table",
+          "name": "Tabellen erkannt",
+          "beschreibung": "Tabellenstruktur wurde aus OCR-Text abgeleitet.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "values",
+          "name": "Werte extrahiert",
+          "beschreibung": "Mehrere Einheiten müssen geprüft werden.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "confidence",
+          "name": "Confidence berechnet",
+          "beschreibung": "9 Werte wurden wegen niedriger Confidence markiert.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        }
+      ],
+      "datasets": [
+        {
+          "id": "dataset-ocr-blut",
+          "name": "Blutbild",
+          "werte": 8,
+          "review": 3,
+          "confidence": 72,
+          "status": "review"
+        },
+        {
+          "id": "dataset-ocr-leber",
+          "name": "Leberwerte",
+          "werte": 6,
+          "review": 1,
+          "confidence": 78,
+          "status": "review"
+        },
+        {
+          "id": "dataset-ocr-vitamine",
+          "name": "Vitamine",
+          "werte": 4,
+          "review": 3,
+          "confidence": 61,
+          "status": "review"
+        }
+      ],
+      "logEintraege": [
+        {
+          "id": "log-003-1",
+          "zeitpunkt": "16:40",
+          "titel": "Upload validiert",
+          "beschreibung": "Scan-PDF wurde lokal gespeichert.",
+          "status": "abgeschlossen"
+        },
+        {
+          "id": "log-003-2",
+          "zeitpunkt": "16:43",
+          "titel": "OCR gestartet",
+          "beschreibung": "Lokale OCR-Pipeline wurde verwendet.",
+          "status": "analysiert"
+        },
+        {
+          "id": "log-003-3",
+          "zeitpunkt": "17:08",
+          "titel": "Review erforderlich",
+          "beschreibung": "9 Werte liegen unter der Confidence-Schwelle.",
+          "status": "review"
+        }
+      ]
+    },
+    {
+      "id": "import-demo-004",
+      "dateiname": "manuell-erfasster-befund.pdf",
+      "testperson": "Testperson Fallback",
+      "analyseArt": "textschicht",
+      "status": "fehler",
+      "fortschritt": 36,
+      "pipelineSchritt": "Parser blockiert",
+      "ocrStatus": "erforderlich",
+      "erkannteWerte": 0,
+      "unsichereWerte": 0,
+      "confidence": 0,
+      "erstelltAm": "10.06.2026 · 09:30",
+      "aktualisiertAm": "10.06.2026 · 09:42",
+      "fehlermeldung": "Tabellenstruktur konnte nicht zuverlässig erkannt werden.",
+      "schritte": [
+        {
+          "key": "upload",
+          "name": "Upload geprüft",
+          "beschreibung": "Datei wurde validiert und lokal gespeichert.",
+          "status": "erledigt",
+          "abgeschlossen": true
+        },
+        {
+          "key": "text",
+          "name": "Textschicht geprüft",
+          "beschreibung": "Textschicht ist unvollständig.",
+          "status": "fehler",
+          "abgeschlossen": false
+        },
+        {
+          "key": "ocr",
+          "name": "OCR erforderlich",
+          "beschreibung": "Lokale OCR sollte erneut gestartet werden.",
+          "status": "wartet",
+          "abgeschlossen": false
+        },
+        {
+          "key": "table",
+          "name": "Tabellen erkennen",
+          "beschreibung": "Tabellenanalyse wartet auf OCR-Ergebnis.",
+          "status": "wartet",
+          "abgeschlossen": false
+        },
+        {
+          "key": "values",
+          "name": "Werte extrahieren",
+          "beschreibung": "Keine Werte extrahiert.",
+          "status": "wartet",
+          "abgeschlossen": false
+        },
+        {
+          "key": "confidence",
+          "name": "Confidence berechnen",
+          "beschreibung": "Keine Confidence berechnet.",
+          "status": "wartet",
+          "abgeschlossen": false
+        }
+      ],
+      "datasets": [],
+      "logEintraege": [
+        {
+          "id": "log-004-1",
+          "zeitpunkt": "09:30",
+          "titel": "Upload validiert",
+          "beschreibung": "PDF wurde lokal angenommen.",
+          "status": "abgeschlossen"
+        },
+        {
+          "id": "log-004-2",
+          "zeitpunkt": "09:42",
+          "titel": "Parser blockiert",
+          "beschreibung": "Tabellenstruktur konnte nicht erkannt werden.",
+          "status": "fehler"
+        }
+      ]
+    }
+  ],
+  "MOCK_PATIENTENBERICHT": {
+    "id": "report-demo-001",
+    "testperson": "Testperson Demo",
+    "berichtsdatum": "12.06.2026",
+    "zusammenfassung": "Die meisten Werte liegen im Referenzbereich. Einzelne Werte sollten im Arztgespräch eingeordnet werden, insbesondere CRP, Ferritin und Vitamin D.",
+    "abschnitte": [
+      {
+        "key": "auffaellig",
+        "titel": "Auffällige Werte",
+        "text": "CRP liegt oberhalb des Referenzbereichs. Ferritin liegt leicht darunter. Beide Werte sollten zusammen mit Beschwerden und Verlauf betrachtet werden."
+      },
+      {
+        "key": "normal",
+        "titel": "Unauffällige Werte",
+        "text": "Hämoglobin und TSH liegen in dieser Testauswertung im Referenzbereich."
+      },
+      {
+        "key": "review",
+        "titel": "Ärztlich geprüft",
+        "text": "Unsichere Werte werden erst nach Kontrolle und Freigabe in den Patientenbericht übernommen."
+      }
+    ],
+    "fragen": [
+      {
+        "id": "frage-crp",
+        "bereich": "Entzündung",
+        "frage": "Kann der erhöhte CRP-Wert zu aktuellen Beschwerden oder einem Infekt passen?"
+      },
+      {
+        "id": "frage-ferritin",
+        "bereich": "Eisenstoffwechsel",
+        "frage": "Sollten weitere Eisenwerte oder das Blutbild gemeinsam betrachtet werden?"
+      },
+      {
+        "id": "frage-vitd",
+        "bereich": "Vitamine",
+        "frage": "Ist der Vitamin-D-Wert korrekt erkannt und medizinisch relevant?"
+      }
+    ],
+    "disclaimer": "Diese Auswertung dient nur der verständlichen Zusammenfassung freigegebener Testdaten. Sie ersetzt keine Diagnose, Beratung oder Behandlung durch Ärztinnen oder Ärzte."
+  },
+  "MOCK_REVIEW_EINTRAEGE": [
+    {
+      "id": "review-vitd-unit",
+      "laborwertKey": "vitamin_d",
+      "laborwertName": "Vitamin D",
+      "confidence": 62,
+      "feld": "einheit",
+      "originalText": "25-OH Vitamin D 22 ng/ml Ref. 30 - 100",
+      "erkannterWert": "22 ng/ml",
+      "vorschlag": "22 ng/ml",
+      "grund": "Einheit wurde erkannt, aber die Referenzspalte war optisch nah an der Ergebnisspalte."
+    },
+    {
+      "id": "review-ferritin-ref",
+      "laborwertKey": "ferritin",
+      "laborwertName": "Ferritin",
+      "confidence": 74,
+      "feld": "referenzbereich",
+      "originalText": "Ferritin 28 µg/l 30-400",
+      "erkannterWert": "28 µg/l, Ref. 30-400",
+      "vorschlag": "Referenzbereich 30 bis 400 µg/l",
+      "grund": "Referenzbereich ohne Leerzeichen erkannt."
+    },
+    {
+      "id": "review-leuko-value",
+      "laborwertKey": "leukozyten",
+      "laborwertName": "Leukozyten",
+      "confidence": 69,
+      "feld": "wert",
+      "originalText": "Leukozyten 6,8 /nl",
+      "erkannterWert": "68 /nl",
+      "vorschlag": "6,8 /nl",
+      "grund": "Dezimaltrennzeichen wurde unsicher interpretiert."
+    }
+  ],
+  "MOCK_WISSENSEINTRAEGE": [
+    {
+      "id": "wissen-haemoglobin",
+      "laborwertKey": "haemoglobin",
+      "anzeigename": "Hämoglobin",
+      "kategorie": "Blutbild",
+      "patientKurztext": "Hämoglobin ist der rote Blutfarbstoff und hilft dabei, Sauerstoff im Körper zu transportieren.",
+      "patientLangtext": "Hämoglobin wird häufig gemeinsam mit weiteren Blutbildwerten betrachtet. Abweichungen können verschiedene Ursachen haben und sollten nicht isoliert bewertet werden.",
+      "arztinformation": "Mit Erythrozyten, Hämatokrit, MCV, MCH, Ferritin und klinischem Kontext bewerten.",
+      "ursachenNiedrig": "Blutverlust, Eisenmangel, Vitaminmangel oder chronische Erkrankungen können eine Rolle spielen.",
+      "ursachenHoch": "Flüssigkeitsmangel, Höhenaufenthalt oder bestimmte Erkrankungen können höhere Werte beeinflussen.",
+      "einflussfaktoren": "Hydratation, Rauchen, Höhenlage, Schwangerschaft und Trainingsstatus können die Einordnung beeinflussen.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-haemoglobin-demo",
+          "titel": "Interne Demo-Quelle Hämoglobin",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 1,
+      "status": "freigegeben",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 1,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    },
+    {
+      "id": "wissen-leukozyten",
+      "laborwertKey": "leukozyten",
+      "anzeigename": "Leukozyten",
+      "kategorie": "Blutbild",
+      "patientKurztext": "Leukozyten sind weiße Blutkörperchen und gehören zur körpereigenen Abwehr.",
+      "patientLangtext": "Die Zahl der Leukozyten kann sich bei Infekten, Entzündungen, Stress oder durch Medikamente verändern. Entscheidend ist die ärztliche Einordnung mit Differentialblutbild und Beschwerden.",
+      "arztinformation": "Differentialblutbild, CRP, Symptome und Verlauf berücksichtigen.",
+      "ursachenNiedrig": "Bestimmte Virusinfekte, Medikamente oder Knochenmarkseinflüsse können niedrige Werte begünstigen.",
+      "ursachenHoch": "Infektionen, Entzündungen, Stressreaktionen oder Medikamente können erhöhte Werte verursachen.",
+      "einflussfaktoren": "Akute Belastung, Medikamente, Infektphase und Blutentnahmezeitpunkt können Einfluss haben.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-leukozyten-demo",
+          "titel": "Interne Demo-Quelle Leukozyten",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 1,
+      "status": "freigegeben",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 1,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    },
+    {
+      "id": "wissen-thrombozyten",
+      "laborwertKey": "thrombozyten",
+      "anzeigename": "Thrombozyten",
+      "kategorie": "Blutbild",
+      "patientKurztext": "Thrombozyten sind Blutplättchen und wichtig für die Blutgerinnung.",
+      "patientLangtext": "Thrombozyten helfen, Blutungen zu stoppen. Zu niedrige oder hohe Werte können unterschiedliche Ursachen haben und sollten bei Auffälligkeiten ärztlich eingeordnet werden.",
+      "arztinformation": "Blutbildverlauf, Gerinnung, Medikamente und Entzündungsstatus beachten.",
+      "ursachenNiedrig": "Infekte, Medikamente, immunologische Ursachen oder Bildungsstörungen können eine Rolle spielen.",
+      "ursachenHoch": "Entzündungen, Eisenmangel, Zustand nach Blutverlust oder andere Reaktionen können erhöhte Werte beeinflussen.",
+      "einflussfaktoren": "Gerinnungsmedikamente, Entzündungen, kürzliche Infekte und Laborartefakte berücksichtigen.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-thrombozyten-demo",
+          "titel": "Interne Demo-Quelle Thrombozyten",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 1,
+      "status": "pruefung",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 1,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    },
+    {
+      "id": "wissen-crp",
+      "laborwertKey": "crp",
+      "anzeigename": "CRP",
+      "kategorie": "Entzündung",
+      "patientKurztext": "CRP ist ein Entzündungswert und kann bei Infekten oder anderen Entzündungsprozessen ansteigen.",
+      "patientLangtext": "Ein erhöhter CRP-Wert bedeutet nicht automatisch eine bestimmte Erkrankung. Er zeigt zunächst nur, dass im Körper ein Entzündungsprozess möglich ist.",
+      "arztinformation": "CRP im Verlauf, klinische Symptomatik und weitere Entzündungsparameter gemeinsam bewerten.",
+      "ursachenNiedrig": "Niedrige CRP-Werte haben meist keinen eigenständigen Krankheitswert.",
+      "ursachenHoch": "Infektionen, akute oder chronische Entzündungen, Gewebeschäden oder postoperative Zustände können den Wert erhöhen.",
+      "einflussfaktoren": "Zeitpunkt der Blutentnahme, Beschwerden, Medikamente und Verlaufskontrollen beeinflussen die Interpretation.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-crp-demo",
+          "titel": "Interne Demo-Quelle CRP",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 2,
+      "status": "freigegeben",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 2,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    },
+    {
+      "id": "wissen-glukose",
+      "laborwertKey": "glukose",
+      "anzeigename": "Glukose",
+      "kategorie": "Zuckerstoffwechsel",
+      "patientKurztext": "Glukose ist der Blutzuckerwert und zeigt die aktuelle Zuckerkonzentration im Blut.",
+      "patientLangtext": "Der Glukosewert hängt stark davon ab, ob die Blutentnahme nüchtern erfolgte und wann zuletzt gegessen wurde. Einzelwerte sollten im Verlauf und mit weiteren Werten betrachtet werden.",
+      "arztinformation": "Nüchternstatus, HbA1c, Medikation und klinischen Kontext prüfen.",
+      "ursachenNiedrig": "Längeres Fasten, Medikamente oder Stoffwechselreaktionen können niedrige Werte beeinflussen.",
+      "ursachenHoch": "Nahrungsaufnahme, Stress, Infekte oder Störungen des Zuckerstoffwechsels können hohe Werte begünstigen.",
+      "einflussfaktoren": "Nüchternstatus, Uhrzeit, Ernährung, Stress und Medikamente beachten.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-glukose-demo",
+          "titel": "Interne Demo-Quelle Glukose",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 1,
+      "status": "freigegeben",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 1,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    },
+    {
+      "id": "wissen-hba1c",
+      "laborwertKey": "hba1c",
+      "anzeigename": "HbA1c",
+      "kategorie": "Zuckerstoffwechsel",
+      "patientKurztext": "HbA1c beschreibt vereinfacht den durchschnittlichen Blutzucker der letzten Wochen.",
+      "patientLangtext": "HbA1c wird häufig zur langfristigen Einschätzung des Zuckerstoffwechsels genutzt. Der Wert sollte mit aktuellen Glukosewerten und der medizinischen Vorgeschichte eingeordnet werden.",
+      "arztinformation": "Mit Glukosewerten, Anämiehinweisen, Nierenfunktion und Therapieanamnese abgleichen.",
+      "ursachenNiedrig": "Bestimmte Blutbildveränderungen oder verkürzte Erythrozytenlebensdauer können niedrigere Werte beeinflussen.",
+      "ursachenHoch": "Anhaltend erhöhte Blutzuckerwerte können sich in einem höheren HbA1c zeigen.",
+      "einflussfaktoren": "Blutbildveränderungen, Nierenfunktion, Schwangerschaft und Messmethode berücksichtigen.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-hba1c-demo",
+          "titel": "Interne Demo-Quelle HbA1c",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 1,
+      "status": "freigegeben",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 1,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    },
+    {
+      "id": "wissen-kreatinin",
+      "laborwertKey": "kreatinin",
+      "anzeigename": "Kreatinin",
+      "kategorie": "Nierenfunktion",
+      "patientKurztext": "Kreatinin ist ein Laborwert, der häufig zur Einschätzung der Nierenfunktion genutzt wird.",
+      "patientLangtext": "Kreatinin entsteht im Muskelstoffwechsel. Die Einordnung hängt unter anderem von Alter, Muskelmasse, Flüssigkeitshaushalt und weiteren Nierenwerten ab.",
+      "arztinformation": "eGFR, Harnstoff, Elektrolyte, Urinbefund und Verlauf mitbewerten.",
+      "ursachenNiedrig": "Niedrige Werte können bei geringer Muskelmasse vorkommen und sind oft kontextabhängig.",
+      "ursachenHoch": "Nierenfunktionsstörungen, Flüssigkeitsmangel oder hohe Muskelmasse können höhere Werte beeinflussen.",
+      "einflussfaktoren": "Muskelmasse, Ernährung, Hydratation, Medikamente und Sport vor Blutentnahme beachten.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-kreatinin-demo",
+          "titel": "Interne Demo-Quelle Kreatinin",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 1,
+      "status": "freigegeben",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 1,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    },
+    {
+      "id": "wissen-alt",
+      "laborwertKey": "alt_gpt",
+      "anzeigename": "ALT / GPT",
+      "kategorie": "Leberwerte",
+      "patientKurztext": "ALT, auch GPT genannt, ist ein Leberwert und kann bei Belastung von Leberzellen ansteigen.",
+      "patientLangtext": "ALT wird meist gemeinsam mit weiteren Leberwerten bewertet. Ein auffälliger Wert allein erklärt noch nicht die Ursache und sollte ärztlich eingeordnet werden.",
+      "arztinformation": "AST, GGT, AP, Bilirubin, Medikamente, Alkohol- und Stoffwechselanamnese berücksichtigen.",
+      "ursachenNiedrig": "Niedrige Werte haben meist keine eigenständige Bedeutung.",
+      "ursachenHoch": "Leberzellbelastung, Medikamente, Alkohol, Stoffwechsel oder Infekte können erhöhte Werte beeinflussen.",
+      "einflussfaktoren": "Medikamente, Alkohol, Sport, Infekte und Probenqualität beachten.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-alt_gpt-demo",
+          "titel": "Interne Demo-Quelle ALT / GPT",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 1,
+      "status": "pruefung",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 1,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    },
+    {
+      "id": "wissen-tsh",
+      "laborwertKey": "tsh",
+      "anzeigename": "TSH",
+      "kategorie": "Schilddrüse",
+      "patientKurztext": "TSH ist ein Steuerhormon und wird häufig zur Einschätzung der Schilddrüsenfunktion genutzt.",
+      "patientLangtext": "TSH zeigt, wie stark die Schilddrüse durch die Hirnanhangsdrüse angeregt wird. Die Bewertung erfolgt meist zusammen mit weiteren Schilddrüsenwerten und Beschwerden.",
+      "arztinformation": "Freies T4, freies T3, Medikation, Schwangerschaft und Symptome mitbewerten.",
+      "ursachenNiedrig": "Eine Überfunktion oder Schilddrüsenmedikation kann mit niedrigen TSH-Werten einhergehen.",
+      "ursachenHoch": "Eine Unterfunktion oder unzureichende Hormonwirkung kann mit höheren TSH-Werten verbunden sein.",
+      "einflussfaktoren": "Tageszeit, Medikamente, Schwangerschaft, Biotin und Kontrollen im Verlauf beachten.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-tsh-demo",
+          "titel": "Interne Demo-Quelle TSH",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 1,
+      "status": "freigegeben",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 1,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    },
+    {
+      "id": "wissen-ldl",
+      "laborwertKey": "ldl_cholesterin",
+      "anzeigename": "LDL-Cholesterin",
+      "kategorie": "Fettstoffwechsel",
+      "patientKurztext": "LDL-Cholesterin wird häufig im Zusammenhang mit dem Herz-Kreislauf-Risiko betrachtet.",
+      "patientLangtext": "Ein erhöhter LDL-Wert ist keine Diagnose. Er kann aber ein wichtiger Baustein bei der ärztlichen Einschätzung des persönlichen Risikoprofils sein.",
+      "arztinformation": "LDL-Zielwerte abhängig von Risikoprofil, Vorerkrankungen und Gesamtprofil bewerten.",
+      "ursachenNiedrig": "Niedrige Werte können unter anderem durch Ernährung, Medikamente oder individuelle Stoffwechsellage bedingt sein.",
+      "ursachenHoch": "Ernährung, genetische Faktoren, Stoffwechselstörungen oder Begleiterkrankungen können höhere Werte beeinflussen.",
+      "einflussfaktoren": "Nüchternstatus, Medikamente, Ernährung, Gewichtsentwicklung und Begleiterkrankungen berücksichtigen.",
+      "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+      "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+      "quellen": [
+        {
+          "id": "quelle-ldl_cholesterin-demo",
+          "titel": "Interne Demo-Quelle LDL-Cholesterin",
+          "typ": "demo",
+          "stand": "2026-06",
+          "referenz": "Kontrollierter lokaler Demo-Seed",
+          "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+        }
+      ],
+      "version": 2,
+      "status": "freigegeben",
+      "geaendertAm": "12.06.2026",
+      "geaendertVon": "Admin",
+      "versionen": [
+        {
+          "version": 2,
+          "datum": "12.06.2026",
+          "bearbeitetVon": "Admin",
+          "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+        }
+      ]
+    }
+  ],
+  "MOCK_DASHBOARD_VIEW": {
+    "kennzahlen": {
+      "befunde": 2,
+      "laborwerte": 37,
+      "review": 4,
+      "berichte": 1,
+      "confidence": 94
+    },
+    "importjobs": [
+      {
+        "id": "import-demo-001",
+        "dateiname": "testdaten-laborbefund-optimiert.pdf",
+        "testperson": "Demo Testperson",
+        "analyseArt": "demo",
+        "status": "review",
+        "fortschritt": 100,
+        "pipelineSchritt": "Review vorbereitet",
+        "ocrStatus": "nicht_erforderlich",
+        "erkannteWerte": 42,
+        "unsichereWerte": 5,
+        "confidence": 91,
+        "erstelltAm": "12.06.2026 · 10:18",
+        "aktualisiertAm": "12.06.2026 · 10:43",
+        "schritte": [
+          {
+            "key": "upload",
+            "name": "Upload geprüft",
+            "beschreibung": "Datei wurde validiert und lokal gespeichert.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "text",
+            "name": "Textschicht gelesen",
+            "beschreibung": "PDF-Textschicht wurde lokal extrahiert.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "ocr",
+            "name": "OCR-Fallback geprüft",
+            "beschreibung": "OCR war für diesen Befund nicht erforderlich.",
+            "status": "uebersprungen",
+            "abgeschlossen": true
+          },
+          {
+            "key": "table",
+            "name": "Tabellen erkannt",
+            "beschreibung": "Tabellenstruktur wurde für die Extraktion vorbereitet.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "values",
+            "name": "Werte extrahiert",
+            "beschreibung": "Laborwerte, Einheiten und Referenzen wurden erkannt.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "confidence",
+            "name": "Confidence berechnet",
+            "beschreibung": "Unsichere Werte wurden für Review markiert.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          }
+        ],
+        "datasets": [
+          {
+            "id": "dataset-blutbild",
+            "name": "Blutbild",
+            "werte": 11,
+            "review": 1,
+            "confidence": 96,
+            "status": "review"
+          },
+          {
+            "id": "dataset-leber",
+            "name": "Leberwerte",
+            "werte": 7,
+            "review": 0,
+            "confidence": 94,
+            "status": "normal"
+          },
+          {
+            "id": "dataset-niere",
+            "name": "Nierenwerte",
+            "werte": 6,
+            "review": 1,
+            "confidence": 88,
+            "status": "review"
+          },
+          {
+            "id": "dataset-fett",
+            "name": "Fettstoffwechsel",
+            "werte": 8,
+            "review": 2,
+            "confidence": 84,
+            "status": "review"
+          },
+          {
+            "id": "dataset-vitamine",
+            "name": "Vitamine",
+            "werte": 5,
+            "review": 1,
+            "confidence": 79,
+            "status": "review"
+          }
+        ],
+        "logEintraege": [
+          {
+            "id": "log-001-1",
+            "zeitpunkt": "10:18",
+            "titel": "Upload validiert",
+            "beschreibung": "PDF wurde lokal angenommen.",
+            "status": "abgeschlossen"
+          },
+          {
+            "id": "log-001-2",
+            "zeitpunkt": "10:23",
+            "titel": "Textschicht extrahiert",
+            "beschreibung": "Optimierte Testdaten konnten ohne OCR gelesen werden.",
+            "status": "abgeschlossen"
+          },
+          {
+            "id": "log-001-3",
+            "zeitpunkt": "10:36",
+            "titel": "42 Werte erkannt",
+            "beschreibung": "5 Werte wurden für den Review markiert.",
+            "status": "review"
+          }
+        ]
+      },
+      {
+        "id": "import-demo-002",
+        "dateiname": "befund-verlauf-demo-q2.pdf",
+        "testperson": "Testperson 12",
+        "analyseArt": "textschicht",
+        "status": "analysiert",
+        "fortschritt": 68,
+        "pipelineSchritt": "Tabellenstruktur erkennen",
+        "ocrStatus": "nicht_erforderlich",
+        "erkannteWerte": 31,
+        "unsichereWerte": 6,
+        "confidence": 84,
+        "erstelltAm": "12.06.2026 · 10:05",
+        "aktualisiertAm": "12.06.2026 · 10:31",
+        "schritte": [
+          {
+            "key": "upload",
+            "name": "Upload geprüft",
+            "beschreibung": "Datei wurde validiert und lokal gespeichert.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "text",
+            "name": "Textschicht gelesen",
+            "beschreibung": "PDF-Textschicht wurde lokal extrahiert.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "ocr",
+            "name": "OCR-Fallback geprüft",
+            "beschreibung": "OCR war für diesen Befund nicht erforderlich.",
+            "status": "uebersprungen",
+            "abgeschlossen": true
+          },
+          {
+            "key": "table",
+            "name": "Tabellen erkennen",
+            "beschreibung": "Tabellenstruktur wird aktuell normalisiert.",
+            "status": "aktiv",
+            "abgeschlossen": false
+          },
+          {
+            "key": "values",
+            "name": "Werte extrahieren",
+            "beschreibung": "Laborwerte werden nach Tabellenanalyse extrahiert.",
+            "status": "wartet",
+            "abgeschlossen": false
+          },
+          {
+            "key": "confidence",
+            "name": "Confidence berechnen",
+            "beschreibung": "Confidence wird nach Wertnormalisierung berechnet.",
+            "status": "wartet",
+            "abgeschlossen": false
+          }
+        ],
+        "datasets": [
+          {
+            "id": "dataset-blutbild-2",
+            "name": "Blutbild",
+            "werte": 9,
+            "review": 2,
+            "confidence": 88,
+            "status": "review"
+          },
+          {
+            "id": "dataset-stoffwechsel-2",
+            "name": "Stoffwechsel",
+            "werte": 6,
+            "review": 1,
+            "confidence": 82,
+            "status": "review"
+          },
+          {
+            "id": "dataset-niere-2",
+            "name": "Nierenwerte",
+            "werte": 5,
+            "review": 0,
+            "confidence": 90,
+            "status": "normal"
+          }
+        ],
+        "logEintraege": [
+          {
+            "id": "log-002-1",
+            "zeitpunkt": "10:05",
+            "titel": "Upload validiert",
+            "beschreibung": "Datei wurde lokal gespeichert.",
+            "status": "abgeschlossen"
+          },
+          {
+            "id": "log-002-2",
+            "zeitpunkt": "10:12",
+            "titel": "Textschicht gelesen",
+            "beschreibung": "PDF enthält eine auswertbare Textschicht.",
+            "status": "abgeschlossen"
+          },
+          {
+            "id": "log-002-3",
+            "zeitpunkt": "10:31",
+            "titel": "Tabellenanalyse aktiv",
+            "beschreibung": "Spalten und Referenzbereiche werden zugeordnet.",
+            "status": "analysiert"
+          }
+        ]
+      },
+      {
+        "id": "import-demo-003",
+        "dateiname": "scan-laborbefund-ocr-demo.pdf",
+        "testperson": "Testperson OCR",
+        "analyseArt": "ocr",
+        "status": "review",
+        "fortschritt": 100,
+        "pipelineSchritt": "OCR-Review erforderlich",
+        "ocrStatus": "abgeschlossen",
+        "erkannteWerte": 26,
+        "unsichereWerte": 9,
+        "confidence": 71,
+        "erstelltAm": "11.06.2026 · 16:40",
+        "aktualisiertAm": "11.06.2026 · 17:08",
+        "schritte": [
+          {
+            "key": "upload",
+            "name": "Upload geprüft",
+            "beschreibung": "Datei wurde validiert und lokal gespeichert.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "text",
+            "name": "Textschicht geprüft",
+            "beschreibung": "Keine brauchbare Textschicht gefunden.",
+            "status": "uebersprungen",
+            "abgeschlossen": true
+          },
+          {
+            "key": "ocr",
+            "name": "Lokale OCR ausgeführt",
+            "beschreibung": "Bildbasierte Seiten wurden lokal erkannt.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "table",
+            "name": "Tabellen erkannt",
+            "beschreibung": "Tabellenstruktur wurde aus OCR-Text abgeleitet.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "values",
+            "name": "Werte extrahiert",
+            "beschreibung": "Mehrere Einheiten müssen geprüft werden.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "confidence",
+            "name": "Confidence berechnet",
+            "beschreibung": "9 Werte wurden wegen niedriger Confidence markiert.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          }
+        ],
+        "datasets": [
+          {
+            "id": "dataset-ocr-blut",
+            "name": "Blutbild",
+            "werte": 8,
+            "review": 3,
+            "confidence": 72,
+            "status": "review"
+          },
+          {
+            "id": "dataset-ocr-leber",
+            "name": "Leberwerte",
+            "werte": 6,
+            "review": 1,
+            "confidence": 78,
+            "status": "review"
+          },
+          {
+            "id": "dataset-ocr-vitamine",
+            "name": "Vitamine",
+            "werte": 4,
+            "review": 3,
+            "confidence": 61,
+            "status": "review"
+          }
+        ],
+        "logEintraege": [
+          {
+            "id": "log-003-1",
+            "zeitpunkt": "16:40",
+            "titel": "Upload validiert",
+            "beschreibung": "Scan-PDF wurde lokal gespeichert.",
+            "status": "abgeschlossen"
+          },
+          {
+            "id": "log-003-2",
+            "zeitpunkt": "16:43",
+            "titel": "OCR gestartet",
+            "beschreibung": "Lokale OCR-Pipeline wurde verwendet.",
+            "status": "analysiert"
+          },
+          {
+            "id": "log-003-3",
+            "zeitpunkt": "17:08",
+            "titel": "Review erforderlich",
+            "beschreibung": "9 Werte liegen unter der Confidence-Schwelle.",
+            "status": "review"
+          }
+        ]
+      },
+      {
+        "id": "import-demo-004",
+        "dateiname": "manuell-erfasster-befund.pdf",
+        "testperson": "Testperson Fallback",
+        "analyseArt": "textschicht",
+        "status": "fehler",
+        "fortschritt": 36,
+        "pipelineSchritt": "Parser blockiert",
+        "ocrStatus": "erforderlich",
+        "erkannteWerte": 0,
+        "unsichereWerte": 0,
+        "confidence": 0,
+        "erstelltAm": "10.06.2026 · 09:30",
+        "aktualisiertAm": "10.06.2026 · 09:42",
+        "fehlermeldung": "Tabellenstruktur konnte nicht zuverlässig erkannt werden.",
+        "schritte": [
+          {
+            "key": "upload",
+            "name": "Upload geprüft",
+            "beschreibung": "Datei wurde validiert und lokal gespeichert.",
+            "status": "erledigt",
+            "abgeschlossen": true
+          },
+          {
+            "key": "text",
+            "name": "Textschicht geprüft",
+            "beschreibung": "Textschicht ist unvollständig.",
+            "status": "fehler",
+            "abgeschlossen": false
+          },
+          {
+            "key": "ocr",
+            "name": "OCR erforderlich",
+            "beschreibung": "Lokale OCR sollte erneut gestartet werden.",
+            "status": "wartet",
+            "abgeschlossen": false
+          },
+          {
+            "key": "table",
+            "name": "Tabellen erkennen",
+            "beschreibung": "Tabellenanalyse wartet auf OCR-Ergebnis.",
+            "status": "wartet",
+            "abgeschlossen": false
+          },
+          {
+            "key": "values",
+            "name": "Werte extrahieren",
+            "beschreibung": "Keine Werte extrahiert.",
+            "status": "wartet",
+            "abgeschlossen": false
+          },
+          {
+            "key": "confidence",
+            "name": "Confidence berechnen",
+            "beschreibung": "Keine Confidence berechnet.",
+            "status": "wartet",
+            "abgeschlossen": false
+          }
+        ],
+        "datasets": [],
+        "logEintraege": [
+          {
+            "id": "log-004-1",
+            "zeitpunkt": "09:30",
+            "titel": "Upload validiert",
+            "beschreibung": "PDF wurde lokal angenommen.",
+            "status": "abgeschlossen"
+          },
+          {
+            "id": "log-004-2",
+            "zeitpunkt": "09:42",
+            "titel": "Parser blockiert",
+            "beschreibung": "Tabellenstruktur konnte nicht erkannt werden.",
+            "status": "fehler"
+          }
+        ]
+      }
+    ],
+    "laborwerte": [
+      {
+        "id": "lab-hb-001",
+        "key": "haemoglobin",
+        "name": "Hämoglobin",
+        "gruppe": "Blutbild",
+        "wert": 14.2,
+        "einheit": "g/dl",
+        "referenzMin": 13.5,
+        "referenzMax": 17.5,
+        "status": "normal",
+        "prioritaet": "niedrig",
+        "confidence": 98,
+        "trend": [
+          13.9,
+          14,
+          14.4,
+          14.2,
+          14.2
+        ],
+        "hinweis": "Im Referenzbereich und stabil im Verlauf."
+      },
+      {
+        "id": "lab-crp-001",
+        "key": "crp",
+        "name": "CRP",
+        "gruppe": "Entzündung",
+        "wert": 8.6,
+        "einheit": "mg/l",
+        "referenzMin": 0,
+        "referenzMax": 5,
+        "status": "hoch",
+        "prioritaet": "hoch",
+        "confidence": 91,
+        "trend": [
+          2.1,
+          3.4,
+          4.8,
+          6.7,
+          8.6
+        ],
+        "hinweis": "Oberhalb des Referenzbereichs und im Verlauf ansteigend."
+      },
+      {
+        "id": "lab-ferritin-001",
+        "key": "ferritin",
+        "name": "Ferritin",
+        "gruppe": "Eisenstoffwechsel",
+        "wert": 28,
+        "einheit": "µg/l",
+        "referenzMin": 30,
+        "referenzMax": 400,
+        "status": "niedrig",
+        "prioritaet": "mittel",
+        "confidence": 87,
+        "trend": [
+          44,
+          39,
+          35,
+          31,
+          28
+        ],
+        "hinweis": "Leicht unterhalb des Referenzbereichs."
+      },
+      {
+        "id": "lab-vitd-001",
+        "key": "vitamin_d",
+        "name": "Vitamin D",
+        "gruppe": "Vitamine",
+        "wert": 22,
+        "einheit": "ng/ml",
+        "referenzMin": 30,
+        "referenzMax": 100,
+        "status": "review",
+        "prioritaet": "mittel",
+        "confidence": 62,
+        "trend": [
+          18,
+          21,
+          19,
+          23,
+          22
+        ],
+        "hinweis": "Wert erkannt, Einheit und Referenzbereich müssen geprüft werden."
+      },
+      {
+        "id": "lab-tsh-001",
+        "key": "tsh",
+        "name": "TSH",
+        "gruppe": "Schilddrüse",
+        "wert": 2.1,
+        "einheit": "mIU/l",
+        "referenzMin": 0.4,
+        "referenzMax": 4,
+        "status": "normal",
+        "prioritaet": "niedrig",
+        "confidence": 96,
+        "trend": [
+          1.9,
+          2.2,
+          2,
+          2.1,
+          2.1
+        ],
+        "hinweis": "Unauffällig im Referenzbereich."
+      }
+    ],
+    "gruppen": [
+      {
+        "key": "blutbild",
+        "name": "Blutbild",
+        "normal": 12,
+        "auffaellig": 0,
+        "review": 1
+      },
+      {
+        "key": "entzuendung",
+        "name": "Entzündung",
+        "normal": 2,
+        "auffaellig": 1,
+        "review": 0
+      },
+      {
+        "key": "stoffwechsel",
+        "name": "Stoffwechsel",
+        "normal": 8,
+        "auffaellig": 2,
+        "review": 2
+      },
+      {
+        "key": "schilddruese",
+        "name": "Schilddrüse",
+        "normal": 4,
+        "auffaellig": 0,
+        "review": 0
+      }
+    ],
+    "trends": [
+      {
+        "key": "crp",
+        "name": "CRP Verlauf",
+        "einheit": "mg/l",
+        "werte": [
+          2.1,
+          3.4,
+          4.8,
+          6.7,
+          8.6
+        ],
+        "referenzMin": 0,
+        "referenzMax": 5
+      },
+      {
+        "key": "ferritin",
+        "name": "Ferritin Verlauf",
+        "einheit": "µg/l",
+        "werte": [
+          44,
+          39,
+          35,
+          31,
+          28
+        ],
+        "referenzMin": 30,
+        "referenzMax": 400
+      },
+      {
+        "key": "vitamin_d",
+        "name": "Vitamin D Verlauf",
+        "einheit": "ng/ml",
+        "werte": [
+          18,
+          21,
+          19,
+          23,
+          22
+        ],
+        "referenzMin": 30,
+        "referenzMax": 100
+      }
+    ],
+    "reviewEintraege": [
+      {
+        "id": "review-vitd-unit",
+        "laborwertKey": "vitamin_d",
+        "laborwertName": "Vitamin D",
+        "confidence": 62,
+        "feld": "einheit",
+        "originalText": "25-OH Vitamin D 22 ng/ml Ref. 30 - 100",
+        "erkannterWert": "22 ng/ml",
+        "vorschlag": "22 ng/ml",
+        "grund": "Einheit wurde erkannt, aber die Referenzspalte war optisch nah an der Ergebnisspalte."
+      },
+      {
+        "id": "review-ferritin-ref",
+        "laborwertKey": "ferritin",
+        "laborwertName": "Ferritin",
+        "confidence": 74,
+        "feld": "referenzbereich",
+        "originalText": "Ferritin 28 µg/l 30-400",
+        "erkannterWert": "28 µg/l, Ref. 30-400",
+        "vorschlag": "Referenzbereich 30 bis 400 µg/l",
+        "grund": "Referenzbereich ohne Leerzeichen erkannt."
+      },
+      {
+        "id": "review-leuko-value",
+        "laborwertKey": "leukozyten",
+        "laborwertName": "Leukozyten",
+        "confidence": 69,
+        "feld": "wert",
+        "originalText": "Leukozyten 6,8 /nl",
+        "erkannterWert": "68 /nl",
+        "vorschlag": "6,8 /nl",
+        "grund": "Dezimaltrennzeichen wurde unsicher interpretiert."
+      }
+    ],
+    "wissenseintraege": [
+      {
+        "id": "wissen-haemoglobin",
+        "laborwertKey": "haemoglobin",
+        "anzeigename": "Hämoglobin",
+        "kategorie": "Blutbild",
+        "patientKurztext": "Hämoglobin ist der rote Blutfarbstoff und hilft dabei, Sauerstoff im Körper zu transportieren.",
+        "patientLangtext": "Hämoglobin wird häufig gemeinsam mit weiteren Blutbildwerten betrachtet. Abweichungen können verschiedene Ursachen haben und sollten nicht isoliert bewertet werden.",
+        "arztinformation": "Mit Erythrozyten, Hämatokrit, MCV, MCH, Ferritin und klinischem Kontext bewerten.",
+        "ursachenNiedrig": "Blutverlust, Eisenmangel, Vitaminmangel oder chronische Erkrankungen können eine Rolle spielen.",
+        "ursachenHoch": "Flüssigkeitsmangel, Höhenaufenthalt oder bestimmte Erkrankungen können höhere Werte beeinflussen.",
+        "einflussfaktoren": "Hydratation, Rauchen, Höhenlage, Schwangerschaft und Trainingsstatus können die Einordnung beeinflussen.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-haemoglobin-demo",
+            "titel": "Interne Demo-Quelle Hämoglobin",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 1,
+        "status": "freigegeben",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 1,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      },
+      {
+        "id": "wissen-leukozyten",
+        "laborwertKey": "leukozyten",
+        "anzeigename": "Leukozyten",
+        "kategorie": "Blutbild",
+        "patientKurztext": "Leukozyten sind weiße Blutkörperchen und gehören zur körpereigenen Abwehr.",
+        "patientLangtext": "Die Zahl der Leukozyten kann sich bei Infekten, Entzündungen, Stress oder durch Medikamente verändern. Entscheidend ist die ärztliche Einordnung mit Differentialblutbild und Beschwerden.",
+        "arztinformation": "Differentialblutbild, CRP, Symptome und Verlauf berücksichtigen.",
+        "ursachenNiedrig": "Bestimmte Virusinfekte, Medikamente oder Knochenmarkseinflüsse können niedrige Werte begünstigen.",
+        "ursachenHoch": "Infektionen, Entzündungen, Stressreaktionen oder Medikamente können erhöhte Werte verursachen.",
+        "einflussfaktoren": "Akute Belastung, Medikamente, Infektphase und Blutentnahmezeitpunkt können Einfluss haben.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-leukozyten-demo",
+            "titel": "Interne Demo-Quelle Leukozyten",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 1,
+        "status": "freigegeben",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 1,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      },
+      {
+        "id": "wissen-thrombozyten",
+        "laborwertKey": "thrombozyten",
+        "anzeigename": "Thrombozyten",
+        "kategorie": "Blutbild",
+        "patientKurztext": "Thrombozyten sind Blutplättchen und wichtig für die Blutgerinnung.",
+        "patientLangtext": "Thrombozyten helfen, Blutungen zu stoppen. Zu niedrige oder hohe Werte können unterschiedliche Ursachen haben und sollten bei Auffälligkeiten ärztlich eingeordnet werden.",
+        "arztinformation": "Blutbildverlauf, Gerinnung, Medikamente und Entzündungsstatus beachten.",
+        "ursachenNiedrig": "Infekte, Medikamente, immunologische Ursachen oder Bildungsstörungen können eine Rolle spielen.",
+        "ursachenHoch": "Entzündungen, Eisenmangel, Zustand nach Blutverlust oder andere Reaktionen können erhöhte Werte beeinflussen.",
+        "einflussfaktoren": "Gerinnungsmedikamente, Entzündungen, kürzliche Infekte und Laborartefakte berücksichtigen.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-thrombozyten-demo",
+            "titel": "Interne Demo-Quelle Thrombozyten",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 1,
+        "status": "pruefung",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 1,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      },
+      {
+        "id": "wissen-crp",
+        "laborwertKey": "crp",
+        "anzeigename": "CRP",
+        "kategorie": "Entzündung",
+        "patientKurztext": "CRP ist ein Entzündungswert und kann bei Infekten oder anderen Entzündungsprozessen ansteigen.",
+        "patientLangtext": "Ein erhöhter CRP-Wert bedeutet nicht automatisch eine bestimmte Erkrankung. Er zeigt zunächst nur, dass im Körper ein Entzündungsprozess möglich ist.",
+        "arztinformation": "CRP im Verlauf, klinische Symptomatik und weitere Entzündungsparameter gemeinsam bewerten.",
+        "ursachenNiedrig": "Niedrige CRP-Werte haben meist keinen eigenständigen Krankheitswert.",
+        "ursachenHoch": "Infektionen, akute oder chronische Entzündungen, Gewebeschäden oder postoperative Zustände können den Wert erhöhen.",
+        "einflussfaktoren": "Zeitpunkt der Blutentnahme, Beschwerden, Medikamente und Verlaufskontrollen beeinflussen die Interpretation.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-crp-demo",
+            "titel": "Interne Demo-Quelle CRP",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 2,
+        "status": "freigegeben",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 2,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      },
+      {
+        "id": "wissen-glukose",
+        "laborwertKey": "glukose",
+        "anzeigename": "Glukose",
+        "kategorie": "Zuckerstoffwechsel",
+        "patientKurztext": "Glukose ist der Blutzuckerwert und zeigt die aktuelle Zuckerkonzentration im Blut.",
+        "patientLangtext": "Der Glukosewert hängt stark davon ab, ob die Blutentnahme nüchtern erfolgte und wann zuletzt gegessen wurde. Einzelwerte sollten im Verlauf und mit weiteren Werten betrachtet werden.",
+        "arztinformation": "Nüchternstatus, HbA1c, Medikation und klinischen Kontext prüfen.",
+        "ursachenNiedrig": "Längeres Fasten, Medikamente oder Stoffwechselreaktionen können niedrige Werte beeinflussen.",
+        "ursachenHoch": "Nahrungsaufnahme, Stress, Infekte oder Störungen des Zuckerstoffwechsels können hohe Werte begünstigen.",
+        "einflussfaktoren": "Nüchternstatus, Uhrzeit, Ernährung, Stress und Medikamente beachten.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-glukose-demo",
+            "titel": "Interne Demo-Quelle Glukose",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 1,
+        "status": "freigegeben",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 1,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      },
+      {
+        "id": "wissen-hba1c",
+        "laborwertKey": "hba1c",
+        "anzeigename": "HbA1c",
+        "kategorie": "Zuckerstoffwechsel",
+        "patientKurztext": "HbA1c beschreibt vereinfacht den durchschnittlichen Blutzucker der letzten Wochen.",
+        "patientLangtext": "HbA1c wird häufig zur langfristigen Einschätzung des Zuckerstoffwechsels genutzt. Der Wert sollte mit aktuellen Glukosewerten und der medizinischen Vorgeschichte eingeordnet werden.",
+        "arztinformation": "Mit Glukosewerten, Anämiehinweisen, Nierenfunktion und Therapieanamnese abgleichen.",
+        "ursachenNiedrig": "Bestimmte Blutbildveränderungen oder verkürzte Erythrozytenlebensdauer können niedrigere Werte beeinflussen.",
+        "ursachenHoch": "Anhaltend erhöhte Blutzuckerwerte können sich in einem höheren HbA1c zeigen.",
+        "einflussfaktoren": "Blutbildveränderungen, Nierenfunktion, Schwangerschaft und Messmethode berücksichtigen.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-hba1c-demo",
+            "titel": "Interne Demo-Quelle HbA1c",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 1,
+        "status": "freigegeben",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 1,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      },
+      {
+        "id": "wissen-kreatinin",
+        "laborwertKey": "kreatinin",
+        "anzeigename": "Kreatinin",
+        "kategorie": "Nierenfunktion",
+        "patientKurztext": "Kreatinin ist ein Laborwert, der häufig zur Einschätzung der Nierenfunktion genutzt wird.",
+        "patientLangtext": "Kreatinin entsteht im Muskelstoffwechsel. Die Einordnung hängt unter anderem von Alter, Muskelmasse, Flüssigkeitshaushalt und weiteren Nierenwerten ab.",
+        "arztinformation": "eGFR, Harnstoff, Elektrolyte, Urinbefund und Verlauf mitbewerten.",
+        "ursachenNiedrig": "Niedrige Werte können bei geringer Muskelmasse vorkommen und sind oft kontextabhängig.",
+        "ursachenHoch": "Nierenfunktionsstörungen, Flüssigkeitsmangel oder hohe Muskelmasse können höhere Werte beeinflussen.",
+        "einflussfaktoren": "Muskelmasse, Ernährung, Hydratation, Medikamente und Sport vor Blutentnahme beachten.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-kreatinin-demo",
+            "titel": "Interne Demo-Quelle Kreatinin",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 1,
+        "status": "freigegeben",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 1,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      },
+      {
+        "id": "wissen-alt",
+        "laborwertKey": "alt_gpt",
+        "anzeigename": "ALT / GPT",
+        "kategorie": "Leberwerte",
+        "patientKurztext": "ALT, auch GPT genannt, ist ein Leberwert und kann bei Belastung von Leberzellen ansteigen.",
+        "patientLangtext": "ALT wird meist gemeinsam mit weiteren Leberwerten bewertet. Ein auffälliger Wert allein erklärt noch nicht die Ursache und sollte ärztlich eingeordnet werden.",
+        "arztinformation": "AST, GGT, AP, Bilirubin, Medikamente, Alkohol- und Stoffwechselanamnese berücksichtigen.",
+        "ursachenNiedrig": "Niedrige Werte haben meist keine eigenständige Bedeutung.",
+        "ursachenHoch": "Leberzellbelastung, Medikamente, Alkohol, Stoffwechsel oder Infekte können erhöhte Werte beeinflussen.",
+        "einflussfaktoren": "Medikamente, Alkohol, Sport, Infekte und Probenqualität beachten.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-alt_gpt-demo",
+            "titel": "Interne Demo-Quelle ALT / GPT",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 1,
+        "status": "pruefung",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 1,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      },
+      {
+        "id": "wissen-tsh",
+        "laborwertKey": "tsh",
+        "anzeigename": "TSH",
+        "kategorie": "Schilddrüse",
+        "patientKurztext": "TSH ist ein Steuerhormon und wird häufig zur Einschätzung der Schilddrüsenfunktion genutzt.",
+        "patientLangtext": "TSH zeigt, wie stark die Schilddrüse durch die Hirnanhangsdrüse angeregt wird. Die Bewertung erfolgt meist zusammen mit weiteren Schilddrüsenwerten und Beschwerden.",
+        "arztinformation": "Freies T4, freies T3, Medikation, Schwangerschaft und Symptome mitbewerten.",
+        "ursachenNiedrig": "Eine Überfunktion oder Schilddrüsenmedikation kann mit niedrigen TSH-Werten einhergehen.",
+        "ursachenHoch": "Eine Unterfunktion oder unzureichende Hormonwirkung kann mit höheren TSH-Werten verbunden sein.",
+        "einflussfaktoren": "Tageszeit, Medikamente, Schwangerschaft, Biotin und Kontrollen im Verlauf beachten.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-tsh-demo",
+            "titel": "Interne Demo-Quelle TSH",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 1,
+        "status": "freigegeben",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 1,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      },
+      {
+        "id": "wissen-ldl",
+        "laborwertKey": "ldl_cholesterin",
+        "anzeigename": "LDL-Cholesterin",
+        "kategorie": "Fettstoffwechsel",
+        "patientKurztext": "LDL-Cholesterin wird häufig im Zusammenhang mit dem Herz-Kreislauf-Risiko betrachtet.",
+        "patientLangtext": "Ein erhöhter LDL-Wert ist keine Diagnose. Er kann aber ein wichtiger Baustein bei der ärztlichen Einschätzung des persönlichen Risikoprofils sein.",
+        "arztinformation": "LDL-Zielwerte abhängig von Risikoprofil, Vorerkrankungen und Gesamtprofil bewerten.",
+        "ursachenNiedrig": "Niedrige Werte können unter anderem durch Ernährung, Medikamente oder individuelle Stoffwechsellage bedingt sein.",
+        "ursachenHoch": "Ernährung, genetische Faktoren, Stoffwechselstörungen oder Begleiterkrankungen können höhere Werte beeinflussen.",
+        "einflussfaktoren": "Nüchternstatus, Medikamente, Ernährung, Gewichtsentwicklung und Begleiterkrankungen berücksichtigen.",
+        "hinweise": "Auffällige Werte sollten im ärztlichen Gespräch immer zusammen mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+        "disclaimer": "Diese Erklärung ersetzt keine ärztliche Diagnose oder Behandlung.",
+        "quellen": [
+          {
+            "id": "quelle-ldl_cholesterin-demo",
+            "titel": "Interne Demo-Quelle LDL-Cholesterin",
+            "typ": "demo",
+            "stand": "2026-06",
+            "referenz": "Kontrollierter lokaler Demo-Seed",
+            "hinweis": "Platzhalter für später geprüfte Quellenpflege."
+          }
+        ],
+        "version": 2,
+        "status": "freigegeben",
+        "geaendertAm": "12.06.2026",
+        "geaendertVon": "Admin",
+        "versionen": [
+          {
+            "version": 2,
+            "datum": "12.06.2026",
+            "bearbeitetVon": "Admin",
+            "notiz": "Kontrollierter Demo-Seed für die Wissensbasis."
+          }
+        ]
+      }
+    ],
+    "patientenbericht": {
+      "id": "report-demo-001",
+      "testperson": "Testperson Demo",
+      "berichtsdatum": "12.06.2026",
+      "zusammenfassung": "Die meisten Werte liegen im Referenzbereich. Einzelne Werte sollten im Arztgespräch eingeordnet werden, insbesondere CRP, Ferritin und Vitamin D.",
+      "abschnitte": [
+        {
+          "key": "auffaellig",
+          "titel": "Auffällige Werte",
+          "text": "CRP liegt oberhalb des Referenzbereichs. Ferritin liegt leicht darunter. Beide Werte sollten zusammen mit Beschwerden und Verlauf betrachtet werden."
+        },
+        {
+          "key": "normal",
+          "titel": "Unauffällige Werte",
+          "text": "Hämoglobin und TSH liegen in dieser Testauswertung im Referenzbereich."
+        },
+        {
+          "key": "review",
+          "titel": "Ärztlich geprüft",
+          "text": "Unsichere Werte werden erst nach Kontrolle und Freigabe in den Patientenbericht übernommen."
+        }
+      ],
+      "fragen": [
+        {
+          "id": "frage-crp",
+          "bereich": "Entzündung",
+          "frage": "Kann der erhöhte CRP-Wert zu aktuellen Beschwerden oder einem Infekt passen?"
+        },
+        {
+          "id": "frage-ferritin",
+          "bereich": "Eisenstoffwechsel",
+          "frage": "Sollten weitere Eisenwerte oder das Blutbild gemeinsam betrachtet werden?"
+        },
+        {
+          "id": "frage-vitd",
+          "bereich": "Vitamine",
+          "frage": "Ist der Vitamin-D-Wert korrekt erkannt und medizinisch relevant?"
+        }
+      ],
+      "disclaimer": "Diese Auswertung dient nur der verständlichen Zusammenfassung freigegebener Testdaten. Sie ersetzt keine Diagnose, Beratung oder Behandlung durch Ärztinnen oder Ärzte."
+    }
+  },
+  "MOCK_PATIENTEN": [
+    {
+      "id": "patient-demo-01",
+      "nummer": "TP-2026-001",
+      "name": "Mara Hoffmann",
+      "vorname": "Mara",
+      "nachname": "Hoffmann",
+      "geburtsdatum": "1984-04-18",
+      "geschlecht": "weiblich",
+      "gewichtKg": 72,
+      "groesseCm": 168,
+      "lebensstil": "Büroarbeit, moderat aktiv, vegetarische Ernährung",
+      "kontext": "optimierte Testdaten",
+      "quelle": "demo",
+      "status": "review",
+      "befunde": 5,
+      "offeneReviews": 5,
+      "letzterBefund": "12.06.2026",
+      "berichtStatus": "Bericht vorbereitet",
+      "notiz": "Fiktive Testakte für optimierte PDF-Testdaten.",
+      "befundListe": [
+        {
+          "id": "befund-demo-001",
+          "name": "testdaten-laborbefund-optimiert.pdf",
+          "datum": "12.06.2026",
+          "status": "review_offen",
+          "werte": 42,
+          "offeneReviews": 5
+        },
+        {
+          "id": "befund-demo-001-vorwert",
+          "name": "verlauf-q1-demo.pdf",
+          "datum": "14.03.2026",
+          "status": "freigegeben",
+          "werte": 39,
+          "offeneReviews": 0
+        },
+        {
+          "id": "befund-demo-001-2025",
+          "name": "jahresvergleich-2025.pdf",
+          "datum": "18.11.2025",
+          "status": "freigegeben",
+          "werte": 37,
+          "offeneReviews": 0
+        }
+      ]
+    },
+    {
+      "id": "patient-demo-02",
+      "nummer": "TP-2026-002",
+      "name": "Jonas Keller",
+      "vorname": "Jonas",
+      "nachname": "Keller",
+      "geburtsdatum": "1978-09-03",
+      "geschlecht": "maennlich",
+      "gewichtKg": 86,
+      "groesseCm": 181,
+      "lebensstil": "Schichtarbeit, wenig Bewegung, gemischte Ernährung",
+      "kontext": "mehrere Befunde",
+      "quelle": "verlauf",
+      "status": "bericht",
+      "befunde": 4,
+      "offeneReviews": 3,
+      "letzterBefund": "12.06.2026",
+      "berichtStatus": "Bericht offen",
+      "notiz": "Fiktive Testakte mit mehreren Vergleichsbefunden.",
+      "befundListe": [
+        {
+          "id": "befund-demo-002",
+          "name": "befund-verlauf-demo-q2.pdf",
+          "datum": "12.06.2026",
+          "status": "review_offen",
+          "werte": 31,
+          "offeneReviews": 3
+        },
+        {
+          "id": "befund-demo-002-vorwert",
+          "name": "befund-verlauf-demo-q1.pdf",
+          "datum": "10.03.2026",
+          "status": "freigegeben",
+          "werte": 30,
+          "offeneReviews": 0
+        },
+        {
+          "id": "befund-demo-002-2025",
+          "name": "verlauf-herbst-2025.pdf",
+          "datum": "02.10.2025",
+          "status": "bericht_bereit",
+          "werte": 29,
+          "offeneReviews": 0
+        }
+      ]
+    },
+    {
+      "id": "patient-demo-03",
+      "nummer": "TP-2026-003",
+      "name": "Lea Sommer",
+      "vorname": "Lea",
+      "nachname": "Sommer",
+      "geburtsdatum": "1991-01-27",
+      "geschlecht": "weiblich",
+      "gewichtKg": 64,
+      "groesseCm": 172,
+      "lebensstil": "sportlich aktiv, unregelmäßige Mahlzeiten",
+      "kontext": "Scan-Befund",
+      "quelle": "ocr",
+      "status": "review",
+      "befunde": 2,
+      "offeneReviews": 7,
+      "letzterBefund": "11.06.2026",
+      "berichtStatus": "nicht bereit",
+      "notiz": "Fiktive Testakte für bildbasierte OCR-Reviewfälle.",
+      "befundListe": [
+        {
+          "id": "befund-demo-003",
+          "name": "scan-laborbefund-ocr-demo.pdf",
+          "datum": "11.06.2026",
+          "status": "ocr_review",
+          "werte": 26,
+          "offeneReviews": 7
+        },
+        {
+          "id": "befund-demo-003-vorwert",
+          "name": "scan-kontrolle-2025.pdf",
+          "datum": "16.12.2025",
+          "status": "freigegeben",
+          "werte": 24,
+          "offeneReviews": 0
+        }
+      ]
+    },
+    {
+      "id": "patient-demo-04",
+      "nummer": "TP-2026-004",
+      "name": "Emil Brandt",
+      "vorname": "Emil",
+      "nachname": "Brandt",
+      "geburtsdatum": "1968-07-22",
+      "geschlecht": "maennlich",
+      "gewichtKg": 94,
+      "groesseCm": 176,
+      "lebensstil": "wenig Bewegung, Nikotinkarenz, fettbewusste Ernährung",
+      "kontext": "Fettstoffwechsel",
+      "quelle": "verlauf",
+      "status": "bericht",
+      "befunde": 6,
+      "offeneReviews": 0,
+      "letzterBefund": "02.06.2026",
+      "berichtStatus": "freigegeben",
+      "notiz": "Fiktive Testakte mit Schwerpunkt Lipidverlauf.",
+      "befundListe": [
+        {
+          "id": "befund-demo-004",
+          "name": "lipide-verlauf-demo.pdf",
+          "datum": "02.06.2026",
+          "status": "bericht_bereit",
+          "werte": 28,
+          "offeneReviews": 0
+        },
+        {
+          "id": "befund-demo-004-vorwert",
+          "name": "lipide-kontrolle-q1.pdf",
+          "datum": "08.02.2026",
+          "status": "freigegeben",
+          "werte": 28,
+          "offeneReviews": 0
+        },
+        {
+          "id": "befund-demo-004-2025",
+          "name": "lipide-basis-2025.pdf",
+          "datum": "19.09.2025",
+          "status": "freigegeben",
+          "werte": 27,
+          "offeneReviews": 0
+        }
+      ]
+    },
+    {
+      "id": "patient-demo-05",
+      "nummer": "TP-2026-005",
+      "name": "Nora Weber",
+      "vorname": "Nora",
+      "nachname": "Weber",
+      "geburtsdatum": "2000-12-05",
+      "geschlecht": "divers",
+      "gewichtKg": 69,
+      "groesseCm": 174,
+      "lebensstil": "studentischer Alltag, wechselnde Schlafzeiten",
+      "kontext": "Fallback-Eingabe",
+      "quelle": "manuell",
+      "status": "leer",
+      "befunde": 0,
+      "offeneReviews": 0,
+      "letzterBefund": "kein Befund",
+      "berichtStatus": "keine Daten",
+      "notiz": "Fiktive Testakte ohne importierte Befunde.",
+      "befundListe": []
+    }
+  ],
+  "MOCK_AUSWERTUNG": {
+    "aktuellerBefund": "12.06.2026",
+    "vergleichsBefund": "14.03.2026",
+    "zeitraum": "12 Monate",
+    "werte": [
+      {
+        "id": "auswertung-ldl",
+        "key": "ldl_cholesterin",
+        "name": "LDL-Cholesterin",
+        "gruppe": "Fettstoffwechsel",
+        "wert": 168,
+        "vorherigerWert": 150,
+        "einheit": "mg/dl",
+        "referenzMin": 0,
+        "referenzMax": 116,
+        "status": "hoch",
+        "prioritaet": "hoch",
+        "reviewStatus": "geprueft",
+        "confidence": 92,
+        "veraenderungAbsolut": 18,
+        "veraenderungProzent": 12,
+        "abweichungProzent": 45,
+        "trend": "steigend",
+        "hinweis": "Oberhalb des Referenzbereichs und im Vergleich weiter ansteigend.",
+        "verlauf": [
+          {
+            "label": "Jun 25",
+            "datum": "2025-06-12",
+            "wert": 128
+          },
+          {
+            "label": "Sep 25",
+            "datum": "2025-09-12",
+            "wert": 136
+          },
+          {
+            "label": "Dez 25",
+            "datum": "2025-12-12",
+            "wert": 141
+          },
+          {
+            "label": "Mär 26",
+            "datum": "2026-03-14",
+            "wert": 150
+          },
+          {
+            "label": "Jun 26",
+            "datum": "2026-06-12",
+            "wert": 168
+          }
+        ]
+      },
+      {
+        "id": "auswertung-crp",
+        "key": "crp",
+        "name": "CRP",
+        "gruppe": "Entzündung",
+        "wert": 8.6,
+        "vorherigerWert": 4.8,
+        "einheit": "mg/l",
+        "referenzMin": 0,
+        "referenzMax": 5,
+        "status": "hoch",
+        "prioritaet": "hoch",
+        "reviewStatus": "geprueft",
+        "confidence": 91,
+        "veraenderungAbsolut": 3.8,
+        "veraenderungProzent": 79,
+        "abweichungProzent": 72,
+        "trend": "steigend",
+        "hinweis": "Erhöht und im Verlauf deutlich steigend. Ärztliche Einordnung erforderlich.",
+        "verlauf": [
+          {
+            "label": "Jun 25",
+            "datum": "2025-06-12",
+            "wert": 2.1
+          },
+          {
+            "label": "Sep 25",
+            "datum": "2025-09-12",
+            "wert": 3.4
+          },
+          {
+            "label": "Dez 25",
+            "datum": "2025-12-12",
+            "wert": 4.1
+          },
+          {
+            "label": "Mär 26",
+            "datum": "2026-03-14",
+            "wert": 4.8
+          },
+          {
+            "label": "Jun 26",
+            "datum": "2026-06-12",
+            "wert": 8.6
+          }
+        ]
+      },
+      {
+        "id": "auswertung-ferritin",
+        "key": "ferritin",
+        "name": "Ferritin",
+        "gruppe": "Eisenstoffwechsel",
+        "wert": 28,
+        "vorherigerWert": 35,
+        "einheit": "µg/l",
+        "referenzMin": 30,
+        "referenzMax": 400,
+        "status": "niedrig",
+        "prioritaet": "mittel",
+        "reviewStatus": "geprueft",
+        "confidence": 87,
+        "veraenderungAbsolut": -7,
+        "veraenderungProzent": -20,
+        "abweichungProzent": 7,
+        "trend": "fallend",
+        "hinweis": "Leicht unterhalb des Referenzbereichs und im Verlauf fallend.",
+        "verlauf": [
+          {
+            "label": "Jun 25",
+            "datum": "2025-06-12",
+            "wert": 52
+          },
+          {
+            "label": "Sep 25",
+            "datum": "2025-09-12",
+            "wert": 44
+          },
+          {
+            "label": "Dez 25",
+            "datum": "2025-12-12",
+            "wert": 39
+          },
+          {
+            "label": "Mär 26",
+            "datum": "2026-03-14",
+            "wert": 35
+          },
+          {
+            "label": "Jun 26",
+            "datum": "2026-06-12",
+            "wert": 28
+          }
+        ]
+      },
+      {
+        "id": "auswertung-vitd",
+        "key": "vitamin_d",
+        "name": "Vitamin D",
+        "gruppe": "Vitamine",
+        "wert": 22,
+        "vorherigerWert": 23,
+        "einheit": "ng/ml",
+        "referenzMin": 30,
+        "referenzMax": 100,
+        "status": "review",
+        "prioritaet": "mittel",
+        "reviewStatus": "review",
+        "confidence": 62,
+        "veraenderungAbsolut": -1,
+        "veraenderungProzent": -4,
+        "abweichungProzent": 27,
+        "trend": "stabil",
+        "hinweis": "Wert und Einheit müssen wegen niedriger Confidence im Review geprüft werden.",
+        "verlauf": [
+          {
+            "label": "Jun 25",
+            "datum": "2025-06-12",
+            "wert": 18
+          },
+          {
+            "label": "Sep 25",
+            "datum": "2025-09-12",
+            "wert": 21
+          },
+          {
+            "label": "Dez 25",
+            "datum": "2025-12-12",
+            "wert": 19
+          },
+          {
+            "label": "Mär 26",
+            "datum": "2026-03-14",
+            "wert": 23
+          },
+          {
+            "label": "Jun 26",
+            "datum": "2026-06-12",
+            "wert": 22
+          }
+        ]
+      },
+      {
+        "id": "auswertung-hb",
+        "key": "haemoglobin",
+        "name": "Hämoglobin",
+        "gruppe": "Blutbild",
+        "wert": 14.2,
+        "vorherigerWert": 14.4,
+        "einheit": "g/dl",
+        "referenzMin": 13.5,
+        "referenzMax": 17.5,
+        "status": "normal",
+        "prioritaet": "niedrig",
+        "reviewStatus": "geprueft",
+        "confidence": 98,
+        "veraenderungAbsolut": -0.2,
+        "veraenderungProzent": -1,
+        "abweichungProzent": 0,
+        "trend": "stabil",
+        "hinweis": "Im Referenzbereich und ohne relevante Veränderung.",
+        "verlauf": [
+          {
+            "label": "Jun 25",
+            "datum": "2025-06-12",
+            "wert": 13.9
+          },
+          {
+            "label": "Sep 25",
+            "datum": "2025-09-12",
+            "wert": 14
+          },
+          {
+            "label": "Dez 25",
+            "datum": "2025-12-12",
+            "wert": 14.4
+          },
+          {
+            "label": "Mär 26",
+            "datum": "2026-03-14",
+            "wert": 14.4
+          },
+          {
+            "label": "Jun 26",
+            "datum": "2026-06-12",
+            "wert": 14.2
+          }
+        ]
+      },
+      {
+        "id": "auswertung-tsh",
+        "key": "tsh",
+        "name": "TSH",
+        "gruppe": "Schilddrüse",
+        "wert": 2.1,
+        "vorherigerWert": 2,
+        "einheit": "mIU/l",
+        "referenzMin": 0.4,
+        "referenzMax": 4,
+        "status": "normal",
+        "prioritaet": "niedrig",
+        "reviewStatus": "geprueft",
+        "confidence": 96,
+        "veraenderungAbsolut": 0.1,
+        "veraenderungProzent": 5,
+        "abweichungProzent": 0,
+        "trend": "stabil",
+        "hinweis": "Unauffällig im Referenzbereich.",
+        "verlauf": [
+          {
+            "label": "Jun 25",
+            "datum": "2025-06-12",
+            "wert": 1.9
+          },
+          {
+            "label": "Sep 25",
+            "datum": "2025-09-12",
+            "wert": 2.2
+          },
+          {
+            "label": "Dez 25",
+            "datum": "2025-12-12",
+            "wert": 2
+          },
+          {
+            "label": "Mär 26",
+            "datum": "2026-03-14",
+            "wert": 2
+          },
+          {
+            "label": "Jun 26",
+            "datum": "2026-06-12",
+            "wert": 2.1
+          }
+        ]
+      }
+    ],
+    "gruppen": [
+      {
+        "key": "blutbild",
+        "name": "Blutbild",
+        "normal": 12,
+        "niedrig": 0,
+        "hoch": 0,
+        "review": 1
+      },
+      {
+        "key": "entzuendung",
+        "name": "Entzündung",
+        "normal": 2,
+        "niedrig": 0,
+        "hoch": 1,
+        "review": 0
+      },
+      {
+        "key": "fettstoffwechsel",
+        "name": "Fettstoffwechsel",
+        "normal": 5,
+        "niedrig": 0,
+        "hoch": 2,
+        "review": 1
+      },
+      {
+        "key": "eisenstoffwechsel",
+        "name": "Eisenstoffwechsel",
+        "normal": 3,
+        "niedrig": 1,
+        "hoch": 0,
+        "review": 0
+      },
+      {
+        "key": "vitamine",
+        "name": "Vitamine",
+        "normal": 2,
+        "niedrig": 0,
+        "hoch": 0,
+        "review": 2
+      },
+      {
+        "key": "schilddruese",
+        "name": "Schilddrüse",
+        "normal": 4,
+        "niedrig": 0,
+        "hoch": 0,
+        "review": 0
+      }
+    ]
+  },
+  "MOCK_REVIEW": {
+    "kandidaten": [
+      {
+        "id": "review-ldl",
+        "patientId": "patient-demo-01",
+        "befundId": "befund-demo-001",
+        "laborwertKey": "ldl_cholesterin",
+        "anzeigename": "LDL-Cholesterin",
+        "erkannterName": "LDL Chol.",
+        "erkannterWert": "168",
+        "korrigierterWert": 168,
+        "erkannteEinheit": "mg/dl",
+        "korrigierteEinheit": "mg/dl",
+        "referenzMin": 0,
+        "referenzMax": 116,
+        "originalText": "LDL Chol.              168 mg/dl          < 116",
+        "originalLabel": "Seite 1 · Tabelle Fettstoffwechsel · Zeile 8",
+        "confidence": 62,
+        "status": "offen",
+        "gruppe": "Fettstoffwechsel",
+        "quelle": "pdf_text",
+        "kommentar": "",
+        "parserHinweise": [
+          "Alias wurde unsicher zugeordnet.",
+          "Referenzbereich als kleiner-als-Wert erkannt."
+        ],
+        "checks": [
+          {
+            "id": "check-ldl-1",
+            "titel": "Einheit",
+            "beschreibung": "mg/dl passt zu LDL-Cholesterin.",
+            "status": "ok"
+          },
+          {
+            "id": "check-ldl-2",
+            "titel": "Referenzbereich",
+            "beschreibung": "Obergrenze erkannt, Untergrenze wurde ergänzt.",
+            "status": "pruefen"
+          },
+          {
+            "id": "check-ldl-3",
+            "titel": "Status",
+            "beschreibung": "Wert liegt oberhalb des Referenzbereichs.",
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "id": "review-vitd",
+        "patientId": "patient-demo-01",
+        "befundId": "befund-demo-001",
+        "laborwertKey": "vitamin_d",
+        "anzeigename": "Vitamin D",
+        "erkannterName": "25-OH-Vit. D",
+        "erkannterWert": "22",
+        "korrigierterWert": 22,
+        "erkannteEinheit": "ng/ml",
+        "korrigierteEinheit": "ng/ml",
+        "referenzMin": 30,
+        "referenzMax": 100,
+        "originalText": "25-OH-Vit. D           22 ng/ml           30 - 100",
+        "originalLabel": "Seite 2 · Tabelle Vitamine · Zeile 4",
+        "confidence": 58,
+        "status": "offen",
+        "gruppe": "Vitamine",
+        "quelle": "pdf_text",
+        "kommentar": "",
+        "parserHinweise": [
+          "Laborwert-Key benötigt Review.",
+          "Wert ist auffällig und Confidence niedrig."
+        ],
+        "checks": [
+          {
+            "id": "check-vitd-1",
+            "titel": "Einheit",
+            "beschreibung": "Einheit ist plausibel.",
+            "status": "ok"
+          },
+          {
+            "id": "check-vitd-2",
+            "titel": "Alias",
+            "beschreibung": "Alias-Zuordnung muss bestätigt werden.",
+            "status": "pruefen"
+          },
+          {
+            "id": "check-vitd-3",
+            "titel": "Referenz",
+            "beschreibung": "Referenzbereich vollständig erkannt.",
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "id": "review-crp",
+        "patientId": "patient-demo-01",
+        "befundId": "befund-demo-001",
+        "laborwertKey": "crp",
+        "anzeigename": "CRP",
+        "erkannterName": "CRP",
+        "erkannterWert": "8.6",
+        "korrigierterWert": 8.6,
+        "erkannteEinheit": "mg/l",
+        "korrigierteEinheit": "mg/l",
+        "referenzMin": 0,
+        "referenzMax": 5,
+        "originalText": "CRP                    8.6 mg/l           < 5.0",
+        "originalLabel": "Seite 1 · Tabelle Entzündung · Zeile 2",
+        "confidence": 91,
+        "status": "bestaetigt",
+        "gruppe": "Entzündung",
+        "quelle": "pdf_text",
+        "kommentar": "Automatisch plausibel, ärztlich bestätigt.",
+        "parserHinweise": [
+          "Stark auffälliger Wert, aber gute Confidence."
+        ],
+        "checks": [
+          {
+            "id": "check-crp-1",
+            "titel": "Einheit",
+            "beschreibung": "mg/l passt zu CRP.",
+            "status": "ok"
+          },
+          {
+            "id": "check-crp-2",
+            "titel": "Referenz",
+            "beschreibung": "Obergrenze wurde erkannt.",
+            "status": "ok"
+          },
+          {
+            "id": "check-crp-3",
+            "titel": "Vorwert",
+            "beschreibung": "Vorwert vorhanden, Anstieg plausibel.",
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "id": "review-ferritin",
+        "patientId": "patient-demo-02",
+        "befundId": "befund-demo-002",
+        "laborwertKey": "ferritin",
+        "anzeigename": "Ferritin",
+        "erkannterName": "Ferr.",
+        "erkannterWert": "28",
+        "korrigierterWert": 28,
+        "erkannteEinheit": "µg/l",
+        "korrigierteEinheit": "µg/l",
+        "referenzMin": 30,
+        "referenzMax": 400,
+        "originalText": "Ferr.                  28 µg/l            30 - 400",
+        "originalLabel": "Seite 1 · Tabelle Eisenstoffwechsel · Zeile 5",
+        "confidence": 74,
+        "status": "korrigiert",
+        "gruppe": "Eisenstoffwechsel",
+        "quelle": "pdf_text",
+        "kommentar": "Name wurde zu Ferritin normalisiert.",
+        "parserHinweise": [
+          "Abkürzung wurde erkannt.",
+          "Leicht unter Referenzbereich."
+        ],
+        "checks": [
+          {
+            "id": "check-fer-1",
+            "titel": "Alias",
+            "beschreibung": "Ferr. wurde Ferritin zugeordnet.",
+            "status": "ok"
+          },
+          {
+            "id": "check-fer-2",
+            "titel": "Einheit",
+            "beschreibung": "Einheit ist plausibel.",
+            "status": "ok"
+          },
+          {
+            "id": "check-fer-3",
+            "titel": "Referenz",
+            "beschreibung": "Referenzbereich vollständig erkannt.",
+            "status": "ok"
+          }
+        ]
+      },
+      {
+        "id": "review-ocr-hb",
+        "patientId": "patient-demo-03",
+        "befundId": "befund-demo-003",
+        "laborwertKey": "haemoglobin",
+        "anzeigename": "Hämoglobin",
+        "erkannterName": "Hb",
+        "erkannterWert": "14,2",
+        "korrigierterWert": 14.2,
+        "erkannteEinheit": "g/dl",
+        "korrigierteEinheit": "g/dl",
+        "referenzMin": 13.5,
+        "referenzMax": 17.5,
+        "originalText": "Hb                     14,2 g/dl          13,5 - 17,5",
+        "originalLabel": "Seite 1 · OCR-Ausschnitt · Zeile 3",
+        "confidence": 49,
+        "status": "blockiert",
+        "gruppe": "Blutbild",
+        "quelle": "ocr",
+        "kommentar": "OCR-Komma und Tabellenkante prüfen.",
+        "parserHinweise": [
+          "OCR-Quelle mit niedriger Confidence.",
+          "Zahlenformat wurde normalisiert."
+        ],
+        "checks": [
+          {
+            "id": "check-hb-1",
+            "titel": "OCR",
+            "beschreibung": "Originalausschnitt muss geprüft werden.",
+            "status": "konflikt"
+          },
+          {
+            "id": "check-hb-2",
+            "titel": "Einheit",
+            "beschreibung": "Einheit ist plausibel.",
+            "status": "ok"
+          },
+          {
+            "id": "check-hb-3",
+            "titel": "Zahlenformat",
+            "beschreibung": "Komma wurde zu Dezimalpunkt normalisiert.",
+            "status": "pruefen"
+          }
+        ]
+      }
+    ]
+  },
+  "MOCK_UEBERSICHT": {
+    "kennzahlen": {
+      "patientenGesamt": 48,
+      "berichteGesamt": 126,
+      "importeGeprueft": 96,
+      "importeUngeprueft": 18,
+      "berichteFreigegeben": 74,
+      "reviewOffen": 12
+    },
+    "gesundheitsverlauf": [
+      {
+        "jahr": 2024,
+        "monat": 1,
+        "label": "Jan",
+        "unauffaellig": 16,
+        "auffaellig": 7
+      },
+      {
+        "jahr": 2024,
+        "monat": 2,
+        "label": "Feb",
+        "unauffaellig": 17,
+        "auffaellig": 8
+      },
+      {
+        "jahr": 2024,
+        "monat": 3,
+        "label": "Mär",
+        "unauffaellig": 18,
+        "auffaellig": 8
+      },
+      {
+        "jahr": 2024,
+        "monat": 4,
+        "label": "Apr",
+        "unauffaellig": 17,
+        "auffaellig": 15
+      },
+      {
+        "jahr": 2024,
+        "monat": 5,
+        "label": "Mai",
+        "unauffaellig": 19,
+        "auffaellig": 10
+      },
+      {
+        "jahr": 2024,
+        "monat": 6,
+        "label": "Jun",
+        "unauffaellig": 21,
+        "auffaellig": 13
+      },
+      {
+        "jahr": 2024,
+        "monat": 7,
+        "label": "Jul",
+        "unauffaellig": 20,
+        "auffaellig": 19
+      },
+      {
+        "jahr": 2024,
+        "monat": 8,
+        "label": "Aug",
+        "unauffaellig": 22,
+        "auffaellig": 18
+      },
+      {
+        "jahr": 2024,
+        "monat": 9,
+        "label": "Sep",
+        "unauffaellig": 23,
+        "auffaellig": 24
+      },
+      {
+        "jahr": 2024,
+        "monat": 10,
+        "label": "Okt",
+        "unauffaellig": 25,
+        "auffaellig": 20
+      },
+      {
+        "jahr": 2024,
+        "monat": 11,
+        "label": "Nov",
+        "unauffaellig": 24,
+        "auffaellig": 27
+      },
+      {
+        "jahr": 2024,
+        "monat": 12,
+        "label": "Dez",
+        "unauffaellig": 28,
+        "auffaellig": 23
+      },
+      {
+        "jahr": 2025,
+        "monat": 1,
+        "label": "Jan",
+        "unauffaellig": 22,
+        "auffaellig": 9
+      },
+      {
+        "jahr": 2025,
+        "monat": 2,
+        "label": "Feb",
+        "unauffaellig": 24,
+        "auffaellig": 10
+      },
+      {
+        "jahr": 2025,
+        "monat": 3,
+        "label": "Mär",
+        "unauffaellig": 25,
+        "auffaellig": 11
+      },
+      {
+        "jahr": 2025,
+        "monat": 4,
+        "label": "Apr",
+        "unauffaellig": 24,
+        "auffaellig": 21
+      },
+      {
+        "jahr": 2025,
+        "monat": 5,
+        "label": "Mai",
+        "unauffaellig": 27,
+        "auffaellig": 17
+      },
+      {
+        "jahr": 2025,
+        "monat": 6,
+        "label": "Jun",
+        "unauffaellig": 29,
+        "auffaellig": 22
+      },
+      {
+        "jahr": 2025,
+        "monat": 7,
+        "label": "Jul",
+        "unauffaellig": 30,
+        "auffaellig": 27
+      },
+      {
+        "jahr": 2025,
+        "monat": 8,
+        "label": "Aug",
+        "unauffaellig": 28,
+        "auffaellig": 31
+      },
+      {
+        "jahr": 2025,
+        "monat": 9,
+        "label": "Sep",
+        "unauffaellig": 33,
+        "auffaellig": 26
+      },
+      {
+        "jahr": 2025,
+        "monat": 10,
+        "label": "Okt",
+        "unauffaellig": 35,
+        "auffaellig": 34
+      },
+      {
+        "jahr": 2025,
+        "monat": 11,
+        "label": "Nov",
+        "unauffaellig": 34,
+        "auffaellig": 37
+      },
+      {
+        "jahr": 2025,
+        "monat": 12,
+        "label": "Dez",
+        "unauffaellig": 38,
+        "auffaellig": 30
+      },
+      {
+        "jahr": 2026,
+        "monat": 1,
+        "label": "Jan",
+        "unauffaellig": 29,
+        "auffaellig": 12
+      },
+      {
+        "jahr": 2026,
+        "monat": 2,
+        "label": "Feb",
+        "unauffaellig": 31,
+        "auffaellig": 14
+      },
+      {
+        "jahr": 2026,
+        "monat": 3,
+        "label": "Mär",
+        "unauffaellig": 30,
+        "auffaellig": 18
+      },
+      {
+        "jahr": 2026,
+        "monat": 4,
+        "label": "Apr",
+        "unauffaellig": 27,
+        "auffaellig": 25
+      },
+      {
+        "jahr": 2026,
+        "monat": 5,
+        "label": "Mai",
+        "unauffaellig": 34,
+        "auffaellig": 20
+      },
+      {
+        "jahr": 2026,
+        "monat": 6,
+        "label": "Jun",
+        "unauffaellig": 36,
+        "auffaellig": 27
+      },
+      {
+        "jahr": 2026,
+        "monat": 7,
+        "label": "Jul",
+        "unauffaellig": 35,
+        "auffaellig": 35
+      },
+      {
+        "jahr": 2026,
+        "monat": 8,
+        "label": "Aug",
+        "unauffaellig": 38,
+        "auffaellig": 30
+      },
+      {
+        "jahr": 2026,
+        "monat": 9,
+        "label": "Sep",
+        "unauffaellig": 34,
+        "auffaellig": 42
+      },
+      {
+        "jahr": 2026,
+        "monat": 10,
+        "label": "Okt",
+        "unauffaellig": 39,
+        "auffaellig": 33
+      },
+      {
+        "jahr": 2026,
+        "monat": 11,
+        "label": "Nov",
+        "unauffaellig": 43,
+        "auffaellig": 40
+      },
+      {
+        "jahr": 2026,
+        "monat": 12,
+        "label": "Dez",
+        "unauffaellig": 45,
+        "auffaellig": 44
+      }
+    ],
+    "dringendeHinweise": [
+      {
+        "id": "urgent-review-001",
+        "titel": "Review seit 8 Tagen offen",
+        "beschreibung": "Befund „Testperson 12 – Stoffwechsel“ enthält 4 auffällige Werte und wurde noch nicht ärztlich freigegeben.",
+        "seit": "8 Tage",
+        "status": "kritisch"
+      },
+      {
+        "id": "urgent-import-002",
+        "titel": "OCR-Import mit niedriger Confidence",
+        "beschreibung": "Ein bildbasierter Laborbefund liegt bei 61 % Confidence. Originalausschnitt sollte geprüft werden.",
+        "seit": "3 Tage",
+        "status": "warnung"
+      },
+      {
+        "id": "urgent-report-003",
+        "titel": "Patientenbericht vorbereitet",
+        "beschreibung": "Ein Bericht ist vollständig geprüft und wartet nur noch auf Freigabe für die Patientenansicht.",
+        "seit": "Heute",
+        "status": "info"
+      }
+    ],
+    "aktivitaeten": [
+      {
+        "id": "activity-001",
+        "zeitpunkt": "Heute, 10:42",
+        "tagOffset": 0,
+        "titel": "Import abgeschlossen",
+        "beschreibung": "testdaten-laborbefund-optimiert.pdf wurde lokal analysiert.",
+        "status": "erledigt"
+      },
+      {
+        "id": "activity-002",
+        "zeitpunkt": "Heute, 10:18",
+        "tagOffset": 0,
+        "titel": "Review-Markierung gesetzt",
+        "beschreibung": "Vitamin D wurde wegen unsicherer Einheit in Review übernommen.",
+        "status": "warnung"
+      },
+      {
+        "id": "activity-003",
+        "zeitpunkt": "Gestern, 16:05",
+        "tagOffset": 1,
+        "titel": "Bericht freigegeben",
+        "beschreibung": "Patientenbericht für Testperson Demo wurde erstellt.",
+        "status": "erledigt"
+      },
+      {
+        "id": "activity-004",
+        "zeitpunkt": "Gestern, 14:22",
+        "tagOffset": 1,
+        "titel": "Wissenseintrag aktualisiert",
+        "beschreibung": "CRP-Patientenerklärung wurde auf Version 1.1 gesetzt.",
+        "status": "info"
+      },
+      {
+        "id": "activity-005",
+        "zeitpunkt": "Vor 3 Tagen, 09:11",
+        "tagOffset": 3,
+        "titel": "OCR-Import erstellt",
+        "beschreibung": "Ein bildbasierter Befund wurde in die lokale OCR-Warteschlange übernommen.",
+        "status": "warnung"
+      },
+      {
+        "id": "activity-006",
+        "zeitpunkt": "Vor 6 Tagen, 12:40",
+        "tagOffset": 6,
+        "titel": "Referenzbereich korrigiert",
+        "beschreibung": "Ferritin-Referenzbereich wurde nach ärztlicher Prüfung angepasst.",
+        "status": "erledigt"
+      }
+    ]
+  },
+  "MOCK_BERICHT": {
+    "id": "bericht-demo-a4-001",
+    "berichtsdatum": "12.06.2026",
+    "version": "1.0",
+    "gesamtstatus": "Überwiegend unauffällig mit einzelnen Hinweisen",
+    "gesamttext": "Die geprüften Blutwerte zeigen insgesamt ein überwiegend stabiles Bild. Einzelne Werte im Bereich Fettstoffwechsel, Entzündung und Eisenstoffwechsel liegen außerhalb des Referenzbereichs und sollten im Arztgespräch gemeinsam mit Beschwerden, Verlauf und weiteren Befunden eingeordnet werden.",
+    "gepruefteWerte": 42,
+    "normaleWerte": 35,
+    "auffaelligeWerte": 5,
+    "reviewWerte": 2,
+    "werte": [
+      {
+        "key": "haemoglobin",
+        "name": "Hämoglobin",
+        "gruppe": "Blutbild",
+        "wert": 14.2,
+        "einheit": "g/dl",
+        "referenzMin": 13.5,
+        "referenzMax": 17.5,
+        "status": "normal",
+        "trend": "stabil",
+        "erklaerung": "Hämoglobin ist der rote Blutfarbstoff und hilft dabei, Sauerstoff im Körper zu transportieren.",
+        "hinweis": "Der Wert liegt im Referenzbereich und zeigt im Verlauf keine relevante Veränderung.",
+        "verlauf": [
+          13.9,
+          14,
+          14.4,
+          14.4,
+          14.2
+        ]
+      },
+      {
+        "key": "leukozyten",
+        "name": "Leukozyten",
+        "gruppe": "Blutbild",
+        "wert": 6.8,
+        "einheit": "Tsd./µl",
+        "referenzMin": 4,
+        "referenzMax": 10,
+        "status": "normal",
+        "trend": "stabil",
+        "erklaerung": "Leukozyten sind weiße Blutkörperchen und gehören zur körpereigenen Abwehr.",
+        "hinweis": "Der Wert liegt im Referenzbereich.",
+        "verlauf": [
+          6.2,
+          6.4,
+          6.5,
+          6.6,
+          6.8
+        ]
+      },
+      {
+        "key": "crp",
+        "name": "CRP",
+        "gruppe": "Entzündung",
+        "wert": 8.6,
+        "einheit": "mg/l",
+        "referenzMin": 0,
+        "referenzMax": 5,
+        "status": "hoch",
+        "trend": "steigend",
+        "erklaerung": "CRP ist ein Entzündungswert und kann bei Infekten oder anderen Entzündungsprozessen ansteigen.",
+        "hinweis": "Der Wert liegt oberhalb des Referenzbereichs und sollte ärztlich im Zusammenhang mit Beschwerden und Verlauf eingeordnet werden.",
+        "verlauf": [
+          2.1,
+          3.4,
+          4.1,
+          4.8,
+          8.6
+        ]
+      },
+      {
+        "key": "ldl_cholesterin",
+        "name": "LDL-Cholesterin",
+        "gruppe": "Fettstoffwechsel",
+        "wert": 168,
+        "einheit": "mg/dl",
+        "referenzMin": 0,
+        "referenzMax": 116,
+        "status": "hoch",
+        "trend": "steigend",
+        "erklaerung": "LDL-Cholesterin wird häufig im Zusammenhang mit dem Herz-Kreislauf-Risiko betrachtet.",
+        "hinweis": "Der Wert liegt oberhalb des Referenzbereichs. Die Bedeutung hängt vom persönlichen Risikoprofil ab.",
+        "verlauf": [
+          128,
+          136,
+          141,
+          150,
+          168
+        ]
+      },
+      {
+        "key": "glukose",
+        "name": "Glukose",
+        "gruppe": "Zuckerstoffwechsel",
+        "wert": 92,
+        "einheit": "mg/dl",
+        "referenzMin": 70,
+        "referenzMax": 100,
+        "status": "normal",
+        "trend": "stabil",
+        "erklaerung": "Glukose ist der Blutzuckerwert und zeigt die aktuelle Zuckerkonzentration im Blut.",
+        "hinweis": "Der Wert liegt im Referenzbereich.",
+        "verlauf": [
+          89,
+          94,
+          91,
+          93,
+          92
+        ]
+      },
+      {
+        "key": "hba1c",
+        "name": "HbA1c",
+        "gruppe": "Zuckerstoffwechsel",
+        "wert": 5.4,
+        "einheit": "%",
+        "referenzMin": 4,
+        "referenzMax": 5.7,
+        "status": "normal",
+        "trend": "stabil",
+        "erklaerung": "HbA1c beschreibt vereinfacht den durchschnittlichen Blutzucker der letzten Wochen.",
+        "hinweis": "Der Wert liegt im Referenzbereich.",
+        "verlauf": [
+          5.3,
+          5.4,
+          5.4,
+          5.5,
+          5.4
+        ]
+      },
+      {
+        "key": "kreatinin",
+        "name": "Kreatinin",
+        "gruppe": "Nierenfunktion",
+        "wert": 0.92,
+        "einheit": "mg/dl",
+        "referenzMin": 0.7,
+        "referenzMax": 1.2,
+        "status": "normal",
+        "trend": "stabil",
+        "erklaerung": "Kreatinin wird häufig zur Einschätzung der Nierenfunktion genutzt.",
+        "hinweis": "Der Wert liegt im Referenzbereich.",
+        "verlauf": [
+          0.88,
+          0.9,
+          0.91,
+          0.9,
+          0.92
+        ]
+      },
+      {
+        "key": "ferritin",
+        "name": "Ferritin",
+        "gruppe": "Eisenstoffwechsel",
+        "wert": 28,
+        "einheit": "µg/l",
+        "referenzMin": 30,
+        "referenzMax": 400,
+        "status": "niedrig",
+        "trend": "fallend",
+        "erklaerung": "Ferritin zeigt, wie gut die Eisenspeicher im Körper gefüllt sind.",
+        "hinweis": "Der Wert liegt leicht unterhalb des Referenzbereichs und sollte zusammen mit Blutbild und Beschwerden betrachtet werden.",
+        "verlauf": [
+          52,
+          44,
+          39,
+          35,
+          28
+        ]
+      },
+      {
+        "key": "tsh",
+        "name": "TSH",
+        "gruppe": "Schilddrüse",
+        "wert": 2.1,
+        "einheit": "mIU/l",
+        "referenzMin": 0.4,
+        "referenzMax": 4,
+        "status": "normal",
+        "trend": "stabil",
+        "erklaerung": "TSH ist ein Steuerhormon und wird häufig zur Einschätzung der Schilddrüsenfunktion genutzt.",
+        "hinweis": "Der Wert liegt im Referenzbereich.",
+        "verlauf": [
+          1.9,
+          2.2,
+          2,
+          2,
+          2.1
+        ]
+      },
+      {
+        "key": "vitamin_d",
+        "name": "Vitamin D",
+        "gruppe": "Vitamine",
+        "wert": 22,
+        "einheit": "ng/ml",
+        "referenzMin": 30,
+        "referenzMax": 100,
+        "status": "review",
+        "trend": "stabil",
+        "erklaerung": "Vitamin D ist unter anderem für Knochenstoffwechsel und viele Regulationsprozesse wichtig.",
+        "hinweis": "Dieser Wert ist im Demo-Workflow noch nicht vollständig freigegeben und bleibt als Prüfhilfe sichtbar.",
+        "verlauf": [
+          18,
+          21,
+          19,
+          23,
+          22
+        ]
+      }
+    ],
+    "kategorien": [
+      {
+        "name": "Blutbild",
+        "normal": 12,
+        "auffaellig": 0,
+        "review": 0
+      },
+      {
+        "name": "Entzündung",
+        "normal": 2,
+        "auffaellig": 1,
+        "review": 0
+      },
+      {
+        "name": "Fettstoffwechsel",
+        "normal": 4,
+        "auffaellig": 2,
+        "review": 0
+      },
+      {
+        "name": "Zuckerstoffwechsel",
+        "normal": 5,
+        "auffaellig": 0,
+        "review": 0
+      },
+      {
+        "name": "Nierenfunktion",
+        "normal": 4,
+        "auffaellig": 0,
+        "review": 0
+      },
+      {
+        "name": "Vitamine",
+        "normal": 2,
+        "auffaellig": 0,
+        "review": 2
+      }
+    ],
+    "empfehlungen": [
+      {
+        "id": "empfehlung-arztgespraech",
+        "titel": "Auffällige Werte ärztlich einordnen",
+        "text": "Besprechen Sie insbesondere CRP, LDL-Cholesterin und Ferritin mit Ihrer Ärztin oder Ihrem Arzt. Die Werte sollten nicht isoliert bewertet werden.",
+        "prioritaet": "wichtig"
+      },
+      {
+        "id": "empfehlung-verlauf",
+        "titel": "Verlaufskontrolle nutzen",
+        "text": "Bei auffälligen oder steigenden Werten kann eine erneute Kontrolle sinnvoll sein, wenn dies ärztlich empfohlen wird.",
+        "prioritaet": "beachten"
+      },
+      {
+        "id": "empfehlung-fragen",
+        "titel": "Fragen vorbereiten",
+        "text": "Notieren Sie Beschwerden, Medikamente, Ernährung und aktuelle Belastungen, damit die Laborwerte besser eingeordnet werden können.",
+        "prioritaet": "normal"
+      }
+    ],
+    "fragen": [
+      "Passen der erhöhte CRP-Wert oder andere Entzündungswerte zu aktuellen Beschwerden?",
+      "Welche Bedeutung hat der LDL-Wert in meinem persönlichen Risikoprofil?",
+      "Sollten Ferritin und Blutbild gemeinsam kontrolliert werden?",
+      "Welche Werte sollten im Verlauf erneut überprüft werden?"
+    ],
+    "quellen": [
+      {
+        "id": "quelle-crp-demo",
+        "bereich": "CRP",
+        "titel": "Interne Demo-Quelle CRP",
+        "stand": "2026-06"
+      },
+      {
+        "id": "quelle-ldl-demo",
+        "bereich": "LDL-Cholesterin",
+        "titel": "Interne Demo-Quelle LDL",
+        "stand": "2026-06"
+      },
+      {
+        "id": "quelle-ferritin-demo",
+        "bereich": "Ferritin",
+        "titel": "Interne Demo-Quelle Ferritin",
+        "stand": "2026-06"
+      },
+      {
+        "id": "quelle-tsh-demo",
+        "bereich": "TSH",
+        "titel": "Interne Demo-Quelle TSH",
+        "stand": "2026-06"
+      }
+    ],
+    "disclaimer": "Dieser Bericht fasst freigegebene Testdaten verständlich zusammen. Er stellt keine Diagnose dar und ersetzt keine ärztliche Beratung, Untersuchung oder Behandlung."
+  }
+}
