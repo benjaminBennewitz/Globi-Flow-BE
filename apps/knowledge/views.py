@@ -4,6 +4,7 @@
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+import re
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,6 +12,28 @@ from apps.knowledge.models import KnowledgeEntry, KnowledgeSource, KnowledgeVers
 from apps.knowledge.presenters import knowledge_to_frontend
 from apps.labs.models import LabAnalyte, LabGroup
 
+
+
+
+def normalize_source_date(value: str) -> str:
+    """Normalisiert Quellenstände auf MM.JJJJ, sofern Monat und Jahr erkennbar sind."""
+    cleaned = str(value or '').strip()
+    if not cleaned:
+        return ''
+
+    iso_match = re.match(r'^(\d{4})-(\d{1,2})(?:-\d{1,2})?$', cleaned)
+    if iso_match:
+        return f'{int(iso_match.group(2)):02d}.{iso_match.group(1)}'
+
+    german_match = re.match(r'^(?:\d{1,2}\.)?(\d{1,2})\.(\d{4})$', cleaned)
+    if german_match:
+        return f'{int(german_match.group(1)):02d}.{german_match.group(2)}'
+
+    compact_match = re.match(r'^(\d{1,2})/(\d{4})$', cleaned)
+    if compact_match:
+        return f'{int(compact_match.group(1)):02d}.{compact_match.group(2)}'
+
+    return cleaned
 
 def slug(value: str, fallback: str = 'neue_kategorie') -> str:
     """Erzeugt einfache Slugs für fachliche Keys."""
@@ -48,7 +71,7 @@ def sync_sources(entry: KnowledgeEntry, sources: list[dict]) -> None:
         return
     entry.sources.all().delete()
     for index, source in enumerate(sources, start=1):
-        KnowledgeSource.objects.create(public_id=source.get('id') or f'quelle-{entry.id}-{index}', entry=entry, title=source.get('titel', 'Quelle ohne Titel'), source_type=source.get('typ', 'demo'), source_date=source.get('stand', ''), reference=source.get('referenz', ''), note=source.get('hinweis', ''))
+        KnowledgeSource.objects.create(public_id=source.get('id') or f'quelle-{entry.id}-{index}', entry=entry, title=source.get('titel', 'Quelle ohne Titel'), source_type=source.get('typ', 'demo'), source_date=normalize_source_date(source.get('stand', '')), reference=source.get('referenz', ''), note=source.get('hinweis', ''))
 
 
 def update_entry_from_data(entry: KnowledgeEntry, data: dict) -> KnowledgeEntry:
