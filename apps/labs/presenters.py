@@ -21,7 +21,7 @@ def trend_direction(current: Decimal, previous: Decimal | None) -> str:
 
 def previous_value(value: LabValue) -> LabValue | None:
     """Findet den vorherigen Wert desselben Laborparameters."""
-    return LabValue.objects.filter(report__patient=value.report.patient, analyte=value.analyte, report__report_date__lt=value.report.report_date).select_related('report').order_by('-report__report_date').first()
+    return LabValue.objects.filter(report__patient=value.report.patient, analyte=value.analyte, report__report_date__lt=value.report.report_date).exclude(report__values__isnull=True).select_related('report').order_by('-report__report_date').first()
 
 
 def value_history(value: LabValue) -> list[LabValue]:
@@ -164,9 +164,12 @@ def review_entry_to_frontend(candidate: ReviewCandidate) -> dict:
     }
 
 
-def latest_report() -> LabReport | None:
-    """Lädt den neuesten Befund mit allen relevanten Relationen."""
-    return LabReport.objects.select_related('patient').prefetch_related('values__analyte__group', 'values__unit', 'values__reference_range').order_by('-report_date').first()
+def latest_report(patient_id: str | None = None) -> LabReport | None:
+    """Lädt den neuesten nicht-leeren Befund mit allen relevanten Relationen."""
+    queryset = LabReport.objects.select_related('patient').prefetch_related('values__analyte__group', 'values__unit', 'values__reference_range').filter(values__isnull=False).distinct()
+    if patient_id:
+        queryset = queryset.filter(patient__public_id=patient_id)
+    return queryset.order_by('-report_date', '-created_at').first()
 
 
 def average_confidence(values: list[LabValue]) -> int:
@@ -182,7 +185,7 @@ def build_evaluation_view(report: LabReport | None = None) -> dict:
     if not report:
         return {'aktuellerBefund': '', 'vergleichsBefund': '', 'zeitraum': '0 Monate', 'werte': [], 'gruppen': []}
     values = list(report.values.select_related('analyte__group', 'unit', 'reference_range'))
-    previous = LabReport.objects.filter(patient=report.patient, report_date__lt=report.report_date).order_by('-report_date').first()
+    previous = LabReport.objects.filter(patient=report.patient, report_date__lt=report.report_date, values__isnull=False).distinct().order_by('-report_date', '-created_at').first()
     return {
         'aktuellerBefund': format_date(report.report_date),
         'vergleichsBefund': format_date(previous.report_date) if previous else '',

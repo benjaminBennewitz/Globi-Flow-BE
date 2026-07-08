@@ -2,9 +2,47 @@
 
 """Serializer für Testpersonen und Patienten."""
 
+from django.db.models import Count, Q
 from rest_framework import serializers
 from apps.core.utils import decimal_to_number, format_date, public_id
+from apps.imports.models import ImportJob
+from apps.labs.models import LabReport, LabValue, ReviewCandidate
 from apps.patients.models import Patient
+from apps.reports.models import PatientReport
+
+
+OPEN_REVIEW_STATUSES = [ReviewCandidate.Status.OPEN, ReviewCandidate.Status.BLOCKED]
+
+
+def open_review_count(report: LabReport) -> int:
+    """Zählt offene oder blockierende Reviewarbeit eines Befunds."""
+    candidate_count = report.review_candidates.filter(status__in=OPEN_REVIEW_STATUSES).count()
+    review_value_count = report.values.filter(Q(review_status=LabValue.ReviewStatus.REVIEW) | Q(status=LabValue.Status.REVIEW)).count()
+    return candidate_count + review_value_count
+
+
+def report_status(report: LabReport) -> str:
+    """Berechnet den sichtbaren Befundstatus aus echten Review- und Berichtsdaten."""
+    if open_review_count(report) > 0:
+        return LabReport.Status.REVIEW_OPEN
+    if report.status == LabReport.Status.RELEASED:
+        return LabReport.Status.RELEASED
+    if PatientReport.objects.filter(lab_report=report, status__in=[PatientReport.Status.READY, PatientReport.Status.RELEASED]).exists():
+        return LabReport.Status.REPORT_READY
+    return report.status
+
+
+def patient_status(patient: Patient, reports: list[LabReport], open_reviews: int) -> str:
+    """Leitet den Patientenstatus aus aktuellen Befunden, Reviews und Importen ab."""
+    if ImportJob.objects.filter(patient=patient, status__in=[ImportJob.Status.WAITING, ImportJob.Status.ANALYZING]).exists():
+        return Patient.Status.IMPORT
+    if open_reviews > 0:
+        return Patient.Status.REVIEW
+    if PatientReport.objects.filter(patient=patient, status=PatientReport.Status.RELEASED).exists():
+        return Patient.Status.REPORT
+    if reports:
+        return Patient.Status.ACTIVE
+    return Patient.Status.EMPTY
 
 
 class PatientInputSerializer(serializers.Serializer):
@@ -95,10 +133,11 @@ class PatientFrontendSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         """Formt das normalisierte Modell in das Angular-ViewModel um."""
-        reports = list(instance.lab_reports.all())
-        open_reviews = sum(report.review_candidates.filter(status='offen').count() for report in reports)
+        reports = list(instance.lab_reports.annotate(value_count=Count('values', distinct=True), review_count=Count('review_candidates', distinct=True)).filter(Q(value_count__gt=0) | Q(review_count__gt=0)).order_by('-report_date', '-created_at'))
+        open_reviews = sum(open_review_count(report) for report in reports)
         latest_report = reports[0] if reports else None
-        released_report = instance.patient_reports.filter(status='freigegeben').first()
+        released_report = instance.patient_reports.filter(status=PatientReport.Status.RELEASED).order_by('-report_date').first()
+        visible_status = patient_status(instance, reports, open_reviews)
         return {
             'id': instance.public_id,
             'nummer': instance.number,
@@ -112,7 +151,7 @@ class PatientFrontendSerializer(serializers.ModelSerializer):
             'lebensstil': instance.lifestyle,
             'kontext': instance.context,
             'quelle': instance.source,
-            'status': instance.status,
+            'status': visible_status,
             'befunde': len(reports),
             'offeneReviews': open_reviews,
             'letzterBefund': format_date(latest_report.report_date) if latest_report else 'kein Befund',
@@ -127,7 +166,7 @@ class PatientFrontendSerializer(serializers.ModelSerializer):
             'id': report.public_id,
             'name': report.name,
             'datum': format_date(report.report_date),
-            'status': report.status,
+            'status': report_status(report),
             'werte': report.values.count(),
-            'offeneReviews': report.review_candidates.filter(status='offen').count(),
+            'offeneReviews': open_review_count(report),
         }
