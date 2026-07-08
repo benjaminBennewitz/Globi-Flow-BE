@@ -89,6 +89,56 @@ Die Importpipeline arbeitet lokal:
 
 Celery ist vorbereitet, aber in `.env.local` standardmäßig deaktiviert. Für den schlanken lokalen Start läuft die Analyse synchron.
 
+Zusätzlich unterstützt die Pipeline:
+
+- lokale PDF-Textanalyse für optimierte Laborbefunde
+- lokalen OCR-Fallback über Tesseract für gescannte oder bildbasierte PDFs
+- lokale PDF-Bildkonvertierung über Poppler
+
+## Lokale OCR-Abhängigkeiten
+
+Globi Flow verarbeitet PDF-Dateien vollständig lokal. Für bildbasierte oder gescannte Laborbefunde wird ein lokaler OCR-Fallback verwendet.
+
+Benötigte Systemprogramme:
+
+- Tesseract OCR
+- Poppler
+
+Tesseract wird nicht mit dem Repository ausgeliefert und muss lokal installiert werden. Für deutsche und englische Laborbefunde sollten mindestens die Sprachdaten `deu` und `eng` installiert sein.
+
+Empfohlene Windows-Pfade:
+
+```txt
+C:\Program Files\Tesseract-OCR\tesseract.exe
+C:\Tools\poppler\Library\bin
+```
+
+Die lokale `.env.local` sollte folgende Werte enthalten:
+
+```env
+OCR_ENABLED=True
+OCR_LANGUAGES=deu+eng
+OCR_DPI=300
+TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
+POPPLER_PATH=C:\Tools\poppler\Library\bin
+```
+
+Installation prüfen:
+
+```bash
+tesseract --version
+pdftoppm -h
+```
+
+Backend danach neu starten:
+
+```bash
+python manage.py check
+daphne -b 127.0.0.1 -p 8000 config.asgi:application
+```
+
+Hinweis: Tesseract OCR wird als externe lokale Systemabhängigkeit genutzt und nicht in dieses Repository kopiert. Tesseract OCR steht unter der Apache License 2.0.
+
 ## API-Endpunkte
 
 ```txt
