@@ -4,6 +4,8 @@
 
 from decimal import Decimal, InvalidOperation
 from django.conf import settings
+from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers, status
@@ -40,15 +42,41 @@ def ensure_unit(code: str) -> LabUnit:
     return unit
 
 
+def slugify_key(value: str, fallback: str = 'wert') -> str:
+    """Erzeugt einen DB-stabilen Schlüssel ohne Umlaut-Dubletten."""
+    replacements = {'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss'}
+    result = str(value or fallback).strip().lower()
+    for source, target in replacements.items():
+        result = result.replace(source, target)
+    result = '_'.join(''.join(char if char.isalnum() else ' ' for char in result).split())
+    return result or fallback
+
+
+def ensure_group(group_name: str = 'Manuelle Werte') -> LabGroup:
+    """Lädt oder erstellt eine Laborgruppe ohne Unique-Konflikte über Namen."""
+    safe_name = str(group_name or 'Manuelle Werte').strip() or 'Manuelle Werte'
+    safe_key = slugify_key(safe_name, 'manuelle_werte')
+    group = LabGroup.objects.filter(Q(key=safe_key) | Q(name__iexact=safe_name)).order_by('id').first()
+    if group:
+        return group
+    return LabGroup.objects.create(key=safe_key, name=safe_name)
+
+
 def ensure_analyte(key: str, display_name: str, group_name: str = 'Manuelle Werte') -> LabAnalyte:
     """Lädt oder erstellt einen Laborwert inklusive Gruppe."""
-    safe_key = str(key or display_name or 'manueller_laborwert').strip().lower().replace(' ', '_')
-    safe_name = str(display_name or safe_key).strip() or 'Manueller Laborwert'
-    group, _ = LabGroup.objects.get_or_create(key=group_name.lower().replace(' ', '_'), defaults={'name': group_name})
+    safe_name = str(display_name or key or 'Manueller Laborwert').strip() or 'Manueller Laborwert'
+    safe_key = slugify_key(key or safe_name, 'manueller_laborwert')
+    group = ensure_group(group_name)
     analyte, _ = LabAnalyte.objects.get_or_create(key=safe_key, defaults={'display_name': safe_name, 'group': group, 'aliases': [safe_name, safe_key.replace('_', ' ')]})
+    changed_fields = []
     if analyte.display_name != safe_name:
         analyte.display_name = safe_name
-        analyte.save(update_fields=['display_name', 'updated_at'])
+        changed_fields.append('display_name')
+    if analyte.group_id != group.id:
+        analyte.group = group
+        changed_fields.append('group')
+    if changed_fields:
+        analyte.save(update_fields=[*changed_fields, 'updated_at'])
     return analyte
 
 
@@ -76,6 +104,21 @@ def priority_for_status(value_status: str) -> str:
     if value_status in {LabValue.Status.LOW, LabValue.Status.REVIEW}:
         return LabValue.Priority.MEDIUM
     return LabValue.Priority.LOW
+
+
+def refresh_report_review_status(report: LabReport) -> None:
+    """Aktualisiert den Befundstatus nach Review-Änderungen."""
+    has_open_candidates = report.review_candidates.filter(status__in=[ReviewCandidate.Status.OPEN, ReviewCandidate.Status.BLOCKED]).exists()
+    has_review_values = report.values.filter(review_status=LabValue.ReviewStatus.REVIEW).exists()
+    if has_open_candidates or has_review_values:
+        next_status = LabReport.Status.REVIEW_OPEN
+    elif report.status == LabReport.Status.RELEASED:
+        next_status = LabReport.Status.RELEASED
+    else:
+        next_status = LabReport.Status.REPORT_READY
+    if report.status != next_status:
+        report.status = next_status
+        report.save(update_fields=['status', 'updated_at'])
 
 
 def parse_reference_range(raw_value: str) -> tuple[Decimal, Decimal]:
@@ -199,6 +242,7 @@ class ReviewQueueView(APIView):
 class ReviewCandidateDetailView(APIView):
     """Aktualisiert einen einzelnen Review-Kandidaten."""
 
+    @transaction.atomic
     def patch(self, request, public_id: str):
         """Speichert Korrektur, Einheit, Kommentar oder Status."""
         candidate = get_object_or_404(ReviewCandidate.objects.select_related('lab_value', 'report', 'analyte__group', 'corrected_unit', 'reference_range'), public_id=public_id)
@@ -234,18 +278,22 @@ class ReviewCandidateDetailView(APIView):
             candidate.lab_value.status = LabValue.Status.NORMAL
             candidate.lab_value.save(update_fields=['review_status', 'status', 'updated_at'])
         candidate.save()
+        refresh_report_review_status(candidate.report)
+        candidate.refresh_from_db()
         return Response(review_candidate_to_frontend(candidate))
 
 
 class ReviewCandidateBulkUpdateView(APIView):
     """Aktualisiert mehrere Review-Kandidaten in einem API-Aufruf."""
 
+    @transaction.atomic
     def post(self, request):
         """Setzt Statuswerte für sichere oder geprüfte Kandidaten."""
         ids = request.data.get('ids', [])
         target_status = request.data.get('status', ReviewCandidate.Status.CONFIRMED)
         candidates = ReviewCandidate.objects.select_related('lab_value', 'analyte__group', 'corrected_unit', 'reference_range', 'report__patient').filter(public_id__in=ids)
         result = []
+        touched_reports = set()
         for candidate in candidates:
             candidate.status = target_status
             candidate.save(update_fields=['status', 'updated_at'])
@@ -253,5 +301,8 @@ class ReviewCandidateBulkUpdateView(APIView):
                 candidate.lab_value.review_status = LabValue.ReviewStatus.CHECKED
                 candidate.lab_value.status = status_for_value(candidate.lab_value.value, candidate.lab_value.reference_range.lower, candidate.lab_value.reference_range.upper, 100)
                 candidate.lab_value.save(update_fields=['review_status', 'status', 'updated_at'])
+            touched_reports.add(candidate.report_id)
             result.append(review_candidate_to_frontend(candidate))
+        for report in LabReport.objects.filter(id__in=touched_reports):
+            refresh_report_review_status(report)
         return Response({'kandidaten': result})
