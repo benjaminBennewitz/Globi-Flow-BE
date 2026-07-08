@@ -1,0 +1,100 @@
+Globi-Flow-BE/
+├── apps/
+│   ├── core/
+│   │   ├── management/
+│   │   │   ├── commands/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── seed_demo_data.py
+│   │   │   └── __init__.py
+│   │   ├── migrations/
+│   │   │   └── ...
+│   │   ├── seeds/
+│   │   │   └── frontend_mocks.json
+│   │   ├── __init__.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   ├── utils.py
+│   │   └── views.py
+│   ├── dashboard/
+│   │   ├── migrations/
+│   │   │   └── ...
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── services.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── imports/
+│   │   ├── migrations/
+│   │   │   └── ...
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── parser.py
+│   │   ├── pdf_analysis.py
+│   │   ├── presenters.py
+│   │   ├── services.py
+│   │   ├── tasks.py
+│   │   ├── urls.py
+│   │   ├── validators.py
+│   │   └── views.py
+│   ├── knowledge/
+│   │   ├── migrations/
+│   │   │   └── ...
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── presenters.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── labs/
+│   │   ├── migrations/
+│   │   │   └── ...
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── presenters.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── patients/
+│   │   ├── migrations/
+│   │   │   └── ...
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── reports/
+│   │   ├── migrations/
+│   │   │   └── ...
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── presenters.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   └── __init__.py
+├── config/
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── celery.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── .env.local
+├── .env.prod
+├── .gitignore
+├── make-tree.ps1
+├── manage.py
+├── README.md
+├── requirements.txt
+└── tools.md
