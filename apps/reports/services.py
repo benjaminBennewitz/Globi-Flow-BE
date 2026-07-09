@@ -12,23 +12,43 @@ from apps.reports.models import PatientReport, ReportQuestion, ReportRecommendat
 DISCLAIMER = 'Diese Auswertung strukturiert Laborwerte und ersetzt keine Diagnose, Therapieentscheidung oder ärztliche Beratung.'
 
 
-def report_counts(lab_report: LabReport) -> dict[str, int]:
-    """Berechnet Berichtszähler direkt aus den geprüften Laborwerten."""
-    values = lab_report.values.all()
+def report_values_queryset(lab_report: LabReport):
+    """Lädt Laborwerte mit allen Relationen für Bericht und Zähler."""
+    return lab_report.values.select_related('analyte__group', 'unit', 'reference_range', 'analyte__knowledge_entry')
+
+
+def open_review_candidates(lab_report: LabReport):
+    """Lädt offene oder blockierte Review-Kandidaten eines Befunds."""
+    return lab_report.review_candidates.select_related('analyte__group', 'lab_value').filter(status__in=[ReviewCandidate.Status.OPEN, ReviewCandidate.Status.BLOCKED])
+
+
+def review_value_ids(lab_report: LabReport) -> set[int]:
+    """Ermittelt Laborwert-IDs, die fachlich noch geprüft werden müssen."""
     review_filter = Q(status=LabValue.Status.REVIEW) | Q(review_status=LabValue.ReviewStatus.REVIEW)
+    ids = set(report_values_queryset(lab_report).filter(review_filter).values_list('id', flat=True))
+    ids.update(candidate.lab_value_id for candidate in open_review_candidates(lab_report) if candidate.lab_value_id)
+    return ids
+
+
+def report_counts(lab_report: LabReport) -> dict[str, int]:
+    """Berechnet Berichtszähler direkt aus aktuellen Laborwerten und Review-Kandidaten."""
+    values = report_values_queryset(lab_report)
+    value_ids_in_review = review_value_ids(lab_report)
+    open_candidates_without_value = open_review_candidates(lab_report).filter(lab_value__isnull=True).count()
+    stable_values = values.exclude(id__in=value_ids_in_review)
+    review_count = len(value_ids_in_review) + open_candidates_without_value
     return {
-        'checked': values.filter(review_status=LabValue.ReviewStatus.CHECKED).count(),
-        'normal': values.filter(status=LabValue.Status.NORMAL).exclude(review_filter).count(),
-        'abnormal': values.filter(status__in=[LabValue.Status.HIGH, LabValue.Status.LOW]).exclude(review_filter).count(),
-        'review': values.filter(review_filter).count(),
+        'total': values.count() + open_candidates_without_value,
+        'checked': stable_values.count(),
+        'normal': stable_values.filter(status=LabValue.Status.NORMAL).count(),
+        'abnormal': stable_values.filter(status__in=[LabValue.Status.HIGH, LabValue.Status.LOW]).count(),
+        'review': review_count,
     }
 
 
 def has_open_review_items(lab_report: LabReport) -> bool:
     """Prüft, ob ein Befund noch offene Review-Arbeit enthält."""
-    open_candidates = lab_report.review_candidates.filter(status__in=[ReviewCandidate.Status.OPEN, ReviewCandidate.Status.BLOCKED]).exists()
-    review_values = lab_report.values.filter(review_status=LabValue.ReviewStatus.REVIEW).exists()
-    return open_candidates or review_values
+    return report_counts(lab_report)['review'] > 0
 
 
 def report_status_text(counts: dict[str, int]) -> str:
@@ -45,13 +65,13 @@ def report_summary_text(counts: dict[str, int]) -> str:
     if counts['review'] > 0:
         return 'Der Befund enthält noch prüfpflichtige Werte und ist noch nicht für den finalen Druck freigegeben.'
     if counts['abnormal'] > 0:
-        return 'Der Befund ist ärztlich geprüft. Einzelne Werte liegen außerhalb des Referenzbereichs und sollten im Arztgespräch eingeordnet werden.'
-    return 'Der Befund ist ärztlich geprüft. Die dargestellten Werte liegen im vorliegenden Testdatensatz im Referenzbereich.'
+        return f'Der Befund ist ärztlich geprüft. {counts["abnormal"]} von {counts["total"]} Werten liegen außerhalb des Referenzbereichs und sollten im Arztgespräch eingeordnet werden.'
+    return f'Der Befund ist ärztlich geprüft. Die dargestellten {counts["total"]} Werte liegen im vorliegenden Testdatensatz im Referenzbereich.'
 
 
 def ensure_patient_report(lab_report: LabReport, release: bool = False) -> PatientReport:
     """Erstellt oder aktualisiert den Patientenbericht zu einem Laborbefund."""
-    lab_report = LabReport.objects.select_related('patient').prefetch_related('values__analyte__group', 'values__unit', 'values__reference_range', 'values__analyte__knowledge_entry', 'review_candidates').get(id=lab_report.id)
+    lab_report = LabReport.objects.select_related('patient').prefetch_related('values__analyte__group', 'values__unit', 'values__reference_range', 'values__analyte__knowledge_entry', 'review_candidates__analyte__group', 'review_candidates__lab_value').get(id=lab_report.id)
     counts = report_counts(lab_report)
     status = PatientReport.Status.READY if counts['review'] == 0 else PatientReport.Status.DRAFT
     if release and counts['review'] == 0:
@@ -78,6 +98,15 @@ def ensure_patient_report(lab_report: LabReport, release: bool = False) -> Patie
     return report
 
 
+def abnormal_label(value: LabValue) -> str:
+    """Gibt eine patiententaugliche Richtung für einen auffälligen Wert zurück."""
+    if value.status == LabValue.Status.HIGH:
+        return 'erhöhten'
+    if value.status == LabValue.Status.LOW:
+        return 'erniedrigten'
+    return 'auffälligen'
+
+
 def rebuild_report_children(report: PatientReport, lab_report: LabReport, counts: dict[str, int]) -> None:
     """Ersetzt abhängige Berichtsinhalte kontrolliert aus aktuellen Befunddaten."""
     report.sections.all().delete()
@@ -85,19 +114,25 @@ def rebuild_report_children(report: PatientReport, lab_report: LabReport, counts
     report.recommendations.all().delete()
     report.sources.all().delete()
 
-    ReportSection.objects.create(report=report, key='zusammenfassung', title='Zusammenfassung', text=report.summary, sort_order=10)
-    ReportSection.objects.create(report=report, key='werte', title='Laborwerte', text=f'{counts["checked"]} geprüfte Werte, {counts["abnormal"]} auffällige Werte, {counts["review"]} Reviewwerte.', sort_order=20)
+    value_ids_in_review = review_value_ids(lab_report)
+    stable_values = report_values_queryset(lab_report).exclude(id__in=value_ids_in_review)
+    abnormal_values = list(stable_values.filter(status__in=[LabValue.Status.HIGH, LabValue.Status.LOW]).select_related('analyte__group', 'unit', 'reference_range').order_by('priority', 'analyte__group__sort_order', 'analyte__display_name'))
 
-    abnormal_values = list(lab_report.values.filter(status__in=[LabValue.Status.HIGH, LabValue.Status.LOW]).select_related('analyte__group')[:6])
-    for index, value in enumerate(abnormal_values, start=1):
-        ReportRecommendation.objects.create(report=report, public_id=f'empfehlung-{report.public_id}-{index}', title=f'{value.analyte.display_name} ärztlich einordnen', text='Besprechen Sie diesen Wert im nächsten Arztgespräch. Die Auswertung stellt keine Diagnose.', priority=ReportRecommendation.Priority.NOTICE, sort_order=index)
-        ReportQuestion.objects.create(report=report, public_id=f'frage-{report.public_id}-{index}', question=f'Welche Bedeutung hat der Wert {value.analyte.display_name} in meinem Gesamtbefund?', area=value.analyte.group.name, sort_order=index)
+    ReportSection.objects.create(report=report, key='zusammenfassung', title='Zusammenfassung', text=report.summary, sort_order=10)
+    ReportSection.objects.create(report=report, key='werte', title='Laborwerte', text=f'{counts["total"]} Werte insgesamt, {counts["normal"]} unauffällig, {counts["abnormal"]} auffällig, {counts["review"]} Reviewwerte.', sort_order=20)
+
+    for index, value in enumerate(abnormal_values[:6], start=1):
+        ReportRecommendation.objects.create(report=report, public_id=f'empfehlung-{report.public_id}-{index}', title=f'{value.analyte.display_name} ärztlich einordnen', text=f'Der {abnormal_label(value)} Wert sollte im Zusammenhang mit Beschwerden, Verlauf und weiteren Befunden ärztlich bewertet werden.', priority=ReportRecommendation.Priority.NOTICE, sort_order=index)
+
+    for index, value in enumerate(abnormal_values[:8], start=1):
+        direction = 'erhöht' if value.status == LabValue.Status.HIGH else 'erniedrigt'
+        ReportQuestion.objects.create(report=report, public_id=f'frage-{report.public_id}-{index}', question=f'Wie relevant ist der {direction}e Wert {value.analyte.display_name} in meinem Gesamtbefund und sollte er kontrolliert werden?', area=value.analyte.group.name, sort_order=index)
 
     if not abnormal_values:
-        ReportQuestion.objects.create(report=report, public_id=f'frage-{report.public_id}-standard', question='Gibt es Werte, die ich langfristig weiter beobachten sollte?', area='Allgemein', sort_order=1)
+        ReportQuestion.objects.create(report=report, public_id=f'frage-{report.public_id}-standard', question='Gibt es unauffällige Werte, die ich langfristig weiter beobachten sollte?', area='Allgemein', sort_order=1)
 
     source_ids = set()
-    for value in lab_report.values.select_related('analyte').all():
+    for value in report_values_queryset(lab_report).all():
         knowledge = getattr(value.analyte, 'knowledge_entry', None)
         if not knowledge:
             continue
