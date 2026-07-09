@@ -7,6 +7,7 @@ from datetime import date
 from decimal import Decimal
 import re
 from statistics import mean
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Max, Q
 from django.utils import timezone
@@ -140,19 +141,44 @@ def priority_for_status(status: str) -> str:
     return LabValue.Priority.LOW
 
 
+def parse_report_date_value(value: str) -> date | None:
+    """Wandelt erkannte Datumswerte aus Laborbefunden in ein Datum um."""
+    clean = str(value or '').strip()
+    try:
+        if re.fullmatch(r'\d{4}-\d{2}-\d{2}', clean):
+            return date.fromisoformat(clean)
+        if re.fullmatch(r'\d{2}\.\d{2}\.\d{4}', clean):
+            day, month, year = clean.split('.')
+            return date(int(year), int(month), int(day))
+    except ValueError:
+        return None
+    return None
+
+
 def extract_report_date(text: str) -> date:
-    """Liest das Befunddatum aus der optimierten Testdaten-PDF."""
-    patterns = [r'Befunddatum\s+(?P<date>\d{4}-\d{2}-\d{2})', r'Befunddatum\s+(?P<date>\d{2}\.\d{2}\.\d{4})']
+    """Liest das Befunddatum aus Textschicht- und OCR-Laborbefunden."""
     compact_text = re.sub(r'\s+', ' ', text or '')
+    patterns = [
+        r'Befunddatum\s+(?P<date>\d{4}-\d{2}-\d{2})',
+        r'Befunddatum\s+(?P<date>\d{2}\.\d{2}\.\d{4})',
+        r'Eingangsdatum:?\s+(?P<date>\d{2}\.\d{2}\.\d{4})',
+        r'Endbefund\s+(?P<date>\d{2}\.\d{2}\.\d{4})',
+    ]
+
     for pattern in patterns:
         match = re.search(pattern, compact_text, flags=re.IGNORECASE)
         if not match:
             continue
-        value = match.group('date')
-        if '-' in value:
-            return date.fromisoformat(value)
-        day, month, year = value.split('.')
-        return date(int(year), int(month), int(day))
+        parsed_date = parse_report_date_value(match.group('date'))
+        if parsed_date:
+            return parsed_date
+
+    fallback_match = re.search(r'(?P<date>\d{2}\.\d{2}\.\d{4})', compact_text)
+    if fallback_match:
+        parsed_date = parse_report_date_value(fallback_match.group('date'))
+        if parsed_date:
+            return parsed_date
+
     return timezone.localdate()
 
 
@@ -170,6 +196,21 @@ def mark_job_error(job: ImportJob, message: str) -> None:
     log(job, 'Keine Werte erkannt', message, ImportJob.Status.ERROR)
 
 
+def mark_ocr_started(job: ImportJob) -> None:
+    """Markiert einen Importjob sichtbar als laufenden OCR-Prozess."""
+    job.status = ImportJob.Status.ANALYZING
+    job.ocr_status = ImportJob.OcrStatus.ACTIVE
+    job.progress = max(job.progress, 24)
+    job.pipeline_step = 'Lokale OCR läuft'
+    job.recognized_values = 0
+    job.uncertain_values = 0
+    job.confidence = 0
+    job.save(update_fields=['status', 'ocr_status', 'progress', 'pipeline_step', 'recognized_values', 'uncertain_values', 'confidence', 'updated_at'])
+    set_step(job, 'text', ImportStep.Status.DONE, True)
+    set_step(job, 'ocr', ImportStep.Status.ACTIVE, False)
+    log(job, 'OCR gestartet', 'Keine verwertbare Textschicht gefunden. Tesseract verarbeitet die PDF lokal.', 'info')
+
+
 def create_datasets(job: ImportJob, saved_values: list[LabValue]) -> None:
     """Erstellt gruppierte Import-Datasets für die UI."""
     grouped: dict[str, list[LabValue]] = defaultdict(list)
@@ -182,18 +223,142 @@ def create_datasets(job: ImportJob, saved_values: list[LabValue]) -> None:
         ImportDataset.objects.create(public_id=f'dataset-{job.public_id}-{index}', job=job, name=group_name, values_count=len(values), review_count=review_count, confidence=confidence, status=ImportDataset.Status.REVIEW if review_count else ImportDataset.Status.NORMAL)
 
 
-@transaction.atomic
+
+def deduplicate_parsed_values(parsed_values: list[ParsedLabValue]) -> tuple[list[ParsedLabValue], int]:
+    """Entfernt doppelte OCR-Treffer je Laborwert innerhalb eines Befunds."""
+    unique_values: dict[str, ParsedLabValue] = {}
+    duplicate_count = 0
+
+    for parsed in parsed_values:
+        key = slugify_key(parsed.analyte_key or parsed.display_name, 'laborwert')
+        existing = unique_values.get(key)
+
+        if existing is None:
+            unique_values[key] = parsed
+            continue
+
+        duplicate_count += 1
+        should_replace = parsed.confidence > existing.confidence
+        same_confidence_newer_text = parsed.confidence == existing.confidence and len(parsed.original_text) > len(existing.original_text)
+
+        if should_replace or same_confidence_newer_text:
+            unique_values[key] = parsed
+
+    return list(unique_values.values()), duplicate_count
+
+
+
+
+
+def auto_review_threshold() -> int:
+    """Liefert den konfigurierbaren Confidence-Grenzwert für automatische Übernahme."""
+    return int(getattr(settings, 'IMPORT_AUTO_REVIEW_CONFIDENCE_THRESHOLD', 90))
+
+def review_hints_for_value(parsed: ParsedLabValue, analysis_type: str, value_status: str) -> list[str]:
+    """Ermittelt nachvollziehbare Review-Hinweise für importierte Laborwerte."""
+    hints: list[str] = []
+
+    threshold = auto_review_threshold()
+
+    if analysis_type == ImportJob.AnalysisType.OCR and parsed.confidence < threshold:
+        hints.append(f'OCR-Import unter {threshold} Prozent Confidence.')
+    if value_status == LabValue.Status.REVIEW:
+        hints.append('Confidence liegt unter dem Grenzwert für automatische Übernahme.')
+    if parsed.confidence < threshold:
+        hints.append(f'Erkennungsqualität unter {threshold} Prozent.')
+    if not str(parsed.unit or '').strip() or str(parsed.unit or '').strip().lower() == 'ohne einheit':
+        hints.append('Einheit konnte nicht sicher erkannt werden.')
+    if parsed.reference_min == parsed.reference_max:
+        hints.append('Referenzbereich wirkt unvollständig oder unsicher.')
+
+    return hints or ['Automatisch markiert, weil Alias oder Confidence ärztlich geprüft werden sollte.']
+
+
+def should_review_value(parsed: ParsedLabValue, analysis_type: str, value_status: str) -> bool:
+    """Entscheidet, ob ein erkannter Wert in den Review muss."""
+    threshold = auto_review_threshold()
+
+    if value_status == LabValue.Status.REVIEW:
+        return True
+    if parsed.confidence < threshold:
+        return True
+    if not str(parsed.unit or '').strip() or str(parsed.unit or '').strip().lower() == 'ohne einheit':
+        return True
+    if parsed.reference_min == parsed.reference_max:
+        return True
+    return False
+
+
+def save_lab_value(report: LabReport, analyte: LabAnalyte, unit: LabUnit, reference: ReferenceRange, parsed: ParsedLabValue, value_status: str, review_status: str) -> LabValue:
+    """Speichert einen Laborwert idempotent für Befund und Laborwert-Key."""
+    lab_value, created = LabValue.objects.update_or_create(
+        report=report,
+        analyte=analyte,
+        defaults={
+            'public_id': unique_public_id(LabValue, 'wert'),
+            'unit': unit,
+            'reference_range': reference,
+            'value': parsed.value,
+            'status': value_status,
+            'priority': priority_for_status(value_status),
+            'review_status': review_status,
+            'confidence': parsed.confidence,
+            'hint': 'Aus lokalem Import erkannt.',
+            'original_text': parsed.original_text,
+        },
+    )
+
+    if not created and not lab_value.public_id:
+        lab_value.public_id = unique_public_id(LabValue, 'wert')
+        lab_value.save(update_fields=['public_id', 'updated_at'])
+
+    return lab_value
+
+
+def sync_review_candidate(report: LabReport, lab_value: LabValue, analyte: LabAnalyte, unit: LabUnit, reference: ReferenceRange, parsed: ParsedLabValue, source: str, index: int) -> ReviewCandidate:
+    """Legt einen Review-Kandidaten an oder aktualisiert den bestehenden Kandidaten."""
+    candidate = ReviewCandidate.objects.filter(report=report, analyte=analyte, source=source).exclude(status=ReviewCandidate.Status.DISCARDED).order_by('id').first()
+    defaults = {
+        'lab_value': lab_value,
+        'raw_name': parsed.display_name,
+        'raw_value': str(parsed.value),
+        'corrected_value': parsed.value,
+        'raw_unit': parsed.unit,
+        'corrected_unit': unit,
+        'reference_range': reference,
+        'original_text': parsed.original_text,
+        'original_label': f'Importzeile {index}',
+        'confidence': parsed.confidence,
+        'parser_hints': ['Automatisch markiert, weil Alias oder Confidence ärztlich geprüft werden sollte.'],
+        'checks': [{'id': f'check-{index}', 'titel': 'Parserprüfung', 'beschreibung': 'Bitte Wert, Einheit und Referenzbereich bestätigen.', 'status': 'pruefen'}],
+    }
+
+    if candidate:
+        for field, value in defaults.items():
+            setattr(candidate, field, value)
+        if candidate.status not in {ReviewCandidate.Status.CORRECTED, ReviewCandidate.Status.CONFIRMED}:
+            candidate.status = ReviewCandidate.Status.OPEN
+        candidate.save(update_fields=[*defaults.keys(), 'status', 'updated_at'])
+        return candidate
+
+    return ReviewCandidate.objects.create(public_id=unique_public_id(ReviewCandidate, 'review'), report=report, analyte=analyte, source=source, **defaults)
+
+
 def process_import_job(job_id: int) -> None:
     """Analysiert einen Importjob lokal und persistiert erkannte Werte."""
-    job = ImportJob.objects.select_for_update().get(id=job_id)
+    job = ImportJob.objects.select_related('patient').get(id=job_id)
     job.status = ImportJob.Status.ANALYZING
     job.progress = 15
-    job.pipeline_step = 'Lokale Textanalyse'
-    job.save(update_fields=['status', 'progress', 'pipeline_step', 'updated_at'])
+    job.pipeline_step = 'Textschicht prüfen'
+    job.error_message = ''
+    job.recognized_values = 0
+    job.uncertain_values = 0
+    job.confidence = 0
+    job.save(update_fields=['status', 'progress', 'pipeline_step', 'error_message', 'recognized_values', 'uncertain_values', 'confidence', 'updated_at'])
     set_step(job, 'text', ImportStep.Status.ACTIVE, False)
 
     try:
-        result = analyze_pdf(job.source_file.path)
+        result = analyze_pdf(job.source_file.path, ocr_started_callback=lambda: mark_ocr_started(job))
         job.analysis_type = result.analysis_type
         job.ocr_status = ImportJob.OcrStatus.DONE if result.ocr_required and result.text else ImportJob.OcrStatus.NOT_REQUIRED
         if result.ocr_error and not result.text:
@@ -210,39 +375,76 @@ def process_import_job(job_id: int) -> None:
             mark_job_error(job, 'Die PDF wurde angenommen, aber es konnten keine Laborwertzeilen erkannt werden. Bitte Testdaten-PDF, Textschicht oder OCR-Setup prüfen.')
             return
 
+        parsed_values, duplicate_count = deduplicate_parsed_values(parsed_values)
+        if duplicate_count:
+            log(job, 'Doppelte OCR-Treffer bereinigt', f'{duplicate_count} doppelte Laborwert-Treffer wurden zusammengeführt.', 'info')
+
         patient = job.patient or Patient.objects.order_by('id').first()
         if patient is None:
             raise ValueError('Für den Import ist keine Testperson vorhanden.')
 
-        set_step(job, 'table', ImportStep.Status.DONE, True)
-        set_step(job, 'values', ImportStep.Status.ACTIVE, False)
-        report = LabReport.objects.create(public_id=unique_public_id(LabReport, 'befund'), patient=patient, name=job.filename, report_date=extract_report_date(result.text), status=LabReport.Status.REVIEW_OPEN, source=job.analysis_type)
+        report_date = extract_report_date(result.text)
         saved_values: list[LabValue] = []
+        uncertain_values = 0
 
-        for index, parsed in enumerate(parsed_values, start=1):
-            analyte = ensure_analyte(parsed)
-            unit = ensure_unit(parsed.unit)
-            reference = ensure_reference(analyte, unit, parsed.reference_min, parsed.reference_max)
-            value_status = status_for_value(parsed.value, parsed.reference_min, parsed.reference_max, parsed.confidence)
-            review_status = LabValue.ReviewStatus.REVIEW if value_status == LabValue.Status.REVIEW else LabValue.ReviewStatus.CHECKED
-            lab_value = LabValue.objects.create(public_id=unique_public_id(LabValue, 'wert'), report=report, analyte=analyte, unit=unit, reference_range=reference, value=parsed.value, status=value_status, priority=priority_for_status(value_status), review_status=review_status, confidence=parsed.confidence, hint='Aus lokalem Import erkannt.', original_text=parsed.original_text)
-            saved_values.append(lab_value)
-            if review_status == LabValue.ReviewStatus.REVIEW:
-                ReviewCandidate.objects.create(public_id=unique_public_id(ReviewCandidate, 'review'), report=report, lab_value=lab_value, analyte=analyte, raw_name=parsed.display_name, raw_value=str(parsed.value), corrected_value=parsed.value, raw_unit=parsed.unit, corrected_unit=unit, reference_range=reference, original_text=parsed.original_text, original_label=f'Importzeile {index}', confidence=parsed.confidence, source=ReviewCandidate.Source.OCR if result.analysis_type == 'ocr' else ReviewCandidate.Source.PDF_TEXT, parser_hints=['Automatisch markiert, weil Alias oder Confidence ärztlich geprüft werden sollte.'], checks=[{'id': f'check-{index}', 'titel': 'Parserprüfung', 'beschreibung': 'Bitte Wert, Einheit und Referenzbereich bestätigen.', 'status': 'pruefen'}])
+        with transaction.atomic():
+            set_step(job, 'table', ImportStep.Status.DONE, True)
+            set_step(job, 'values', ImportStep.Status.ACTIVE, False)
+            report = LabReport.objects.create(public_id=unique_public_id(LabReport, 'befund'), patient=patient, name=job.filename, report_date=report_date, status=LabReport.Status.REVIEW_OPEN, source=job.analysis_type)
 
-        job.recognized_values = len(saved_values)
-        job.uncertain_values = sum(1 for item in saved_values if item.review_status == LabValue.ReviewStatus.REVIEW)
-        job.confidence = round(mean(item.confidence for item in saved_values)) if saved_values else 0
-        job.progress = 100
-        job.status = ImportJob.Status.REVIEW if job.uncertain_values else ImportJob.Status.DONE
-        job.pipeline_step = 'Review vorbereitet' if job.uncertain_values else 'Import abgeschlossen'
-        job.error_message = ''
-        job.save()
-        create_datasets(job, saved_values)
-        set_step(job, 'values', ImportStep.Status.DONE, True)
-        set_step(job, 'confidence', ImportStep.Status.DONE, True)
+            for index, parsed in enumerate(parsed_values, start=1):
+                analyte = ensure_analyte(parsed)
+                unit = ensure_unit(parsed.unit)
+                reference = ensure_reference(analyte, unit, parsed.reference_min, parsed.reference_max)
+                value_status = status_for_value(parsed.value, parsed.reference_min, parsed.reference_max, parsed.confidence)
+                needs_review = should_review_value(parsed, result.analysis_type, value_status)
+                review_status = LabValue.ReviewStatus.REVIEW if needs_review else LabValue.ReviewStatus.CHECKED
+                lab_value = save_lab_value(report, analyte, unit, reference, parsed, value_status, review_status)
+                saved_values.append(lab_value)
+
+                if review_status == LabValue.ReviewStatus.REVIEW:
+                    uncertain_values += 1
+                    review_source = ReviewCandidate.Source.OCR if result.analysis_type == ImportJob.AnalysisType.OCR else ReviewCandidate.Source.PDF_TEXT
+                    candidate = sync_review_candidate(report, lab_value, analyte, unit, reference, parsed, review_source, index)
+                    candidate.parser_hints = review_hints_for_value(parsed, result.analysis_type, value_status)
+                    candidate.checks = [
+                        {
+                            'id': f'check-{index}-wert',
+                            'titel': 'Wert prüfen',
+                            'beschreibung': 'Bitte Ergebniswert mit dem Originalbefund vergleichen.',
+                            'status': 'pruefen',
+                        },
+                        {
+                            'id': f'check-{index}-einheit',
+                            'titel': 'Einheit prüfen',
+                            'beschreibung': 'Bitte Einheit und Dezimalstellen kontrollieren.',
+                            'status': 'pruefen',
+                        },
+                        {
+                            'id': f'check-{index}-referenz',
+                            'titel': 'Referenz prüfen',
+                            'beschreibung': 'Bitte Referenzbereich aus dem Befund bestätigen.',
+                            'status': 'pruefen',
+                        },
+                    ]
+                    candidate.save(update_fields=['parser_hints', 'checks', 'updated_at'])
+
+            job.recognized_values = len(saved_values)
+            job.uncertain_values = uncertain_values
+            job.confidence = round(mean(item.confidence for item in saved_values)) if saved_values else 0
+            job.progress = 100
+            job.status = ImportJob.Status.REVIEW if job.uncertain_values else ImportJob.Status.DONE
+            job.pipeline_step = 'Review vorbereitet' if job.uncertain_values else 'Import abgeschlossen'
+            job.error_message = ''
+            job.save(update_fields=['recognized_values', 'uncertain_values', 'confidence', 'progress', 'status', 'pipeline_step', 'error_message', 'updated_at'])
+            ImportDataset.objects.filter(job=job).delete()
+            create_datasets(job, saved_values)
+            set_step(job, 'values', ImportStep.Status.DONE, True)
+            set_step(job, 'confidence', ImportStep.Status.DONE, True)
+
         log(job, f'{job.recognized_values} Werte erkannt', f'{job.uncertain_values} Werte wurden für den Review markiert. Befund wurde {patient.display_name} zugeordnet.', job.status)
     except Exception as exc:
+        job = ImportJob.objects.get(id=job_id)
         job.status = ImportJob.Status.ERROR
         job.progress = max(job.progress, 20)
         job.pipeline_step = 'Importfehler'
@@ -250,4 +452,3 @@ def process_import_job(job_id: int) -> None:
         job.save(update_fields=['status', 'progress', 'pipeline_step', 'error_message', 'updated_at'])
         set_step(job, 'values', ImportStep.Status.ERROR, False)
         log(job, 'Importfehler', str(exc), ImportJob.Status.ERROR)
-        raise

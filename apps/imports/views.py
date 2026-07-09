@@ -3,7 +3,6 @@
 """API-Views für Importjobs und Review-Warteschlange."""
 
 from decimal import Decimal, InvalidOperation
-from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -12,10 +11,10 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.core.utils import public_id
+from apps.imports.async_runner import start_import_job_processing
 from apps.imports.models import ImportDataset, ImportJob, ImportLog
 from apps.imports.presenters import import_job_to_frontend
-from apps.imports.services import create_default_steps, create_upload_job, process_import_job
-from apps.imports.tasks import process_import_job_task
+from apps.imports.services import create_default_steps, create_upload_job
 from apps.imports.validators import validate_pdf_upload
 from apps.labs.models import LabAnalyte, LabGroup, LabReport, LabUnit, LabValue, ReferenceRange, ReviewCandidate
 from apps.labs.presenters import review_candidate_to_frontend
@@ -183,11 +182,8 @@ class UploadImportView(APIView):
         if patient_id:
             patient = Patient.objects.filter(public_id=patient_id).first()
         job = create_upload_job(uploaded_file, patient=patient)
-        if settings.GLOBI_USE_CELERY:
-            process_import_job_task.delay(job.id)
-        else:
-            process_import_job(job.id)
-            job.refresh_from_db()
+        start_import_job_processing(job.id)
+        job.refresh_from_db()
         return Response(import_job_to_frontend(import_job_queryset().get(id=job.id)), status=status.HTTP_201_CREATED)
 
 
