@@ -6,6 +6,15 @@ from decimal import Decimal
 from statistics import mean
 from apps.core.utils import decimal_to_number, format_date
 from apps.labs.models import LabReport, LabValue, ReviewCandidate
+from apps.knowledge.services import color_for_key, normalize_chart_color
+
+
+def analyte_chart_color(value: LabValue) -> str:
+    """Liefert die Wissensbasis-Farbe eines Laborwerts oder einen stabilen Fallback."""
+    try:
+        return normalize_chart_color(value.analyte.knowledge_entry.chart_color, value.analyte.key)
+    except Exception:
+        return color_for_key(value.analyte.key)
 
 
 def trend_direction(current: Decimal, previous: Decimal | None) -> str:
@@ -42,6 +51,7 @@ def lab_value_to_dashboard(value: LabValue) -> dict:
         'referenzMin': decimal_to_number(value.reference_range.lower),
         'referenzMax': decimal_to_number(value.reference_range.upper),
         'status': value.status,
+        'farbe': analyte_chart_color(value),
         'prioritaet': value.priority,
         'confidence': value.confidence,
         'trend': [decimal_to_number(entry.value) for entry in history][-5:],
@@ -73,6 +83,7 @@ def lab_value_to_evaluation(value: LabValue) -> dict:
         'referenzMin': decimal_to_number(value.reference_range.lower),
         'referenzMax': decimal_to_number(value.reference_range.upper),
         'status': value.status,
+        'farbe': analyte_chart_color(value),
         'prioritaet': value.priority,
         'reviewStatus': value.review_status,
         'confidence': value.confidence,
@@ -116,6 +127,7 @@ def trend_series(values: list[LabValue]) -> list[dict]:
             'key': value.analyte.key,
             'name': value.analyte.display_name,
             'einheit': value.unit.code,
+            'farbe': analyte_chart_color(value),
             'werte': [decimal_to_number(entry.value) for entry in value_history(value)][-6:],
             'referenzMin': decimal_to_number(value.reference_range.lower),
             'referenzMax': decimal_to_number(value.reference_range.upper),
@@ -168,7 +180,7 @@ def review_entry_to_frontend(candidate: ReviewCandidate) -> dict:
 
 def latest_report(patient_id: str | None = None) -> LabReport | None:
     """Lädt den neuesten nicht-leeren Befund mit allen relevanten Relationen."""
-    queryset = LabReport.objects.select_related('patient').prefetch_related('values__analyte__group', 'values__unit', 'values__reference_range').filter(values__isnull=False).distinct()
+    queryset = LabReport.objects.select_related('patient').prefetch_related('values__analyte__group', 'values__analyte__knowledge_entry', 'values__unit', 'values__reference_range').filter(values__isnull=False).distinct()
     if patient_id:
         queryset = queryset.filter(patient__public_id=patient_id)
     return queryset.order_by('-report_date', '-created_at').first()
@@ -186,7 +198,7 @@ def build_evaluation_view(report: LabReport | None = None) -> dict:
     report = report or latest_report()
     if not report:
         return {'aktuellerBefund': '', 'vergleichsBefund': '', 'hatVergleich': False, 'zeitraum': '0 Monate', 'werte': [], 'gruppen': []}
-    values = list(report.values.select_related('analyte__group', 'unit', 'reference_range'))
+    values = list(report.values.select_related('analyte__group', 'analyte__knowledge_entry', 'unit', 'reference_range'))
     previous = LabReport.objects.filter(patient=report.patient, report_date__lt=report.report_date, values__isnull=False).distinct().order_by('-report_date', '-created_at').first()
     return {
         'aktuellerBefund': format_date(report.report_date),

@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.knowledge.models import KnowledgeEntry, KnowledgeSource, KnowledgeVersion
 from apps.knowledge.presenters import knowledge_to_frontend
+from apps.knowledge.services import normalize_chart_color, reset_default_knowledge
 from apps.labs.models import LabAnalyte, LabGroup
 
 
@@ -88,6 +89,7 @@ def update_entry_from_data(entry: KnowledgeEntry, data: dict) -> KnowledgeEntry:
     entry.status = data.get('status', entry.status)
     entry.changed_by = data.get('geaendertVon', entry.changed_by) or 'Admin'
     entry.changed_at_label = data.get('geaendertAm', timezone.localdate().strftime('%d.%m.%Y'))
+    entry.chart_color = normalize_chart_color(data.get('farbe', entry.chart_color), entry.analyte.key)
     requested_version = data.get('version')
     note = data.get('aenderungsnotiz', '').strip() or 'Text aktualisiert.'
     if requested_version:
@@ -96,6 +98,16 @@ def update_entry_from_data(entry: KnowledgeEntry, data: dict) -> KnowledgeEntry:
     KnowledgeVersion.objects.get_or_create(entry=entry, version=entry.version, defaults={'date_label': entry.changed_at_label or timezone.localdate().strftime('%d.%m.%Y'), 'changed_by': entry.changed_by, 'note': note})
     sync_sources(entry, data.get('quellen'))
     return entry
+
+
+class KnowledgeResetView(APIView):
+    """Setzt die Wissensbasis auf den lokalen Mindestbestand zurück."""
+
+    def post(self, request):
+        """Erstellt den kontrollierten Mindestbestand neu und gibt ihn zurück."""
+        result = reset_default_knowledge()
+        entries = knowledge_queryset()
+        return Response({'status': 'ok', 'message': 'Wissensbasis wurde auf den Mindestbestand zurückgesetzt.', 'entries': result['entries'], 'analytes': result['analytes'], 'sources': result['sources'], 'items': [knowledge_to_frontend(entry) for entry in entries]}, status=status.HTTP_200_OK)
 
 
 class KnowledgeListCreateView(APIView):

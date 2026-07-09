@@ -28,6 +28,7 @@ class KnowledgeEntry(TimeStampedModel):
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT, db_index=True)
     changed_by = models.CharField(max_length=120, default='Admin')
     changed_at_label = models.CharField(max_length=40, blank=True)
+    chart_color = models.CharField(max_length=16, default='#0f5297')
 
     class Meta:
         ordering = ['analyte__group__name', 'analyte__display_name']

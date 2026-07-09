@@ -12,6 +12,7 @@ def knowledge_to_frontend(entry: KnowledgeEntry) -> dict:
         'laborwertKey': entry.analyte.key,
         'anzeigename': entry.analyte.display_name,
         'kategorie': entry.analyte.group.name,
+        'farbe': entry.chart_color,
         'patientKurztext': entry.patient_short_text,
         'patientLangtext': entry.patient_long_text,
         'arztinformation': entry.doctor_information,
