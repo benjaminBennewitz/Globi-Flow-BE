@@ -2,6 +2,7 @@
 
 """Serializer für Testpersonen und Patienten."""
 
+from datetime import datetime
 from django.db.models import Count, Q
 from rest_framework import serializers
 from apps.core.utils import decimal_to_number, format_date, public_id
@@ -51,7 +52,7 @@ class PatientInputSerializer(serializers.Serializer):
     vorname = serializers.CharField(max_length=80, allow_blank=True, required=False)
     nachname = serializers.CharField(max_length=80, allow_blank=True, required=False)
     nummer = serializers.CharField(max_length=32, allow_blank=True, required=False)
-    geburtsdatum = serializers.DateField(required=False, allow_null=True)
+    geburtsdatum = serializers.CharField(max_length=10, allow_blank=True, required=False)
     geschlecht = serializers.ChoiceField(choices=Patient.Sex.choices, default=Patient.Sex.UNKNOWN, required=False)
     gewichtKg = serializers.DecimalField(max_digits=6, decimal_places=2, required=False, allow_null=True)
     groesseCm = serializers.IntegerField(required=False, allow_null=True, min_value=1, max_value=260)
@@ -62,6 +63,21 @@ class PatientInputSerializer(serializers.Serializer):
     notiz = serializers.CharField(allow_blank=True, required=False)
     kontext = serializers.CharField(max_length=240, allow_blank=True, required=False)
     status = serializers.ChoiceField(choices=Patient.Status.choices, required=False)
+
+    def validate_geburtsdatum(self, value):
+        """Akzeptiert ISO- und deutsches Datumsformat aus der Oberfläche."""
+        datum = str(value or '').strip()
+
+        if not datum:
+            return None
+
+        for formatierung in ('%Y-%m-%d', '%d.%m.%Y'):
+            try:
+                return datetime.strptime(datum, formatierung).date()
+            except ValueError:
+                continue
+
+        raise serializers.ValidationError('Das Geburtsdatum muss als JJJJ-MM-TT oder TT.MM.JJJJ angegeben werden.')
 
     def validate_nummer(self, value):
         """Prüft eindeutige Testpersonen-Nummern für Create und Update."""
