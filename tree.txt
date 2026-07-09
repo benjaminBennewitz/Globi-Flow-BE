@@ -35,6 +35,7 @@ Globi-Flow-BE/
 │   │   ├── __init__.py
 │   │   ├── admin.py
 │   │   ├── apps.py
+│   │   ├── async_runner.py
 │   │   ├── models.py
 │   │   ├── parser.py
 │   │   ├── pdf_analysis.py
@@ -102,6 +103,12 @@ Globi-Flow-BE/
 │   └── imports/
 │       └── 2026/
 │           └── 07/
+│               ├── Bluttest_Ergebnis.pdf
+│               ├── Bluttest_Ergebnis_8LL4YQk.pdf
+│               ├── Bluttest_Ergebnis_BUOv6Mc.pdf
+│               ├── Bluttest_Ergebnis_jV9YdNS.pdf
+│               ├── Bluttest_Ergebnis_t6uBkLT.pdf
+│               ├── Bluttest_Ergebnis_vFmwavL.pdf
 │               ├── testdaten-laborbefund-demo.pdf
 │               ├── testdaten-laborbefund-demo_5sYySEk.pdf
 │               ├── testdaten-laborbefund-demo_6Xv2g8m.pdf

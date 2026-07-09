@@ -1,0 +1,54 @@
+2026-07-09 12:20:11,349 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 12:20:11,349 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 12:20:11,350 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 12:20:11,351 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 12:22:11,734 [INFO] daphne.server:328 Killed 0 pending application instances
+2026-07-09 12:22:14,273 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 12:22:14,274 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 12:22:14,274 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 12:22:14,275 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 12:29:22,773 [INFO] daphne.server:328 Killed 0 pending application instances
+2026-07-09 12:29:25,152 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 12:29:25,153 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 12:29:25,153 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 12:29:25,154 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 13:19:11,987 [INFO] daphne.server:328 Killed 0 pending application instances
+2026-07-09 13:19:15,128 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 13:19:15,129 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 13:19:15,129 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 13:19:15,130 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 13:35:17,094 [INFO] daphne.server:328 Killed 1 pending application instances
+2026-07-09 13:39:42,855 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 13:39:42,856 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 13:39:42,856 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 13:39:42,857 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 13:47:22,534 [INFO] daphne.server:328 Killed 0 pending application instances
+2026-07-09 13:47:25,489 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 13:47:25,490 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 13:47:25,490 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 13:47:25,491 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 14:03:42,173 [INFO] daphne.server:328 Killed 0 pending application instances
+2026-07-09 14:03:45,279 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 14:03:45,280 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 14:03:45,281 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 14:03:45,282 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 14:38:40,787 [INFO] daphne.server:328 Killed 0 pending application instances
+2026-07-09 14:38:45,152 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 14:38:45,153 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 14:38:45,153 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 14:38:45,154 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 15:24:17,891 [INFO] daphne.server:328 Killed 0 pending application instances
+2026-07-09 15:24:22,427 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 15:24:22,428 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 15:24:22,429 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 15:24:22,429 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 15:27:20,791 [INFO] daphne.server:328 Killed 0 pending application instances
+2026-07-09 15:27:23,629 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 15:27:23,630 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 15:27:23,630 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 15:27:23,631 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
+2026-07-09 15:33:37,092 [INFO] daphne.server:328 Killed 0 pending application instances
+2026-07-09 15:33:40,390 [INFO] daphne.cli:284 Starting server at tcp:port=8000:interface=127.0.0.1
+2026-07-09 15:33:40,391 [INFO] daphne.server:126 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-09 15:33:40,391 [INFO] daphne.server:135 Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-07-09 15:33:40,392 [INFO] daphne.server:166 Listening on TCP address 127.0.0.1:8000
