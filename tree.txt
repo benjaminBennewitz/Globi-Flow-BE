@@ -93,12 +93,19 @@ Globi-Flow-BE/
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
+├── logs/
+│   ├── celery.log
+│   ├── django.log
+│   ├── errors.log
+│   └── imports.log
 ├── media/
 │   └── imports/
 │       └── 2026/
 │           └── 07/
 │               ├── testdaten-laborbefund-demo.pdf
 │               ├── testdaten-laborbefund-demo_5sYySEk.pdf
+│               ├── testdaten-laborbefund-demo_6Xv2g8m.pdf
+│               ├── testdaten-laborbefund-demo_DHukSv7.pdf
 │               └── testdaten-laborbefund-demo_Xi4iMak.pdf
 ├── .env.local
 ├── .env.prod

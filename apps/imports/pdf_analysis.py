@@ -15,7 +15,7 @@ class PdfAnalysisResult:
     text: str
     analysis_type: str
     ocr_required: bool
-    ocr_error: str = ''
+    ocr_error: str = ""
 
 
 def extract_pdf_text(path: str | Path) -> str:
@@ -23,47 +23,64 @@ def extract_pdf_text(path: str | Path) -> str:
     try:
         from pypdf import PdfReader
     except Exception:
-        return ''
+        return ""
 
     reader = PdfReader(str(path))
     chunks = []
     for page in reader.pages:
-        chunks.append(page.extract_text() or '')
-    return '\n'.join(chunks).strip()
+        chunks.append(page.extract_text() or "")
+    return "\n".join(chunks).strip()
 
 
 def extract_ocr_text(path: str | Path) -> tuple[str, str]:
     """Extrahiert Text per lokalem Tesseract-OCR-Fallback."""
+    if not getattr(settings, "OCR_ENABLED", False):
+        return "", "OCR ist in den Backend-Settings deaktiviert."
+
     try:
         from pdf2image import convert_from_path
         import pytesseract
     except Exception as exc:
-        return '', f'OCR-Abhängigkeiten fehlen: {exc}'
+        return "", f"OCR-Abhängigkeiten fehlen: {exc}"
 
-    if settings.TESSERACT_CMD:
-        pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
+    tesseract_cmd = getattr(settings, "TESSERACT_CMD", "").strip()
+    poppler_path = getattr(settings, "POPPLER_PATH", "").strip()
+    ocr_languages = getattr(settings, "OCR_LANGUAGES", "eng").strip() or "eng"
+    ocr_dpi = int(getattr(settings, "OCR_DPI", 300) or 300)
+
+    if tesseract_cmd:
+        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
 
     chunks = []
     try:
-        images = convert_from_path(str(path), dpi=220)
+        kwargs = {"dpi": ocr_dpi}
+        if poppler_path:
+            kwargs["poppler_path"] = poppler_path
+
+        images = convert_from_path(str(path), **kwargs)
         for image in images:
             buffer = BytesIO()
-            image.save(buffer, format='PNG')
-            chunks.append(pytesseract.image_to_string(image, lang='deu+eng'))
+            image.save(buffer, format="PNG")
+            chunks.append(pytesseract.image_to_string(image, lang=ocr_languages))
     except Exception as exc:
-        return '', f'OCR konnte nicht ausgeführt werden: {exc}'
+        return "", f"OCR konnte nicht ausgeführt werden: {exc}"
 
-    return '\n'.join(chunks).strip(), ''
+    return "\n".join(chunks).strip(), ""
 
 
 def analyze_pdf(path: str | Path) -> PdfAnalysisResult:
     """Führt Textschichtanalyse aus und nutzt OCR nur bei Bedarf."""
     text = extract_pdf_text(path)
     if len(text) >= 80:
-        return PdfAnalysisResult(text=text, analysis_type='textschicht', ocr_required=False)
+        return PdfAnalysisResult(text=text, analysis_type="textschicht", ocr_required=False)
 
     ocr_text, error = extract_ocr_text(path)
     if ocr_text:
-        return PdfAnalysisResult(text=ocr_text, analysis_type='ocr', ocr_required=True)
+        return PdfAnalysisResult(text=ocr_text, analysis_type="ocr", ocr_required=True)
 
-    return PdfAnalysisResult(text=text, analysis_type='ocr', ocr_required=True, ocr_error=error or 'Keine verwertbare Textschicht erkannt.')
+    return PdfAnalysisResult(
+        text=text,
+        analysis_type="ocr",
+        ocr_required=True,
+        ocr_error=error or "Keine verwertbare Textschicht erkannt.",
+    )
