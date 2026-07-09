@@ -52,9 +52,10 @@ def lab_value_to_dashboard(value: LabValue) -> dict:
 def lab_value_to_evaluation(value: LabValue) -> dict:
     """Gibt einen Laborwert für die Auswertungsroute aus."""
     previous = previous_value(value)
+    has_previous = previous is not None
     previous_number = previous.value if previous else value.value
-    change_abs = value.value - previous_number
-    change_pct = Decimal('0') if previous_number == 0 else (change_abs / previous_number) * Decimal('100')
+    change_abs = value.value - previous_number if has_previous else Decimal('0')
+    change_pct = Decimal('0') if not has_previous or previous_number == 0 else (change_abs / previous_number) * Decimal('100')
     limit = value.reference_range.upper if value.status == LabValue.Status.HIGH else value.reference_range.lower
     deviation = Decimal('0')
     if limit and limit != 0 and value.status in {LabValue.Status.HIGH, LabValue.Status.LOW, LabValue.Status.REVIEW}:
@@ -67,6 +68,7 @@ def lab_value_to_evaluation(value: LabValue) -> dict:
         'gruppe': value.analyte.group.name,
         'wert': decimal_to_number(value.value),
         'vorherigerWert': decimal_to_number(previous_number),
+        'hatVergleich': has_previous,
         'einheit': value.unit.code,
         'referenzMin': decimal_to_number(value.reference_range.lower),
         'referenzMax': decimal_to_number(value.reference_range.upper),
@@ -183,13 +185,14 @@ def build_evaluation_view(report: LabReport | None = None) -> dict:
     """Baut die Auswertungsansicht aus normalisierten Laborwerten."""
     report = report or latest_report()
     if not report:
-        return {'aktuellerBefund': '', 'vergleichsBefund': '', 'zeitraum': '0 Monate', 'werte': [], 'gruppen': []}
+        return {'aktuellerBefund': '', 'vergleichsBefund': '', 'hatVergleich': False, 'zeitraum': '0 Monate', 'werte': [], 'gruppen': []}
     values = list(report.values.select_related('analyte__group', 'unit', 'reference_range'))
     previous = LabReport.objects.filter(patient=report.patient, report_date__lt=report.report_date, values__isnull=False).distinct().order_by('-report_date', '-created_at').first()
     return {
         'aktuellerBefund': format_date(report.report_date),
         'vergleichsBefund': format_date(previous.report_date) if previous else '',
-        'zeitraum': '12 Monate',
+        'hatVergleich': previous is not None,
+        'zeitraum': '12 Monate' if previous else 'kein Vergleich',
         'werte': [lab_value_to_evaluation(value) for value in values],
         'gruppen': group_summary(values, detailed=True),
     }

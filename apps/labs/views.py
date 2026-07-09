@@ -16,7 +16,10 @@ from apps.reports.services import ensure_patient_report, has_open_review_items
 def selected_report(report_id: str | None = None, patient_id: str | None = None) -> LabReport | None:
     """Lädt den gewünschten sichtbaren Befund oder den neuesten Befund mit Laborwerten."""
     if report_id:
-        report = LabReport.objects.annotate(value_count=Count('values', distinct=True), review_count=Count('review_candidates', distinct=True)).filter(public_id=report_id).filter(Q(value_count__gt=0) | Q(review_count__gt=0)).first()
+        queryset = LabReport.objects.annotate(value_count=Count('values', distinct=True), review_count=Count('review_candidates', distinct=True)).filter(public_id=report_id).filter(Q(value_count__gt=0) | Q(review_count__gt=0))
+        if patient_id:
+            queryset = queryset.filter(patient__public_id=patient_id)
+        report = queryset.first()
         if report:
             return report
     return latest_report(patient_id)
