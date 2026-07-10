@@ -1,119 +1,222 @@
-# Globi-Flow-BE
+# Globi Flow Backend
 
-Lokales Django/DRF-Backend für **Globi Flow**. Das Backend ist schlank gehalten, nutzt PostgreSQL und verarbeitet Dateiimport, PDF-Textanalyse und optional lokale OCR ohne externe Cloud-Services.
+> Lokales Django-Backend für die strukturierte Verarbeitung, Prüfung und verständliche Aufbereitung künstlicher Laborbefunde.
 
-## Struktur
+**Projektart:** Lernprojekt · Demo-Anwendung · technische Case Study  
+**Entwicklertag:** B² Benjamin Bennewitz  
+**Frontend:** [Globi Flow Frontend](https://github.com/benjaminBennewitz/Globi-Flow.git)
 
-```txt
-config/          Django-Konfiguration, URLs, Celery, ASGI/WSGI
-apps/core/      Healthcheck, Seed-Command, Hilfsfunktionen
-apps/patients/  Testpersonen und Stammdaten
-apps/labs/      Befunde, Laborwerte, Referenzbereiche, Review
-apps/imports/   Upload, Importjob, lokale PDF-/OCR-Pipeline
-apps/knowledge/ Kontrollierte Wissensbasis mit Quellen und Versionen
-apps/reports/   Patientenberichte und Report-Vorschau
-apps/dashboard/ Aggregierte API-Views für das Angular-Frontend
+---
+
+## Projektüberblick
+
+Globi Flow ist ein lokales Laborwerte-Assistenzsystem mit getrennten Arbeitsbereichen für Import, ärztliche Prüfung, Wissenspflege und Patientenbericht. Dieses Repository stellt die REST-API, Datenhaltung und lokale Verarbeitungsstrecke für das zugehörige Angular-Frontend bereit.
+
+Das Backend dient als technische Case Study für:
+
+- modular aufgebaute Django- und Django-REST-Framework-Anwendungen,
+- normalisierte Datenmodelle für Laborbefunde und Laborwerte,
+- lokale PDF-Textanalyse und OCR-Verarbeitung,
+- asynchrone Importjobs mit Celery und Redis,
+- kontrollierte Wissensinhalte statt frei erzeugter medizinischer Aussagen,
+- lokale Übersetzung von Patientenberichten,
+- nachvollziehbare Review-, Freigabe- und Reportabläufe,
+- sichere Verarbeitung ausschließlich künstlicher Testdaten.
+
+Globi Flow stellt keine Diagnosen. Medizinische Bewertung, Korrektur und Freigabe verbleiben immer bei einer fachlich zuständigen Person.
+
+---
+
+## Systemverbund
+
+| Bestandteil | Repository | Aufgabe |
+|---|---|---|
+| Frontend | [Globi Flow](https://github.com/benjaminBennewitz/Globi-Flow.git) | Angular-Oberfläche für Import, Review, Dashboard, Wissensbasis und Patientenbericht |
+| Backend | Dieses Repository | REST-API, PostgreSQL-Datenhaltung, lokale Analyse, OCR, Übersetzung und Hintergrundjobs |
+
+Das Frontend greift lokal standardmäßig über `http://127.0.0.1:8000/api/` auf die Backend-Endpunkte zu.
+
+---
+
+## Technologie-Stack
+
+| Bereich | Technologie |
+|---|---|
+| Backend | Python, Django 5.2, Django REST Framework |
+| API-Betrieb | Daphne, ASGI |
+| Datenbank | PostgreSQL mit Psycopg |
+| Hintergrundjobs | Celery |
+| Broker und Cache | Redis oder Memurai unter Windows |
+| PDF-Textanalyse | pypdf |
+| PDF-Bildkonvertierung | pdf2image und lokal installiertes Poppler |
+| OCR | pytesseract und lokal installiertes Tesseract OCR |
+| Lokale Übersetzung | Argos Translate |
+| Tests | pytest, pytest-django |
+| Qualität | Ruff |
+
+Alle fachlichen Verarbeitungswege sind für einen lokalen Betrieb ohne externe OCR-, Übersetzungs- oder Analyse-API ausgelegt.
+
+---
+
+## Kernfunktionen
+
+### Import und Analyse
+
+- Upload künstlicher PDF-Laborbefunde
+- Prüfung von Dateigröße, Dateityp und PDF-Signatur
+- optionale lokale Malware-Prüfung über ClamAV
+- Extraktion vorhandener PDF-Textschichten
+- lokaler OCR-Fallback für gescannte oder bildbasierte PDFs
+- Erkennung von Laborwert, Ergebnis, Einheit und Referenzbereich
+- Normalisierung erkannter Werte
+- Confidence Score für unsichere Extraktionen
+- Erstellung von Review-Kandidaten
+- synchroner oder asynchroner Importworkflow
+
+### Laborwerte und Review
+
+- Verwaltung künstlicher Testpersonen und Laborbefunde
+- strukturierte Speicherung von Laborwerten und Referenzbereichen
+- Reviewstatus für automatisch erkannte Werte
+- Korrektur und Freigabe durch den vorgesehenen Prüfworkflow
+- Verlaufsauswertung über mehrere Befunde
+- aggregierte Daten für Dashboard und Analyseansicht
+
+### Wissensbasis und Berichte
+
+- kontrollierte Wissenseinträge mit Quellen und Versionen
+- getrennte Inhalte für Arztansicht und Patientenerklärung
+- Freigabe- und Statusworkflow für Wissensinhalte
+- serverseitig aufgebautes Berichtstemplate
+- lokale Übersetzung unterstützter Berichtsinhalte
+- Report-Vorschau für das Angular-Frontend
+- medizinischer Disclaimer in der Patientenansicht
+
+---
+
+## Projektstruktur
+
+```text
+config/          Django-Konfiguration, URLs, Celery, ASGI und WSGI
+apps/core/       Healthcheck, Sicherheitsfunktionen und gemeinsame Hilfen
+apps/patients/   Testpersonen und Stammdaten
+apps/labs/       Befunde, Laborwerte, Referenzbereiche und Review
+apps/imports/    Upload, Importjobs, PDF-Analyse und lokale OCR-Pipeline
+apps/knowledge/  Kontrollierte Wissensbasis mit Quellen und Versionen
+apps/reports/    Patientenberichte, Templates und lokale Übersetzung
+apps/dashboard/  Aggregierte API-Daten für das Angular-Frontend
+scripts/         Lokale Start- und Hilfsskripte
+tools.md         Projektbezogene Entwicklungs- und Betriebsbefehle
 ```
 
-## Datenbank
+---
 
-Die Tabellen werden durch Django-Migrationen erstellt. Die PostgreSQL-Datenbank und der Benutzer müssen vorher einmal existieren.
+## Lokale Einrichtung unter Windows
 
-Standardwerte aus `.env.local`:
+### Voraussetzungen
 
-```txt
-DB_NAME=globi_flow_db
-DB_USER=globi_flow_admin
-DB_PASSWORD=123456
-DB_HOST=localhost
-DB_PORT=5432
-```
+- Python in einer zum Projekt passenden Version
+- PostgreSQL
+- Redis oder Memurai
+- Tesseract OCR
+- Poppler
 
-### Datenbank per psql anlegen
+### Virtuelle Umgebung und Abhängigkeiten
 
-Diese Befehle gehören nicht in `cmd`, sondern in `psql` oder in das Query Tool von pgAdmin.
-
-```sql
-CREATE USER globi_flow_admin WITH PASSWORD '123456';
-CREATE DATABASE globi_flow_db OWNER globi_flow_admin ENCODING 'UTF8';
-GRANT ALL PRIVILEGES ON DATABASE globi_flow_db TO globi_flow_admin;
-```
-
-Falls der User schon existiert:
-
-```sql
-ALTER USER globi_flow_admin WITH PASSWORD '123456';
-CREATE DATABASE globi_flow_db OWNER globi_flow_admin ENCODING 'UTF8';
-```
-
-Falls die Datenbank schon existiert:
-
-```sql
-ALTER DATABASE globi_flow_db OWNER TO globi_flow_admin;
-GRANT ALL PRIVILEGES ON DATABASE globi_flow_db TO globi_flow_admin;
-```
-
-## Lokaler Start ohne Docker
-
-```bash
-cd C:\Users\Werbung06\Desktop\Globi-Flow-BE
-.venv\Scripts\activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py seed_demo_data --reset
-python manage.py runserver
-```
-
-Wenn `(.venv)` bereits links in der Konsole steht, ist die virtuelle Umgebung schon aktiv. Dann `python -m venv .venv` nicht erneut ausführen.
-
-Wenn die virtuelle Umgebung beschädigt ist:
-
-```bash
-deactivate
-rmdir /s /q .venv
+```powershell
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Lokale Verarbeitung
+Wenn `(.venv)` bereits in der Konsole angezeigt wird, ist die virtuelle Umgebung aktiv und muss nicht erneut erstellt werden.
 
-Die Importpipeline arbeitet lokal:
+### PostgreSQL vorbereiten
 
-1. Dateigröße und PDF-Signatur prüfen.
-2. PDF-Textschicht lokal mit `pypdf` extrahieren.
-3. Falls keine verwertbare Textschicht vorhanden ist, optional lokale OCR über `pdf2image` und `pytesseract` nutzen.
-4. Laborwert-Zeilen über Alias-Liste und Regex erkennen.
-5. Einheit, Referenzbereich, Confidence und Reviewstatus normalisieren.
-6. Importjob, Befund, Laborwerte und Review-Kandidaten speichern.
+Die folgenden Befehle werden in `psql` oder im Query Tool von pgAdmin ausgeführt:
 
-Celery ist vorbereitet, aber in `.env.local` standardmäßig deaktiviert. Für den schlanken lokalen Start läuft die Analyse synchron.
+```sql
+CREATE USER globi_flow_admin WITH PASSWORD 'DEIN_LOKALES_PASSWORT';
+CREATE DATABASE globi_flow_db OWNER globi_flow_admin ENCODING 'UTF8';
+GRANT ALL PRIVILEGES ON DATABASE globi_flow_db TO globi_flow_admin;
+```
 
-Zusätzlich unterstützt die Pipeline:
+Lokale Zugangsdaten gehören ausschließlich in die nicht zu veröffentlichende Umgebungsdatei. Beispielwerte in der Dokumentation sind keine Empfehlung für produktive Passwörter.
 
-- lokale PDF-Textanalyse für optimierte Laborbefunde
-- lokalen OCR-Fallback über Tesseract für gescannte oder bildbasierte PDFs
-- lokale PDF-Bildkonvertierung über Poppler
+### Migrationen und Demodaten
 
-## Lokale OCR-Abhängigkeiten
+```powershell
+python manage.py migrate
+python manage.py seed_demo_data --reset
+python manage.py check
+```
 
-Globi Flow verarbeitet PDF-Dateien vollständig lokal. Für bildbasierte oder gescannte Laborbefunde wird ein lokaler OCR-Fallback verwendet.
+### Backend starten
 
-Benötigte Systemprogramme:
+Entwicklungsserver:
 
-- Tesseract OCR
-- Poppler
+```powershell
+python manage.py runserver
+```
 
-Tesseract wird nicht mit dem Repository ausgeliefert und muss lokal installiert werden. Für deutsche und englische Laborbefunde sollten mindestens die Sprachdaten `deu` und `eng` installiert sein.
+ASGI-Server mit Daphne:
 
-Empfohlene Windows-Pfade:
+```powershell
+daphne -b 127.0.0.1 -p 8000 config.asgi:application
+```
 
-```txt
+Falls der globale Script-Aufruf unter Windows nicht gefunden wird:
+
+```powershell
+.venv\Scripts\daphne.exe -b 127.0.0.1 -p 8000 config.asgi:application
+```
+
+---
+
+## Redis und Celery
+
+Celery verarbeitet Importjobs außerhalb des Webprozesses. Der Broker und das Result Backend werden über Redis beziehungsweise Memurai bereitgestellt.
+
+Celery Worker unter Windows starten:
+
+```powershell
+python -m celery -A config worker --loglevel=info --pool=solo --queues=globi_imports
+```
+
+Alternativ kann das vorhandene Startskript verwendet werden:
+
+```powershell
+scripts\start_celery_windows.bat
+```
+
+Für eine rein synchrone lokale Entwicklung kann Celery über die Umgebungsvariable deaktiviert werden:
+
+```env
+GLOBI_USE_CELERY=False
+```
+
+Bei aktiviertem Celery müssen Redis oder Memurai und der Worker vor dem Start eines Importjobs erreichbar sein.
+
+---
+
+## Lokale OCR-Verarbeitung
+
+Für PDFs ohne verwertbare Textschicht verwendet Globi Flow eine lokale OCR-Kette:
+
+1. PDF-Seiten mit Poppler in Bilder umwandeln.
+2. Bilder mit Tesseract OCR auslesen.
+3. erkannte Zeilen normalisieren und fachlichen Laborwerten zuordnen.
+4. Ergebnis, Einheit, Referenzbereich und Confidence speichern.
+5. unsichere Werte für die manuelle Prüfung markieren.
+
+Empfohlene lokale Windows-Pfade:
+
+```text
 C:\Program Files\Tesseract-OCR\tesseract.exe
 C:\Tools\poppler\Library\bin
 ```
 
-Die lokale `.env.local` sollte folgende Werte enthalten:
+Relevante Umgebungsvariablen:
 
 ```env
 OCR_ENABLED=True
@@ -125,95 +228,105 @@ POPPLER_PATH=C:\Tools\poppler\Library\bin
 
 Installation prüfen:
 
-```bash
+```powershell
 tesseract --version
 pdftoppm -h
 ```
 
-Backend danach neu starten:
+Tesseract und Poppler sind lokale Systemabhängigkeiten und werden nicht mit diesem Repository ausgeliefert.
 
-```bash
+---
+
+## Lokale Übersetzung
+
+Die Übersetzung des Patientenberichts erfolgt lokal über Argos Translate. Statische Reporttexte werden serverseitig kontrolliert aufgebaut; Übersetzungsergebnisse werden nicht als medizinische Diagnose oder automatisch freigegebener Fachinhalt behandelt.
+
+Die aktivierten Zielsprachen und das Glossar werden über die Backend-Konfiguration gesteuert:
+
+```env
+GLOBI_TRANSLATION_ENABLED=True
+GLOBI_TRANSLATION_SOURCE_LANGUAGE=de
+GLOBI_TRANSLATION_LANGUAGES=en,fr,es,tr
+```
+
+Benötigte Sprachmodelle müssen lokal installiert sein. Es werden keine Texte an externe Übersetzungsdienste übertragen.
+
+---
+
+## Importworkflow
+
+```text
+Testdaten-PDF
+    ↓
+Upload und Sicherheitsprüfung
+    ↓
+PDF-Textschicht oder lokale OCR
+    ↓
+Extraktion und Normalisierung
+    ↓
+Confidence-Bewertung
+    ↓
+Review und Korrektur
+    ↓
+Freigabe des Befunds
+    ↓
+Dashboard und Patientenbericht
+```
+
+---
+
+## Wichtige API-Bereiche
+
+| Bereich | Beispielpfade |
+|---|---|
+| System | `/api/health/`, `/api/demo-reset/` |
+| Dashboard | `/api/dashboard/`, `/api/overview/`, `/api/auswertung/` |
+| Patienten | `/api/patients/` |
+| Import | `/api/imports/jobs/`, `/api/imports/upload/`, `/api/imports/demo/` |
+| Review | `/api/imports/review/` |
+| Wissensbasis | `/api/knowledge/`, `/api/knowledge/<laborwert_key>/` |
+| Befundfreigabe | `/api/lab-reports/<report_id>/release/` |
+| Berichte | `/api/reports/preview/`, `/api/reports/patient-preview/` |
+
+Die Presenter und API-Views liefern für das Angular-Frontend aufbereitete camelCase-Strukturen.
+
+---
+
+## Tests und Qualitätsprüfung
+
+```powershell
+pytest
 python manage.py check
-daphne -b 127.0.0.1 -p 8000 config.asgi:application
+ruff check .
 ```
 
-Hinweis: Tesseract OCR wird als externe lokale Systemabhängigkeit genutzt und nicht in dieses Repository kopiert. Tesseract OCR steht unter der Apache License 2.0.
+Gezielte Testmodule können beispielsweise so ausgeführt werden:
 
-## API-Endpunkte
-
-```txt
-GET  /api/health/
-GET  /api/dashboard/
-GET  /api/overview/
-GET  /api/auswertung/
-GET  /api/patients/
-POST /api/patients/
-GET  /api/imports/jobs/
-POST /api/imports/upload/
-POST /api/imports/demo/
-GET  /api/imports/review/
-PATCH /api/imports/review/<review_id>/
-GET  /api/knowledge/
-POST /api/knowledge/
-GET  /api/knowledge/<laborwert_key>/
-PATCH /api/knowledge/<laborwert_key>/
-DELETE /api/knowledge/<laborwert_key>/
-POST /api/lab-reports/<report_id>/release/
-POST /api/lab-reports/release/
-GET  /api/reports/preview/
-GET  /api/reports/patient-preview/
+```powershell
+pytest apps/imports/tests_security.py
+pytest apps/reports/tests_translation.py
 ```
 
-Die View-Endpunkte liefern camelCase-Daten für das vorhandene Angular-Frontend.
+---
 
-## Frontend-Patch
+## Sicherheits- und Datenschutzgrenzen
 
-Der Frontend-Patch liegt als eigenes ZIP vor. Nach dem Backend-Start werden die Dateien in das Angular-Projekt kopiert. Erst wenn die API-Daten korrekt angezeigt werden, kann `src/app/core/mocks/` entfernt werden.
+Dieses Repository ist ein nicht-kommerzielles Lern-, Demo- und Portfolio-Projekt.
 
-## Medizinischer Hinweis
+- Es dürfen ausschließlich künstliche, anonymisierte Testdaten verwendet werden.
+- Echte Patienten-, Gesundheits- oder Identitätsdaten sind nicht für dieses Projekt vorgesehen.
+- Die Anwendung ist nicht als Medizinprodukt zertifiziert.
+- Die Anwendung ist nicht für Diagnose, Therapieentscheidung oder Notfallbewertung bestimmt.
+- Die vorhandenen Sicherheitsmaßnahmen stellen keine Garantie für vollständige Sicherheit dar.
+- Eine produktive Nutzung erfordert eine eigenständige fachliche, rechtliche, datenschutzrechtliche und technische Prüfung.
+- OCR-, Parser- und Übersetzungsergebnisse können unvollständig oder fehlerhaft sein und müssen geprüft werden.
+- Externe Systemprogramme und Sprachmodelle unterliegen ihren jeweiligen eigenen Lizenzen.
 
-Das Backend strukturiert, prüft und bereitet Laborwerte auf. Es stellt keine Diagnosen und ersetzt keine ärztliche Prüfung.
+Die Software wird ohne Zusicherung einer bestimmten Eignung, Fehlerfreiheit oder Verfügbarkeit bereitgestellt. Maßgeblich sind die Nutzungs- und Haftungshinweise dieses Projekts.
 
-## Lokaler Start ohne Docker
+---
 
-PostgreSQL muss lokal laufen. Die SQL-Befehle werden in pgAdmin oder `psql` ausgeführt, nicht direkt in CMD.
+## Autor
 
-```sql
-CREATE USER globi_flow_admin WITH PASSWORD '123456';
-CREATE DATABASE globi_flow_db OWNER globi_flow_admin ENCODING 'UTF8';
-GRANT ALL PRIVILEGES ON DATABASE globi_flow_db TO globi_flow_admin;
-```
-
-Wenn der User bereits existiert:
-
-```sql
-ALTER USER globi_flow_admin WITH PASSWORD '123456';
-```
-
-Danach im Backend-Ordner:
-
-```bash
-.venv\Scripts\activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py seed_demo_data --reset
-python manage.py runserver
-```
-
-## Start mit Daphne
-
-Daphne ist in `requirements.txt` enthalten. Für den lokalen ASGI-Start:
-
-```bash
-daphne -b 127.0.0.1 -p 8000 config.asgi:application
-```
-
-Falls Windows den Script-Namen nicht findet:
-
-```bash
-.venv\Scripts\daphne.exe -b 127.0.0.1 -p 8000 config.asgi:application
-```
-
-## Frontend-Anbindung
-
-Das Frontend ruft lokal direkt `http://127.0.0.1:8000/api/...` auf. Dadurch ist kein Angular-Proxy nötig und `localhost:4300/api/...` liefert nicht versehentlich die Angular-`index.html` zurück.
+**B² Benjamin Bennewitz**  
+Webentwicklung · Full Stack · Grafikdesign

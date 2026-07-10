@@ -3,7 +3,7 @@
 """Präsentationsfunktionen für Patientenberichte."""
 
 from apps.core.utils import decimal_to_number, format_date
-from apps.labs.models import LabValue, ReviewCandidate
+from apps.labs.models import LabValue
 from apps.labs.presenters import group_summary, trend_direction, value_history, previous_value
 from apps.reports.models import PatientReport
 from apps.reports.report_template import get_report_template
@@ -11,7 +11,15 @@ from apps.reports.services import open_review_candidates, report_counts, review_
 
 
 def patient_hint(value: LabValue, knowledge) -> str:
-    """Gibt einen patiententauglichen Hinweis ohne technische Importnotizen zurück."""
+    """Gibt einen patiententauglichen Hinweis ohne technische Importnotizen zurück.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+        knowledge: Wert für ``knowledge``.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     hint = (value.hint or '').strip()
     technical_fragments = ['aus lokalem import erkannt', 'demo-wert', 'parser']
     if hint and not any(fragment in hint.lower() for fragment in technical_fragments):
@@ -20,7 +28,14 @@ def patient_hint(value: LabValue, knowledge) -> str:
 
 
 def value_to_report(value: LabValue) -> dict:
-    """Gibt einen Laborwert für die Druckansicht aus."""
+    """Gibt einen Laborwert für die Druckansicht aus.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     knowledge = getattr(value.analyte, 'knowledge_entry', None)
     previous = previous_value(value)
     return {
@@ -40,7 +55,14 @@ def value_to_report(value: LabValue) -> dict:
 
 
 def missing_knowledge_entries(values: list[LabValue]) -> list[dict]:
-    """Listet Laborwerte ohne Patientenkurztext in der Wissensbasis."""
+    """Listet Laborwerte ohne Patientenkurztext in der Wissensbasis.
+
+    Args:
+        values: Wert für ``values``.
+
+    Returns:
+        Rückgabewert vom Typ ``list[dict]``.
+    """
     result = []
     for value in values:
         knowledge = getattr(value.analyte, 'knowledge_entry', None)
@@ -56,7 +78,14 @@ def missing_knowledge_entries(values: list[LabValue]) -> list[dict]:
 
 
 def open_review_entries(report: PatientReport) -> list[dict]:
-    """Listet offene Reviewpunkte des Berichtsbefunds für den Freigabecheck."""
+    """Listet offene Reviewpunkte des Berichtsbefunds für den Freigabecheck.
+
+    Args:
+        report: Betroffener Labor- oder Patientenbericht.
+
+    Returns:
+        Rückgabewert vom Typ ``list[dict]``.
+    """
     if not report.lab_report:
         return []
     entries = []
@@ -67,8 +96,10 @@ def open_review_entries(report: PatientReport) -> list[dict]:
             'gruppe': candidate.analyte.group.name,
             'hinweis': candidate.comment or 'Dieser OCR-/Importwert muss noch geprüft werden.',
         })
-    review_candidate_value_ids = {candidate.lab_value_id for candidate in open_review_candidates(report.lab_report) if candidate.lab_value_id}
-    values = report.lab_report.values.select_related('analyte__group').filter(review_status=LabValue.ReviewStatus.REVIEW)
+    review_candidate_value_ids = {candidate.lab_value_id for candidate in open_review_candidates(
+        report.lab_report) if candidate.lab_value_id}
+    values = report.lab_report.values.select_related(
+        'analyte__group').filter(review_status=LabValue.ReviewStatus.REVIEW)
     for value in values:
         if value.id in review_candidate_value_ids:
             continue
@@ -82,13 +113,24 @@ def open_review_entries(report: PatientReport) -> list[dict]:
 
 
 def build_print_report(report: PatientReport | None = None) -> dict:
-    """Baut die druckfertige Berichtsvorschau."""
-    report = report or PatientReport.objects.select_related('patient', 'lab_report').prefetch_related('sections', 'questions', 'recommendations', 'sources').order_by('-report_date').first()
+    """Baut die druckfertige Berichtsvorschau.
+
+    Args:
+        report: Betroffener Labor- oder Patientenbericht.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
+    report = report or PatientReport.objects.select_related('patient', 'lab_report').prefetch_related(
+        'sections', 'questions', 'recommendations', 'sources').order_by('-report_date').first()
     if report is None:
         return {'template': get_report_template(), 'id': '', 'berichtsdatum': '', 'version': '1.0', 'gesamtstatus': '', 'gesamttext': '', 'gesamtWerte': 0, 'gepruefteWerte': 0, 'normaleWerte': 0, 'auffaelligeWerte': 0, 'reviewWerte': 0, 'werte': [], 'kategorien': [], 'empfehlungen': [], 'fragen': [], 'quellen': [], 'disclaimer': '', 'istDruckbar': False, 'wissensbasisVollstaendig': True, 'fehlendeWissensbasisTexte': [], 'offeneReviewEintraege': []}
-    values = list(report.lab_report.values.select_related('analyte__group', 'unit', 'reference_range', 'analyte__knowledge_entry')) if report.lab_report else []
-    counts = report_counts(report.lab_report) if report.lab_report else {'total': 0, 'checked': 0, 'normal': 0, 'abnormal': 0, 'review': 0}
-    review_ids = review_value_ids(report.lab_report) if report.lab_report else set()
+    values = list(report.lab_report.values.select_related('analyte__group', 'unit',
+                  'reference_range', 'analyte__knowledge_entry')) if report.lab_report else []
+    counts = report_counts(report.lab_report) if report.lab_report else {
+        'total': 0, 'checked': 0, 'normal': 0, 'abnormal': 0, 'review': 0}
+    review_ids = review_value_ids(
+        report.lab_report) if report.lab_report else set()
     visible_values = [value for value in values if value.id not in review_ids]
     missing_entries = missing_knowledge_entries(visible_values)
     review_entries = open_review_entries(report)
@@ -118,8 +160,16 @@ def build_print_report(report: PatientReport | None = None) -> dict:
 
 
 def build_patient_report_preview(report: PatientReport | None = None) -> dict:
-    """Baut die kompakte Patientenbericht-Vorschau für die Startansicht."""
-    report = report or PatientReport.objects.prefetch_related('sections', 'questions').order_by('-report_date').first()
+    """Baut die kompakte Patientenbericht-Vorschau für die Startansicht.
+
+    Args:
+        report: Betroffener Labor- oder Patientenbericht.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
+    report = report or PatientReport.objects.prefetch_related(
+        'sections', 'questions').order_by('-report_date').first()
     if report is None:
         return {'id': '', 'testperson': '', 'berichtsdatum': '', 'zusammenfassung': '', 'abschnitte': [], 'fragen': [], 'disclaimer': ''}
     return {

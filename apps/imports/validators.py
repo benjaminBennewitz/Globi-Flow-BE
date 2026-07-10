@@ -9,7 +9,18 @@ from apps.imports.malware_scanner import scan_pdf_upload
 
 
 def validate_pdf_upload(uploaded_file) -> None:
-    """Prüft Dateigröße, Endung und PDF-Signatur."""
+    """Validiert einen PDF-Upload vor Speicherung und Analyse.
+
+    Args:
+        uploaded_file: Von Django bereitgestellte Upload-Datei.
+
+    Raises:
+        ValidationError: Bei ungültiger Endung, überschrittener Dateigröße,
+            falscher PDF-Signatur oder blockierendem Malwarebefund.
+
+    Side Effects:
+        Setzt den Dateizeiger nach Signatur- und Sicherheitsprüfung zurück.
+    """
     if uploaded_file.size <= 0:
         raise ValidationError('Die Datei ist leer.')
 

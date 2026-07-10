@@ -10,18 +10,24 @@ class Patient(TimeStampedModel):
     """Speichert eine fiktive Testperson oder später einen lokalen Patientenstammdatensatz."""
 
     class Sex(models.TextChoices):
+        """Im Testdatensatz geführte Geschlechtsangabe einer Person."""
+
         FEMALE = 'weiblich', 'Weiblich'
         MALE = 'maennlich', 'Männlich'
         DIVERSE = 'divers', 'Divers'
         UNKNOWN = 'unbekannt', 'Unbekannt'
 
     class Source(models.TextChoices):
+        """Quelle, über die die Testperson angelegt wurde."""
+
         DEMO = 'demo', 'Demo'
         HISTORY = 'verlauf', 'Verlauf'
         OCR = 'ocr', 'OCR'
         MANUAL = 'manuell', 'Manuell'
 
     class Status(models.TextChoices):
+        """Aktueller fachlicher Arbeitsstatus der Testperson."""
+
         ACTIVE = 'aktiv', 'Aktiv'
         REVIEW = 'review', 'Review'
         IMPORT = 'import', 'Import'

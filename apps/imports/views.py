@@ -2,9 +2,7 @@
 
 """API-Views für Importjobs und Review-Warteschlange."""
 
-from decimal import Decimal, InvalidOperation
 from django.db import transaction
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers, status
@@ -17,124 +15,31 @@ from apps.imports.models import ImportDataset, ImportJob, ImportLog
 from apps.imports.presenters import import_job_to_frontend
 from apps.imports.services import create_default_steps, create_upload_job
 from apps.imports.validators import validate_pdf_upload
-from apps.labs.models import LabAnalyte, LabGroup, LabReport, LabUnit, LabValue, ReferenceRange, ReviewCandidate
+from apps.imports.view_helpers import (
+    ensure_analyte,
+    ensure_reference,
+    ensure_unit,
+    import_job_queryset,
+    parse_reference_range,
+    priority_for_status,
+    refresh_report_review_status,
+    status_for_value,
+    to_decimal,
+)
+from apps.labs.models import LabReport, LabValue, ReviewCandidate
 from apps.labs.presenters import review_candidate_to_frontend
 from apps.patients.models import Patient
-
-
-def to_decimal(value, fallback=Decimal('0')) -> Decimal:
-    """Wandelt API-Eingaben robust in Decimal um."""
-    try:
-        return Decimal(str(value).replace(',', '.'))
-    except (InvalidOperation, TypeError, ValueError):
-        return fallback
-
-
-def import_job_queryset():
-    """Lädt Importjobs mit allen Statusrelationen."""
-    return ImportJob.objects.select_related('patient').prefetch_related('steps', 'datasets', 'logs')
-
-
-def ensure_unit(code: str) -> LabUnit:
-    """Lädt oder erstellt eine Laborwert-Einheit."""
-    clean_code = str(code or '').strip() or 'ohne Einheit'
-    unit, _ = LabUnit.objects.get_or_create(code=clean_code, defaults={'normalized_code': clean_code.lower()})
-    return unit
-
-
-def slugify_key(value: str, fallback: str = 'wert') -> str:
-    """Erzeugt einen DB-stabilen Schlüssel ohne Umlaut-Dubletten."""
-    replacements = {'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss'}
-    result = str(value or fallback).strip().lower()
-    for source, target in replacements.items():
-        result = result.replace(source, target)
-    result = '_'.join(''.join(char if char.isalnum() else ' ' for char in result).split())
-    return result or fallback
-
-
-def ensure_group(group_name: str = 'Manuelle Werte') -> LabGroup:
-    """Lädt oder erstellt eine Laborgruppe ohne Unique-Konflikte über Namen."""
-    safe_name = str(group_name or 'Manuelle Werte').strip() or 'Manuelle Werte'
-    safe_key = slugify_key(safe_name, 'manuelle_werte')
-    group = LabGroup.objects.filter(Q(key=safe_key) | Q(name__iexact=safe_name)).order_by('id').first()
-    if group:
-        return group
-    return LabGroup.objects.create(key=safe_key, name=safe_name)
-
-
-def ensure_analyte(key: str, display_name: str, group_name: str = 'Manuelle Werte') -> LabAnalyte:
-    """Lädt oder erstellt einen Laborwert inklusive Gruppe."""
-    safe_name = str(display_name or key or 'Manueller Laborwert').strip() or 'Manueller Laborwert'
-    safe_key = slugify_key(key or safe_name, 'manueller_laborwert')
-    group = ensure_group(group_name)
-    analyte, _ = LabAnalyte.objects.get_or_create(key=safe_key, defaults={'display_name': safe_name, 'group': group, 'aliases': [safe_name, safe_key.replace('_', ' ')]})
-    changed_fields = []
-    if analyte.display_name != safe_name:
-        analyte.display_name = safe_name
-        changed_fields.append('display_name')
-    if analyte.group_id != group.id:
-        analyte.group = group
-        changed_fields.append('group')
-    if changed_fields:
-        analyte.save(update_fields=[*changed_fields, 'updated_at'])
-    return analyte
-
-
-def ensure_reference(analyte: LabAnalyte, unit: LabUnit, lower: Decimal, upper: Decimal) -> ReferenceRange:
-    """Lädt oder erstellt einen Referenzbereich."""
-    reference, _ = ReferenceRange.objects.get_or_create(analyte=analyte, unit=unit, sex=ReferenceRange.Sex.ANY, age_min=None, age_max=None, lower=lower, upper=upper, defaults={'source_note': 'Manuell oder Review gepflegt'})
-    return reference
-
-
-def status_for_value(value: Decimal, lower: Decimal, upper: Decimal, confidence: int = 100) -> str:
-    """Berechnet den Wertstatus anhand des Referenzbereichs."""
-    if confidence < 75:
-        return LabValue.Status.REVIEW
-    if value < lower:
-        return LabValue.Status.LOW
-    if value > upper:
-        return LabValue.Status.HIGH
-    return LabValue.Status.NORMAL
-
-
-def priority_for_status(value_status: str) -> str:
-    """Leitet eine Anzeigepriorität aus dem Wertstatus ab."""
-    if value_status == LabValue.Status.HIGH:
-        return LabValue.Priority.HIGH
-    if value_status in {LabValue.Status.LOW, LabValue.Status.REVIEW}:
-        return LabValue.Priority.MEDIUM
-    return LabValue.Priority.LOW
-
-
-def refresh_report_review_status(report: LabReport) -> None:
-    """Aktualisiert den Befundstatus nach Review-Änderungen."""
-    has_open_candidates = report.review_candidates.filter(status__in=[ReviewCandidate.Status.OPEN, ReviewCandidate.Status.BLOCKED]).exists()
-    has_review_values = report.values.filter(review_status=LabValue.ReviewStatus.REVIEW).exists()
-    if has_open_candidates or has_review_values:
-        next_status = LabReport.Status.REVIEW_OPEN
-    elif report.status == LabReport.Status.RELEASED:
-        next_status = LabReport.Status.RELEASED
-    else:
-        next_status = LabReport.Status.REPORT_READY
-    if report.status != next_status:
-        report.status = next_status
-        report.save(update_fields=['status', 'updated_at'])
-
-
-def parse_reference_range(raw_value: str) -> tuple[Decimal, Decimal]:
-    """Liest einfache Referenzbereiche wie 4.0-10.0 ein."""
-    clean_value = str(raw_value or '').replace('–', '-').replace(',', '.')
-    parts = [part.strip() for part in clean_value.split('-', maxsplit=1)]
-    if len(parts) != 2:
-        return Decimal('0'), Decimal('999999')
-    return to_decimal(parts[0]), to_decimal(parts[1], Decimal('999999'))
 
 
 class ImportJobListView(APIView):
     """Listet Importjobs für die Statusroute."""
 
     def get(self, request):
-        """Gibt Importjobs im Frontendformat aus."""
+        """Gibt Importjobs im Frontendformat aus.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+        """
         jobs = import_job_queryset()[:50]
         return Response([import_job_to_frontend(job) for job in jobs])
 
@@ -143,15 +48,35 @@ class ImportJobDetailView(APIView):
     """Liest, aktualisiert und löscht einzelne Importjobs."""
 
     def get_object(self, public_id: str) -> ImportJob:
-        """Lädt einen Importjob anhand der öffentlichen ID."""
+        """Lädt einen Importjob anhand der öffentlichen ID.
+
+        Args:
+            public_id: Wert für ``public_id``.
+
+        Returns:
+            Rückgabewert vom Typ ``ImportJob``.
+        """
         return get_object_or_404(import_job_queryset(), public_id=public_id)
 
     def get(self, request, public_id: str):
-        """Gibt einen Importjob zurück."""
+        """Gibt einen Importjob zurück.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+            public_id: Wert für ``public_id``.
+        """
         return Response(import_job_to_frontend(self.get_object(public_id)))
 
     def patch(self, request, public_id: str):
-        """Aktualisiert einfache Statusfelder eines Importjobs."""
+        """Aktualisiert einfache Statusfelder eines Importjobs.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+            public_id: Wert für ``public_id``.
+
+        Side Effects:
+            Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+        """
         job = self.get_object(public_id)
         job.status = request.data.get('status', job.status)
         job.pipeline_step = request.data.get('pipelineSchritt', job.pipeline_step)
@@ -162,7 +87,15 @@ class ImportJobDetailView(APIView):
         return Response(import_job_to_frontend(self.get_object(public_id)))
 
     def delete(self, request, public_id: str):
-        """Löscht einen lokalen Importjob inklusive Pipeline-Daten."""
+        """Löscht einen lokalen Importjob inklusive Pipeline-Daten.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+            public_id: Wert für ``public_id``.
+
+        Side Effects:
+            Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+        """
         self.get_object(public_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -174,7 +107,14 @@ class UploadImportView(APIView):
     throttle_scope = 'upload'
 
     def post(self, request):
-        """Validiert die Datei und startet die lokale Analyse."""
+        """Validiert die Datei und startet die lokale Analyse.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+
+        Side Effects:
+            Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+        """
         uploaded_file = request.FILES.get('file')
         if uploaded_file is None:
             raise serializers.ValidationError('Es wurde keine Datei übergeben.')
@@ -193,7 +133,14 @@ class ManualImportView(APIView):
     """Legt eine manuelle Fallback-Erfassung als Reviewjob an."""
 
     def post(self, request):
-        """Speichert einen manuellen Laborwert als Importjob und Reviewkandidat."""
+        """Speichert einen manuellen Laborwert als Importjob und Reviewkandidat.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+
+        Side Effects:
+            Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+        """
         patient = Patient.objects.filter(public_id=request.data.get('patientId')).first() or Patient.objects.order_by('id').first()
         if patient is None:
             raise serializers.ValidationError('Für die manuelle Eingabe ist zuerst eine Testperson erforderlich.')
@@ -221,7 +168,14 @@ class DemoImportView(APIView):
     """Startet einen Demo-Import auf Basis vorhandener Seed-Daten."""
 
     def post(self, request):
-        """Gibt den neuesten Demo-Importjob zurück."""
+        """Gibt den neuesten Demo-Importjob zurück.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+
+        Side Effects:
+            Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+        """
         job = import_job_queryset().order_by('-created_at').first()
         if job is None:
             return Response({'detail': 'Keine Demo-Daten vorhanden. Bitte seed_demo_data ausführen.'}, status=status.HTTP_404_NOT_FOUND)
@@ -232,7 +186,11 @@ class ReviewQueueView(APIView):
     """Liefert Review-Kandidaten."""
 
     def get(self, request):
-        """Gibt die Reviewansicht zurück."""
+        """Gibt die Reviewansicht zurück.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+        """
         candidates = ReviewCandidate.objects.select_related('report__patient', 'analyte__group', 'corrected_unit', 'reference_range').all()
         return Response({'kandidaten': [review_candidate_to_frontend(candidate) for candidate in candidates]})
 
@@ -242,7 +200,15 @@ class ReviewCandidateDetailView(APIView):
 
     @transaction.atomic
     def patch(self, request, public_id: str):
-        """Speichert Korrektur, Einheit, Kommentar oder Status."""
+        """Speichert Korrektur, Einheit, Kommentar oder Status.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+            public_id: Wert für ``public_id``.
+
+        Side Effects:
+            Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+        """
         candidate = get_object_or_404(ReviewCandidate.objects.select_related('lab_value', 'report', 'analyte__group', 'corrected_unit', 'reference_range'), public_id=public_id)
         analyte = candidate.analyte
         if 'laborwertKey' in request.data or 'anzeigename' in request.data:
@@ -286,7 +252,14 @@ class ReviewCandidateBulkUpdateView(APIView):
 
     @transaction.atomic
     def post(self, request):
-        """Setzt Statuswerte für sichere oder geprüfte Kandidaten."""
+        """Setzt Statuswerte für sichere oder geprüfte Kandidaten.
+
+        Args:
+            request: Eingehende DRF-Anfrage mit validierten Query- oder Nutzdaten.
+
+        Side Effects:
+            Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+        """
         ids = request.data.get('ids', [])
         target_status = request.data.get('status', ReviewCandidate.Status.CONFIRMED)
         candidates = ReviewCandidate.objects.select_related('lab_value', 'analyte__group', 'corrected_unit', 'reference_range', 'report__patient').filter(public_id__in=ids)

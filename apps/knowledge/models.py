@@ -11,6 +11,8 @@ class KnowledgeEntry(TimeStampedModel):
     """Speichert einen versionierten Erklärungstext zu einem Laborwert."""
 
     class Status(models.TextChoices):
+        """Redaktioneller Freigabestatus eines Wissenseintrags."""
+
         DRAFT = 'entwurf', 'Entwurf'
         REVIEW = 'pruefung', 'Prüfung'
         RELEASED = 'freigegeben', 'Freigegeben'
@@ -42,6 +44,8 @@ class KnowledgeSource(TimeStampedModel):
     """Speichert Quellen zu einem Wissenseintrag."""
 
     class SourceType(models.TextChoices):
+        """Art der fachlichen Quelle eines Wissenseintrags."""
+
         GUIDELINE = 'leitlinie', 'Leitlinie'
         LAB_LEXICON = 'laborlexikon', 'Laborlexikon'
         LITERATURE = 'fachliteratur', 'Fachliteratur'

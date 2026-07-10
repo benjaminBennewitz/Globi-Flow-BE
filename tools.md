@@ -1,5 +1,5 @@
 #### ##########
-### INTRANET: TOOLS & BEFEHLE ###
+### GLOBI FLOW: TOOLS & BEFEHLE ###
 #### ##########
 
 ## VENV aktivieren für Django Interna
@@ -12,8 +12,8 @@ source venv/bin/activate
 # Backend-Server (Daphne) - lokal #VENV
 daphne -p 8000 config.asgi:application
 
-# Celery Starten (legacy)
-python -m celery -A config worker -l info -P solo
+# Celery Worker starten (Windows / Memurai)
+python -m celery -A config worker --loglevel=info --pool=solo --queues=globi_imports
 
 
 #### ##########
@@ -203,7 +203,7 @@ redis-cli ping
 
 # wichtigste Befehle
 # anmelden
-psql -U postgres -d intranet_db
+psql -U postgres -d globi_flow_db
 
 # User anzeigen
 \du

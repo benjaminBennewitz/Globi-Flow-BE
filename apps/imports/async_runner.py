@@ -10,7 +10,18 @@ from apps.imports.tasks import process_import_job_task
 
 
 def start_import_job_processing(job_id: int) -> str:
-    """Startet einen Importjob ohne blockierenden Upload-Request."""
+    """Übergibt einen vorbereiteten Importjob an den Celery-Worker.
+
+    Args:
+        job_id: Primärschlüssel des zu verarbeitenden Importjobs.
+
+    Raises:
+        RuntimeError: Wenn Broker oder Result-Backend nicht erreichbar oder
+            nicht korrekt authentifiziert sind.
+
+    Side Effects:
+        Erstellt eine asynchrone Aufgabe in der Queue ``globi_imports``.
+    """
     if getattr(settings, "GLOBI_USE_CELERY", False):
         process_import_job_task.delay(job_id)
         return "celery"
@@ -21,7 +32,15 @@ def start_import_job_processing(job_id: int) -> str:
 
 
 def run_local_import_job(job_id: int) -> None:
-    """Verarbeitet einen Importjob in einem separaten lokalen Thread."""
+    """Verarbeitet einen Importjob synchron als lokalen Entwicklungsfallback.
+
+    Args:
+        job_id: Primärschlüssel des zu verarbeitenden Importjobs.
+
+    Side Effects:
+        Führt die vollständige Importpipeline im aktuellen Prozess aus. Dieser
+        Weg ist nur für lokale Entwicklung und Tests vorgesehen.
+    """
     close_old_connections()
     try:
         process_import_job(job_id)

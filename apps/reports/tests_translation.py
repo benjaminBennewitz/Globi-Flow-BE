@@ -24,32 +24,42 @@ class ReportTranslationTests(SimpleTestCase):
         template = get_report_template()
 
         self.assertEqual(template["sprache"], "de")
-        self.assertEqual(template["bericht"]["haupttitel"], "Blutwerte verständlich zusammengefasst")
-        self.assertEqual(template["bericht"]["fragenTitel"], "Fragen für das Arztgespräch")
+        self.assertEqual(template["bericht"]["haupttitel"],
+                         "Blutwerte verständlich zusammengefasst")
+        self.assertEqual(
+            template["bericht"]["fragenTitel"], "Fragen für das Arztgespräch")
         self.assertEqual(template["statusLabels"]["hoch"], "ERHÖHT")
 
     def test_template_is_translated_recursively(self) -> None:
         """Prüft, dass auch verschachtelte Überschriften übersetzt werden."""
-        translated = _translate_structure(get_report_template(), FakeTranslator(), {})
+        translated = _translate_structure(
+            get_report_template(), FakeTranslator(), {})
 
         self.assertEqual(translated["sprache"], "de")
         self.assertEqual(translated["bericht"]["marke"], "Globi Flow")
-        self.assertEqual(translated["bericht"]["haupttitel"], "EN:Blutwerte verständlich zusammengefasst")
-        self.assertEqual(translated["statusLabels"]["normal"], "EN:UNAUFFÄLLIG")
-
+        self.assertEqual(translated["bericht"]["haupttitel"],
+                         "EN:Blutwerte verständlich zusammengefasst")
+        self.assertEqual(translated["statusLabels"]
+                         ["normal"], "EN:UNAUFFÄLLIG")
 
     def test_interface_texts_remain_german(self) -> None:
         """Prüft, dass nur Texte innerhalb der Druckvorschau übersetzt werden."""
         template = get_report_template()
         translated = {**template}
-        translated["bericht"] = _translate_structure(template["bericht"], FakeTranslator(), {})
-        translated["statusLabels"] = _translate_structure(template["statusLabels"], FakeTranslator(), {})
-        translated["prioritaetLabels"] = _translate_structure(template["prioritaetLabels"], FakeTranslator(), {})
+        translated["bericht"] = _translate_structure(
+            template["bericht"], FakeTranslator(), {})
+        translated["statusLabels"] = _translate_structure(
+            template["statusLabels"], FakeTranslator(), {})
+        translated["prioritaetLabels"] = _translate_structure(
+            template["prioritaetLabels"], FakeTranslator(), {})
 
-        self.assertEqual(translated["oberflaeche"]["seitentitel"], "DIN-A4 Berichtsvorschau")
+        self.assertEqual(translated["oberflaeche"]
+                         ["seitentitel"], "DIN-A4 Berichtsvorschau")
         self.assertEqual(translated["oberflaeche"]["drucken"], "Drucken")
-        self.assertEqual(translated["bericht"]["haupttitel"], "EN:Blutwerte verständlich zusammengefasst")
-        self.assertEqual(translated["statusLabels"]["normal"], "EN:UNAUFFÄLLIG")
+        self.assertEqual(translated["bericht"]["haupttitel"],
+                         "EN:Blutwerte verständlich zusammengefasst")
+        self.assertEqual(translated["statusLabels"]
+                         ["normal"], "EN:UNAUFFÄLLIG")
 
     def test_glossary_and_numbers_never_become_tokens(self) -> None:
         """Prüft Glossarbegriffe und Messwerte ohne sichtbare Hilfstokens."""

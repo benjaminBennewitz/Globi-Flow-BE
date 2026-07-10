@@ -5,7 +5,7 @@
 from datetime import datetime
 from django.db.models import Count, Q
 from rest_framework import serializers
-from apps.core.input_validation import clean_key, clean_name, clean_text
+from apps.core.input_validation import clean_name, clean_text
 from apps.core.utils import decimal_to_number, format_date, public_id
 from apps.imports.models import ImportJob
 from apps.labs.models import LabReport, LabValue, ReviewCandidate
@@ -17,14 +17,28 @@ OPEN_REVIEW_STATUSES = [ReviewCandidate.Status.OPEN, ReviewCandidate.Status.BLOC
 
 
 def open_review_count(report: LabReport) -> int:
-    """Zählt offene oder blockierende Reviewarbeit eines Befunds."""
+    """Zählt offene oder blockierende Reviewarbeit eines Befunds.
+
+    Args:
+        report: Betroffener Labor- oder Patientenbericht.
+
+    Returns:
+        Rückgabewert vom Typ ``int``.
+    """
     candidate_count = report.review_candidates.filter(status__in=OPEN_REVIEW_STATUSES).count()
     review_value_count = report.values.filter(Q(review_status=LabValue.ReviewStatus.REVIEW) | Q(status=LabValue.Status.REVIEW)).count()
     return candidate_count + review_value_count
 
 
 def report_status(report: LabReport) -> str:
-    """Berechnet den sichtbaren Befundstatus aus echten Review- und Berichtsdaten."""
+    """Berechnet den sichtbaren Befundstatus aus echten Review- und Berichtsdaten.
+
+    Args:
+        report: Betroffener Labor- oder Patientenbericht.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     if open_review_count(report) > 0:
         return LabReport.Status.REVIEW_OPEN
     if report.status == LabReport.Status.RELEASED:
@@ -35,7 +49,16 @@ def report_status(report: LabReport) -> str:
 
 
 def patient_status(patient: Patient, reports: list[LabReport], open_reviews: int) -> str:
-    """Leitet den Patientenstatus aus aktuellen Befunden, Reviews und Importen ab."""
+    """Leitet den Patientenstatus aus aktuellen Befunden, Reviews und Importen ab.
+
+    Args:
+        patient: Betroffene Testperson.
+        reports: Wert für ``reports``.
+        open_reviews: Wert für ``open_reviews``.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     if ImportJob.objects.filter(patient=patient, status__in=[ImportJob.Status.WAITING, ImportJob.Status.ANALYZING]).exists():
         return Patient.Status.IMPORT
     if open_reviews > 0:
@@ -67,27 +90,51 @@ class PatientInputSerializer(serializers.Serializer):
 
 
     def validate_vorname(self, value):
-        """Validiert den Vornamen defensiv."""
+        """Validiert den Vornamen defensiv.
+
+        Args:
+            value: Zu verarbeitender Eingabewert.
+        """
         return clean_name(value, field='vorname', max_length=80)
 
     def validate_nachname(self, value):
-        """Validiert den Nachnamen defensiv."""
+        """Validiert den Nachnamen defensiv.
+
+        Args:
+            value: Zu verarbeitender Eingabewert.
+        """
         return clean_name(value, field='nachname', max_length=80)
 
     def validate_lebensstil(self, value):
-        """Validiert den Lebensstiltext ohne aktive Inhalte."""
+        """Validiert den Lebensstiltext ohne aktive Inhalte.
+
+        Args:
+            value: Zu verarbeitender Eingabewert.
+        """
         return clean_text(value, field='lebensstil', max_length=240)
 
     def validate_notiz(self, value):
-        """Validiert freie Notizen mit festem Größenlimit."""
+        """Validiert freie Notizen mit festem Größenlimit.
+
+        Args:
+            value: Zu verarbeitender Eingabewert.
+        """
         return clean_text(value, field='notiz', max_length=2000)
 
     def validate_kontext(self, value):
-        """Validiert den Patientenkontext."""
+        """Validiert den Patientenkontext.
+
+        Args:
+            value: Zu verarbeitender Eingabewert.
+        """
         return clean_text(value, field='kontext', max_length=240)
 
     def validate_geburtsdatum(self, value):
-        """Akzeptiert ISO- und deutsches Datumsformat aus der Oberfläche."""
+        """Akzeptiert ISO- und deutsches Datumsformat aus der Oberfläche.
+
+        Args:
+            value: Zu verarbeitender Eingabewert.
+        """
         datum = str(value or '').strip()
 
         if not datum:
@@ -102,7 +149,11 @@ class PatientInputSerializer(serializers.Serializer):
         raise serializers.ValidationError('Das Geburtsdatum muss als JJJJ-MM-TT oder TT.MM.JJJJ angegeben werden.')
 
     def validate_nummer(self, value):
-        """Prüft eindeutige Testpersonen-Nummern für Create und Update."""
+        """Prüft eindeutige Testpersonen-Nummern für Create und Update.
+
+        Args:
+            value: Zu verarbeitender Eingabewert.
+        """
         number = value.strip()
         if not number:
             return number
@@ -114,7 +165,14 @@ class PatientInputSerializer(serializers.Serializer):
         return number
 
     def create(self, validated_data):
-        """Erstellt eine neue lokale Testperson."""
+        """Erstellt eine neue lokale Testperson.
+
+        Args:
+            validated_data: Wert für ``validated_data``.
+
+        Side Effects:
+            Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+        """
         next_number = Patient.objects.count() + 1
         first_name = validated_data.get('vorname', '').strip()
         last_name = validated_data.get('nachname', '').strip()
@@ -142,7 +200,15 @@ class PatientInputSerializer(serializers.Serializer):
         return patient
 
     def update(self, instance, validated_data):
-        """Aktualisiert eine lokale Testperson ohne Befunddaten zu verändern."""
+        """Aktualisiert eine lokale Testperson ohne Befunddaten zu verändern.
+
+        Args:
+            instance: Wert für ``instance``.
+            validated_data: Wert für ``validated_data``.
+
+        Side Effects:
+            Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+        """
         first_name = validated_data.get('vorname', instance.first_name).strip()
         last_name = validated_data.get('nachname', instance.last_name).strip()
         instance.first_name = first_name
@@ -179,7 +245,11 @@ class PatientFrontendSerializer(serializers.ModelSerializer):
         fields = ['id']
 
     def to_representation(self, instance):
-        """Formt das normalisierte Modell in das Angular-ViewModel um."""
+        """Formt das normalisierte Modell in das Angular-ViewModel um.
+
+        Args:
+            instance: Wert für ``instance``.
+        """
         reports = list(instance.lab_reports.annotate(value_count=Count('values', distinct=True), review_count=Count('review_candidates', distinct=True)).filter(Q(value_count__gt=0) | Q(review_count__gt=0)).order_by('-report_date', '-created_at'))
         open_reviews = sum(open_review_count(report) for report in reports)
         latest_report = reports[0] if reports else None
@@ -211,7 +281,11 @@ class PatientFrontendSerializer(serializers.ModelSerializer):
         }
 
     def report_to_dict(self, report):
-        """Formt einen Befund für die Patientenkarten um."""
+        """Formt einen Befund für die Patientenkarten um.
+
+        Args:
+            report: Betroffener Labor- oder Patientenbericht.
+        """
         return {
             'id': report.public_id,
             'name': report.name,

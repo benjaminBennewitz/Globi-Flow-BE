@@ -7,78 +7,17 @@ from decimal import Decimal, InvalidOperation
 import re
 from apps.labs.models import LabAnalyte
 
-VALUE_PATTERN = re.compile(r'(?P<value>-?\d+(?:[,.]\d+)?)\s*(?P<unit>[A-Za-zµ%./0-9]+)?\s*(?:\(?\s*(?P<ref_low>-?\d+(?:[,.]\d+)?)?\s*[-–]\s*(?P<ref_high>-?\d+(?:[,.]\d+)?)\s*(?P<ref_unit>[A-Za-zµ%./0-9]+)?\s*\)?)?')
-REFERENCE_RANGE_PATTERN = re.compile(r'(?P<low>-?\d+(?:[,.]\d+)?)\s*[-–]\s*(?P<high>-?\d+(?:[,.]\d+)?)')
-REFERENCE_LT_PATTERN = re.compile(r'^\s*(?:<|≤|<=)\s*(?P<high>-?\d+(?:[,.]\d+)?)')
-REFERENCE_GT_PATTERN = re.compile(r'^\s*(?:>|≥|>=)\s*(?P<low>-?\d+(?:[,.]\d+)?)')
-OCR_ROW_PATTERN = re.compile(r'^(?P<name>[A-Za-zÄÖÜäöüßγΓµ/().\- 0-9]+?)\s+(?P<flag>[+-])?\s*(?P<value>-?\d+(?:[,.]\d+)?)\s+(?P<unit>[A-Za-zµ%/.0-9]+(?:/[A-Za-z0-9.]+)?)\s*(?P<reference>(?:(?:[<>]=?|≥|≤)\s*)?-?\d+(?:[,.]\d+)?(?:\s*[-–]\s*-?\d+(?:[,.]\d+)?)?)?\s*$', re.IGNORECASE)
-
-SPECIAL_ALIASES = {
-    'ldl chol': 'ldl_cholesterin',
-    'ldl cholesterin': 'ldl_cholesterin',
-    'ferr': 'ferritin',
-    '25 oh vit d': 'vitamin_d',
-    '25 oh vitamin d': 'vitamin_d',
-    'vit d': 'vitamin_d',
-    'vitamin d': 'vitamin_d',
-    'haemoglobin': 'haemoglobin',
-    'hämoglobin': 'haemoglobin',
-}
-
-REVIEW_ALIAS_KEYS = {'ldl', 'ldl_cholesterin', 'ferritin', 'vitamin_d'}
-SKIP_LINE_FRAGMENTS = {
-    'dachverband',
-    'mailboxbefund',
-    'patient',
-    'geburtsdatum',
-    'postfach',
-    'telefon',
-    'telefax',
-    'murriger',
-    'tomphecke',
-    'kasse',
-    'endbefund',
-    'eingangsdatum',
-    'untersuchung',
-    'referenzbereich',
-    'zielwerte',
-    'guidelines',
-    'risiko:',
-}
-
-KNOWN_ANALYTE_PROFILES = [
-    {'key': 'leukozyten', 'display': 'Leukozyten', 'group': 'Blutbild', 'aliases': ['leukozyten']},
-    {'key': 'erythrozyten', 'display': 'Erythrozyten', 'group': 'Blutbild', 'aliases': ['erythrozyten', 'brythrozyten']},
-    {'key': 'haemoglobin', 'display': 'Hämoglobin', 'group': 'Blutbild', 'aliases': ['hämoglobin', 'haemoglobin', 'hamoglobin']},
-    {'key': 'haematokrit', 'display': 'Hämatokrit', 'group': 'Blutbild', 'aliases': ['hämatokrit', 'haematokrit', 'hamatokrit']},
-    {'key': 'mcv', 'display': 'MCV', 'group': 'Blutbild', 'aliases': ['mcv']},
-    {'key': 'mch', 'display': 'MCH', 'group': 'Blutbild', 'aliases': ['mch']},
-    {'key': 'mchc', 'display': 'MCHC', 'group': 'Blutbild', 'aliases': ['mchc']},
-    {'key': 'thrombozyten', 'display': 'Thrombozyten', 'group': 'Blutbild', 'aliases': ['thrombozyten']},
-    {'key': 'natrium', 'display': 'Natrium', 'group': 'Mineralhaushalt', 'aliases': ['natrium']},
-    {'key': 'kalium', 'display': 'Kalium', 'group': 'Mineralhaushalt', 'aliases': ['kalium']},
-    {'key': 'calcium', 'display': 'Calcium', 'group': 'Mineralhaushalt', 'aliases': ['calcium']},
-    {'key': 'cholesterin', 'display': 'Cholesterin', 'group': 'Fettstoffwechsel', 'aliases': ['cholesterin']},
-    {'key': 'hdl', 'display': 'HDL-Cholesterin', 'group': 'Fettstoffwechsel', 'aliases': ['hdl cholesterin', 'hdl cholesterol']},
-    {'key': 'ldl', 'display': 'LDL-Cholesterin', 'group': 'Fettstoffwechsel', 'aliases': ['ldl cholesterin', 'ldl cholesterol']},
-    {'key': 'ldl_hdl_risiko_index', 'display': 'LDL/HDL Risiko Index', 'group': 'Fettstoffwechsel', 'aliases': ['ldl hdl risiko index']},
-    {'key': 'non_hdl_cholesterin', 'display': 'Non-HDL-Cholesterin', 'group': 'Fettstoffwechsel', 'aliases': ['non hdl cholesterin']},
-    {'key': 'triglyzeride', 'display': 'Triglyzeride', 'group': 'Fettstoffwechsel', 'aliases': ['triglyceride', 'triglyzeride']},
-    {'key': 'glukose', 'display': 'Glukose nüchtern', 'group': 'Stoffwechsel', 'aliases': ['glucose', 'glukose']},
-    {'key': 'gesamteiweiss', 'display': 'Gesamteiweiß', 'group': 'Stoffwechsel', 'aliases': ['gesamteiweiss', 'gesamteiweiß']},
-    {'key': 'bilirubin_gesamt', 'display': 'Bilirubin gesamt', 'group': 'Stoffwechsel', 'aliases': ['bilirubin gesamt']},
-    {'key': 'harnsaeure', 'display': 'Harnsäure', 'group': 'Niere', 'aliases': ['harnsäure', 'harnsaeure', 'harnsaure']},
-    {'key': 'harnstoff', 'display': 'Harnstoff', 'group': 'Niere', 'aliases': ['harnstoff']},
-    {'key': 'kreatinin', 'display': 'Kreatinin', 'group': 'Niere', 'aliases': ['kreatinin', 'creatinin', 'creatinine']},
-    {'key': 'egfr', 'display': 'eGFR', 'group': 'Niere', 'aliases': ['egfr', 'egfr ckd epi formel']},
-    {'key': 'ast', 'display': 'AST', 'group': 'Leber', 'aliases': ['got', 'got asat', 'asat', 'ast']},
-    {'key': 'alt', 'display': 'ALT', 'group': 'Leber', 'aliases': ['gpt', 'gpt alat', 'alat', 'alt']},
-    {'key': 'ggt', 'display': 'GGT', 'group': 'Leber', 'aliases': ['ggt', 'g gt', 'gamma gt', 'y gt', 'γ gt']},
-    {'key': 'alkalische_phosphatase', 'display': 'Alkalische Phosphatase', 'group': 'Leber', 'aliases': ['alkalische phosphatase', 'ap']},
-    {'key': 'ldh', 'display': 'LDH', 'group': 'Leber', 'aliases': ['ldh']},
-    {'key': 'crp', 'display': 'CRP', 'group': 'Entzündung', 'aliases': ['crp']},
-    {'key': 'tsh', 'display': 'TSH', 'group': 'Schilddrüse', 'aliases': ['tsh', 'tsh basal']},
-]
+from apps.imports.parser_definitions import (
+    KNOWN_ANALYTE_PROFILES,
+    OCR_ROW_PATTERN,
+    REFERENCE_GT_PATTERN,
+    REFERENCE_LT_PATTERN,
+    REFERENCE_RANGE_PATTERN,
+    REVIEW_ALIAS_KEYS,
+    SKIP_LINE_FRAGMENTS,
+    SPECIAL_ALIASES,
+    VALUE_PATTERN,
+)
 
 
 @dataclass(frozen=True)
@@ -174,7 +113,16 @@ def parser_aliases() -> list[tuple[LabAnalyte, list[str]]]:
 
 
 def resolve_analyte(display_name: str, aliases: list[tuple[LabAnalyte, list[str]]]) -> tuple[str, str, str | None] | None:
-    """Findet einen vorhandenen Laborwert anhand von Anzeigename, Datenbankalias oder OCR-Profil."""
+    """Ordnet einen erkannten Namen einem stabilen Laborwert-Key zu.
+
+    Args:
+        display_name: Anzeigename aus PDF-Text oder OCR.
+        aliases: Aktive Laborwerte mit ihren normalisierten Aliaslisten.
+
+    Returns:
+        Tupel aus Key, Anzeigename und optionaler Gruppe oder ``None``, wenn
+        weder Datenbankalias noch bekanntes OCR-Profil passen.
+    """
     normalized = normalize_text(display_name)
 
     special_key = SPECIAL_ALIASES.get(normalized)
@@ -198,7 +146,15 @@ def resolve_analyte(display_name: str, aliases: list[tuple[LabAnalyte, list[str]
 
 
 def parse_reference(reference: str) -> tuple[Decimal, Decimal]:
-    """Liest Referenzbereiche wie `13,5 - 17,5`, `< 5,0`, `> 30` oder `>= 60`."""
+    """Liest einen numerischen Referenzbereich aus typischen Laborformaten.
+
+    Args:
+        reference: Erkannter Referenztext aus der Befundzeile.
+
+    Returns:
+        Untere und obere Grenze als ``Decimal``. Einseitige Grenzen werden
+        mit einem technischen offenen Gegenwert ergänzt.
+    """
     clean = str(reference or '').strip().replace('–', '-').replace('≥', '>=').replace('≤', '<=')
     range_match = REFERENCE_RANGE_PATTERN.search(clean)
     if range_match:
@@ -216,7 +172,17 @@ def parse_reference(reference: str) -> tuple[Decimal, Decimal]:
 
 
 def confidence_for_row(analyte_key: str, unit: str, reference: str, source: str = 'ocr') -> int:
-    """Bewertet die Parserqualität anhand erkannter Strukturmerkmale."""
+    """Bewertet die Parserqualität anhand erkannter Strukturmerkmale.
+
+    Args:
+        analyte_key: Erkannter stabiler Laborwert-Key.
+        unit: Erkannte Einheit.
+        reference: Erkannter Referenztext.
+        source: Parserquelle, standardmäßig OCR.
+
+    Returns:
+        Confidence-Wert zwischen 0 und 100 für nachgelagerte Reviewregeln.
+    """
     has_unit = bool(str(unit or '').strip())
     has_reference = bool(str(reference or '').strip())
     base = 82 if source == 'ocr' else 88
@@ -347,7 +313,18 @@ def parse_inline_values(text: str, aliases: list[tuple[LabAnalyte, list[str]]]) 
 
 
 def parse_lab_values(text: str) -> list[ParsedLabValue]:
-    """Erkennt Laborwert-Zeilen anhand von Tabellenstruktur, OCR-Tabellen und gepflegten Aliassen."""
+    """Erkennt Laborwerte mit abgestuften lokalen Parserstrategien.
+
+    Args:
+        text: Extrahierte PDF-Textschicht oder lokal erzeugter OCR-Text.
+
+    Returns:
+        Normalisierte Parserkandidaten. Optimierte Tabellen werden zuerst
+        geprüft, anschließend OCR-Tabellen und zeilenbasierte Fallbacks.
+
+    Side Effects:
+        Liest aktive Laborwertaliase aus der lokalen Datenbank.
+    """
     aliases = parser_aliases()
     table_values = parse_table_lines(text, aliases)
     if table_values:

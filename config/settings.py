@@ -38,7 +38,8 @@ FALLBACK_ENV_FILE = BASE_DIR / ".env"
 
 
 def load_env_file() -> None:
-    """Lädt lokale ENV-Dateien ohne zusätzliche Abhängigkeit."""
+    """Lädt lokale ENV-Dateien ohne zusätzliche Abhängigkeit.
+    """
     candidates = [ENV_FILE, FALLBACK_ENV_FILE]
 
     for candidate in candidates:
@@ -65,7 +66,15 @@ ENV = os.getenv("DJANGO_ENV", ENV).strip().lower()
 
 
 def env_bool(name: str, default: bool = False) -> bool:
-    """Liest eine boolesche Umgebungsvariable robust aus."""
+    """Liest eine boolesche Umgebungsvariable robust aus.
+
+    Args:
+        name: Name der auszulesenden Konfiguration oder Entität.
+        default: Fallbackwert, wenn keine Konfiguration vorhanden ist.
+
+    Returns:
+        Rückgabewert vom Typ ``bool``.
+    """
     value = os.getenv(name)
     if value is None:
         return default
@@ -73,7 +82,15 @@ def env_bool(name: str, default: bool = False) -> bool:
 
 
 def env_int(name: str, default: int) -> int:
-    """Liest eine Ganzzahl aus einer Umgebungsvariable."""
+    """Liest eine Ganzzahl aus einer Umgebungsvariable.
+
+    Args:
+        name: Name der auszulesenden Konfiguration oder Entität.
+        default: Fallbackwert, wenn keine Konfiguration vorhanden ist.
+
+    Returns:
+        Rückgabewert vom Typ ``int``.
+    """
     value = os.getenv(name)
     if not value:
         return default
@@ -81,7 +98,15 @@ def env_int(name: str, default: int) -> int:
 
 
 def env_float(name: str, default: float) -> float:
-    """Liest eine Fließkommazahl aus einer Umgebungsvariable."""
+    """Liest eine Fließkommazahl aus einer Umgebungsvariable.
+
+    Args:
+        name: Name der auszulesenden Konfiguration oder Entität.
+        default: Fallbackwert, wenn keine Konfiguration vorhanden ist.
+
+    Returns:
+        Rückgabewert vom Typ ``float``.
+    """
     value = os.getenv(name)
     if not value:
         return default
@@ -89,18 +114,43 @@ def env_float(name: str, default: float) -> float:
 
 
 def env_list(name: str, default: str = "") -> list[str]:
-    """Liest eine komma-separierte Umgebungsvariable als Liste aus."""
+    """Liest eine komma-separierte Umgebungsvariable als Liste aus.
+
+    Args:
+        name: Name der auszulesenden Konfiguration oder Entität.
+        default: Fallbackwert, wenn keine Konfiguration vorhanden ist.
+
+    Returns:
+        Rückgabewert vom Typ ``list[str]``.
+    """
     value = os.getenv(name, default)
     return [entry.strip() for entry in value.split(",") if entry.strip()]
 
 
 def env_path(name: str, default: str = "") -> str:
-    """Liest einen lokalen Pfad und entfernt versehentliche Quotes."""
+    """Liest einen lokalen Pfad und entfernt versehentliche Quotes.
+
+    Args:
+        name: Name der auszulesenden Konfiguration oder Entität.
+        default: Fallbackwert, wenn keine Konfiguration vorhanden ist.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     return os.getenv(name, default).strip().strip('"').strip("'")
 
 
 def env_value(name: str, fallback_name: str, default: str = "") -> str:
-    """Liest bevorzugt neue ENV-Namen und erlaubt alte Namen als Fallback."""
+    """Liest bevorzugt neue ENV-Namen und erlaubt alte Namen als Fallback.
+
+    Args:
+        name: Name der auszulesenden Konfiguration oder Entität.
+        fallback_name: Alternativer Name einer älteren Umgebungsvariable.
+        default: Fallbackwert, wenn keine Konfiguration vorhanden ist.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     return os.getenv(name, os.getenv(fallback_name, default)).strip()
 
 
@@ -112,7 +162,8 @@ SECRET_KEY = env_value("SECRET_KEY", "DJANGO_SECRET_KEY", "dev-only-change-me")
 DEBUG = env_bool("DEBUG", env_bool("DJANGO_DEBUG", True))
 
 if ENV == "production":
-    ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", os.getenv("DJANGO_ALLOWED_HOSTS", "localhost"))
+    ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", os.getenv(
+        "DJANGO_ALLOWED_HOSTS", "localhost"))
 else:
     ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "127.0.0.1,localhost")
 
@@ -175,7 +226,8 @@ CORS_ALLOWED_ORIGINS = env_list(
 )
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", ",".join(CORS_ALLOWED_ORIGINS))
+CSRF_TRUSTED_ORIGINS = env_list(
+    "CSRF_TRUSTED_ORIGINS", ",".join(CORS_ALLOWED_ORIGINS))
 CSRF_COOKIE_NAME = os.getenv("CSRF_COOKIE_NAME", "XSRF-TOKEN")
 CSRF_HEADER_NAME = os.getenv("CSRF_HEADER_NAME", "HTTP_X_XSRF_TOKEN")
 CSRF_COOKIE_HTTPONLY = False
@@ -186,7 +238,8 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
-DATA_UPLOAD_MAX_MEMORY_SIZE = env_int("DATA_UPLOAD_MAX_MEMORY_SIZE", 2 * 1024 * 1024)
+DATA_UPLOAD_MAX_MEMORY_SIZE = env_int(
+    "DATA_UPLOAD_MAX_MEMORY_SIZE", 2 * 1024 * 1024)
 DATA_UPLOAD_MAX_NUMBER_FIELDS = env_int("DATA_UPLOAD_MAX_NUMBER_FIELDS", 500)
 
 if ENV == "production":
@@ -215,7 +268,8 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.FormParser",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny" if env_bool("GLOBI_DEMO_MODE", DEBUG) else "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny" if env_bool(
+            "GLOBI_DEMO_MODE", DEBUG) else "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_THROTTLE_CLASSES": [
         "apps.core.throttles.DemoBurstRateThrottle",
@@ -320,7 +374,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 GLOBI_MAX_UPLOAD_MB = env_int("GLOBI_MAX_UPLOAD_MB", 12)
 GLOBI_MAX_UPLOAD_BYTES = GLOBI_MAX_UPLOAD_MB * 1024 * 1024
 GLOBI_USE_CELERY = env_bool("GLOBI_USE_CELERY", True)
-IMPORT_AUTO_REVIEW_CONFIDENCE_THRESHOLD = env_int("IMPORT_AUTO_REVIEW_CONFIDENCE_THRESHOLD", 90)
+IMPORT_AUTO_REVIEW_CONFIDENCE_THRESHOLD = env_int(
+    "IMPORT_AUTO_REVIEW_CONFIDENCE_THRESHOLD", 90)
 
 OCR_ENABLED = env_bool("OCR_ENABLED", True)
 OCR_LANGUAGES = os.getenv("OCR_LANGUAGES", "eng").strip() or "eng"
@@ -336,9 +391,12 @@ GLOBI_CLAMAV_PORT = env_int("GLOBI_CLAMAV_PORT", 3310)
 GLOBI_CLAMAV_TIMEOUT = env_float("GLOBI_CLAMAV_TIMEOUT", 8.0)
 
 GLOBI_TRANSLATION_ENABLED = env_bool("GLOBI_TRANSLATION_ENABLED", True)
-GLOBI_TRANSLATION_SOURCE_LANGUAGE = os.getenv("GLOBI_TRANSLATION_SOURCE_LANGUAGE", "de").strip() or "de"
-GLOBI_TRANSLATION_LANGUAGES = env_list("GLOBI_TRANSLATION_LANGUAGES", "en,fr,es,tr")
-GLOBI_TRANSLATION_GLOSSARY = env_path("GLOBI_TRANSLATION_GLOSSARY", str(BASE_DIR / "apps" / "reports" / "seeds" / "translation_glossary.json"))
+GLOBI_TRANSLATION_SOURCE_LANGUAGE = os.getenv(
+    "GLOBI_TRANSLATION_SOURCE_LANGUAGE", "de").strip() or "de"
+GLOBI_TRANSLATION_LANGUAGES = env_list(
+    "GLOBI_TRANSLATION_LANGUAGES", "en,fr,es,tr")
+GLOBI_TRANSLATION_GLOSSARY = env_path("GLOBI_TRANSLATION_GLOSSARY", str(
+    BASE_DIR / "apps" / "reports" / "seeds" / "translation_glossary.json"))
 
 
 # ------------------------------------------------------------------------------
@@ -365,7 +423,14 @@ REDIS_FALLBACK_INMEMORY = env_bool("REDIS_FALLBACK_INMEMORY", True)
 
 
 def build_redis_url(database: int) -> str:
-    """Baut eine Redis-URL aus den bestehenden Projekt-ENV-Konventionen."""
+    """Baut eine Redis-URL aus den bestehenden Projekt-ENV-Konventionen.
+
+    Args:
+        database: Wert für ``database``.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     if REDIS_PASSWORD:
         password = quote(REDIS_PASSWORD, safe="")
         if REDIS_USE_ACL and REDIS_USERNAME:
@@ -378,7 +443,8 @@ REDIS_CELERY_URL = build_redis_url(REDIS_CELERY_DB)
 REDIS_CELERY_RESULT_URL = build_redis_url(REDIS_CELERY_RESULT_DB)
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", REDIS_CELERY_URL)
-CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", REDIS_CELERY_RESULT_URL)
+CELERY_RESULT_BACKEND = os.getenv(
+    "CELERY_RESULT_BACKEND", REDIS_CELERY_RESULT_URL)
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -386,7 +452,8 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_ALWAYS_EAGER = not GLOBI_USE_CELERY
 CELERY_TASK_TRACK_STARTED = True
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-CELERY_TASK_DEFAULT_QUEUE = os.getenv("CELERY_TASK_DEFAULT_QUEUE", "globi_imports").strip() or "globi_imports"
+CELERY_TASK_DEFAULT_QUEUE = os.getenv(
+    "CELERY_TASK_DEFAULT_QUEUE", "globi_imports").strip() or "globi_imports"
 
 
 # ------------------------------------------------------------------------------

@@ -59,7 +59,15 @@ class KnowledgeSeed:
 
 
 def slug(value: str, fallback: str = 'laborwert') -> str:
-    """Erzeugt einen stabilen ASCII-Schlüssel."""
+    """Erzeugt einen stabilen ASCII-Schlüssel.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+        fallback: Wert für ``fallback``.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     replacements = {'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss', 'µ': 'u', 'γ': 'gamma'}
     result = str(value or fallback).strip().lower()
     for source, target in replacements.items():
@@ -69,14 +77,29 @@ def slug(value: str, fallback: str = 'laborwert') -> str:
 
 
 def color_for_key(key: str) -> str:
-    """Liefert eine reproduzierbare Fallback-Farbe für einen Laborwert-Key."""
+    """Liefert eine reproduzierbare Fallback-Farbe für einen Laborwert-Key.
+
+    Args:
+        key: Stabiler fachlicher oder technischer Schlüssel.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     digest = hashlib.sha256(str(key).encode('utf-8')).hexdigest()
     index = int(digest[:8], 16) % len(COLOR_PALETTE)
     return COLOR_PALETTE[index]
 
 
 def normalize_chart_color(value: str, key: str = '') -> str:
-    """Normalisiert Farbeingaben auf sichere Hex-Werte."""
+    """Normalisiert Farbeingaben auf sichere Hex-Werte.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+        key: Stabiler fachlicher oder technischer Schlüssel.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     cleaned = str(value or '').strip()
     if COLOR_PATTERN.match(cleaned):
         return cleaned.lower()
@@ -84,12 +107,26 @@ def normalize_chart_color(value: str, key: str = '') -> str:
 
 
 def general_short_text(name: str) -> str:
-    """Erzeugt einen knappen Patiententext für Basiswerte."""
+    """Erzeugt einen knappen Patiententext für Basiswerte.
+
+    Args:
+        name: Name der auszulesenden Konfiguration oder Entität.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     return f'{name} ist ein Laborwert, der im Zusammenhang mit Referenzbereich, Verlauf und Beschwerden eingeordnet wird.'
 
 
 def general_long_text(name: str) -> str:
-    """Erzeugt einen ausführlicheren Patiententext für Basiswerte."""
+    """Erzeugt einen ausführlicheren Patiententext für Basiswerte.
+
+    Args:
+        name: Name der auszulesenden Konfiguration oder Entität.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     return f'Der Wert {name} hilft dabei, bestimmte Körperfunktionen einzuordnen. Einzelne Abweichungen sind nicht automatisch eine Diagnose. Wichtig sind Verlauf, Begleitwerte, Medikamente, Ernährung und der ärztliche Gesamteindruck.'
 
 
@@ -136,7 +173,14 @@ DEFAULT_KNOWLEDGE_SEEDS = [
 
 
 def ensure_group(group_key: str) -> LabGroup:
-    """Lädt oder erstellt eine Laborwertgruppe ohne Dubletten nach Name."""
+    """Lädt oder erstellt eine Laborwertgruppe ohne Dubletten nach Name.
+
+    Args:
+        group_key: Wert für ``group_key``.
+
+    Returns:
+        Rückgabewert vom Typ ``LabGroup``.
+    """
     name, sort_order = GROUPS[group_key]
     group = LabGroup.objects.filter(key=group_key).first() or LabGroup.objects.filter(name=name).first()
     if group:
@@ -149,7 +193,14 @@ def ensure_group(group_key: str) -> LabGroup:
 
 
 def ensure_seed_analyte(seed: KnowledgeSeed) -> LabAnalyte:
-    """Lädt oder erstellt den Laborwert für einen Seed."""
+    """Lädt oder erstellt den Laborwert für einen Seed.
+
+    Args:
+        seed: Wert für ``seed``.
+
+    Returns:
+        Rückgabewert vom Typ ``LabAnalyte``.
+    """
     group = ensure_group(seed.group_key)
     aliases = sorted({seed.display_name, seed.key.replace('_', ' '), *seed.aliases})
     analyte, _ = LabAnalyte.objects.update_or_create(key=seed.key, defaults={'display_name': seed.display_name, 'group': group, 'aliases': aliases, 'is_active': True})
@@ -157,7 +208,14 @@ def ensure_seed_analyte(seed: KnowledgeSeed) -> LabAnalyte:
 
 
 def build_entry_defaults(seed: KnowledgeSeed) -> dict:
-    """Baut die Standardtexte für einen Wissenseintrag."""
+    """Baut die Standardtexte für einen Wissenseintrag.
+
+    Args:
+        seed: Wert für ``seed``.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     today = timezone.localdate().strftime('%d.%m.%Y')
     return {
         'patient_short_text': seed.short_text or general_short_text(seed.display_name),
@@ -178,7 +236,14 @@ def build_entry_defaults(seed: KnowledgeSeed) -> dict:
 
 @transaction.atomic
 def reset_default_knowledge() -> dict[str, int]:
-    """Setzt die Wissensbasis auf den lokalen Mindestbestand zurück."""
+    """Setzt die Wissensbasis auf den lokalen Mindestbestand zurück.
+
+    Returns:
+        Rückgabewert vom Typ ``dict[str, int]``.
+
+    Side Effects:
+        Verändert persistierte Anwendungsdaten innerhalb des beschriebenen Workflows.
+    """
     KnowledgeSource.objects.all().delete()
     KnowledgeVersion.objects.all().delete()
     KnowledgeEntry.objects.all().delete()

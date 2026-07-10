@@ -1,5 +1,7 @@
 # apps/core/tests.py
 
+"""Integrations- und API-Tests für zentrale Backendfunktionen."""
+
 from unittest.mock import MagicMock, patch
 
 from django.test import SimpleTestCase

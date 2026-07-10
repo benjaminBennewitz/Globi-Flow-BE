@@ -10,7 +10,14 @@ from apps.knowledge.services import color_for_key, normalize_chart_color
 
 
 def analyte_chart_color(value: LabValue) -> str:
-    """Liefert die Wissensbasis-Farbe eines Laborwerts oder einen stabilen Fallback."""
+    """Liefert die Wissensbasis-Farbe eines Laborwerts oder einen stabilen Fallback.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     try:
         return normalize_chart_color(value.analyte.knowledge_entry.chart_color, value.analyte.key)
     except Exception:
@@ -18,7 +25,15 @@ def analyte_chart_color(value: LabValue) -> str:
 
 
 def trend_direction(current: Decimal, previous: Decimal | None) -> str:
-    """Berechnet eine einfache Trendrichtung."""
+    """Berechnet eine einfache Trendrichtung.
+
+    Args:
+        current: Wert für ``current``.
+        previous: Wert für ``previous``.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     if previous is None:
         return 'stabil'
     if current > previous:
@@ -29,17 +44,38 @@ def trend_direction(current: Decimal, previous: Decimal | None) -> str:
 
 
 def previous_value(value: LabValue) -> LabValue | None:
-    """Findet den vorherigen Wert desselben Laborparameters."""
+    """Findet den vorherigen Wert desselben Laborparameters.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+
+    Returns:
+        Rückgabewert vom Typ ``LabValue | None``.
+    """
     return LabValue.objects.filter(report__patient=value.report.patient, analyte=value.analyte, report__report_date__lt=value.report.report_date).exclude(report__values__isnull=True).select_related('report').order_by('-report__report_date').first()
 
 
 def value_history(value: LabValue) -> list[LabValue]:
-    """Lädt den Verlauf eines Laborparameters für die aktuelle Testperson."""
+    """Lädt den Verlauf eines Laborparameters für die aktuelle Testperson.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+
+    Returns:
+        Rückgabewert vom Typ ``list[LabValue]``.
+    """
     return list(LabValue.objects.filter(report__patient=value.report.patient, analyte=value.analyte).select_related('report').order_by('report__report_date'))
 
 
 def lab_value_to_dashboard(value: LabValue) -> dict:
-    """Gibt einen Laborwert als kompaktes Dashboard-Objekt aus."""
+    """Gibt einen Laborwert als kompaktes Dashboard-Objekt aus.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     history = value_history(value)
     return {
         'id': value.public_id,
@@ -60,7 +96,14 @@ def lab_value_to_dashboard(value: LabValue) -> dict:
 
 
 def lab_value_to_evaluation(value: LabValue) -> dict:
-    """Gibt einen Laborwert für die Auswertungsroute aus."""
+    """Gibt einen Laborwert für die Auswertungsroute aus.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     previous = previous_value(value)
     has_previous = previous is not None
     previous_number = previous.value if previous else value.value
@@ -97,7 +140,15 @@ def lab_value_to_evaluation(value: LabValue) -> dict:
 
 
 def group_summary(values: list[LabValue], detailed: bool = False) -> list[dict]:
-    """Berechnet gruppierte Statuszahlen."""
+    """Berechnet gruppierte Statuszahlen.
+
+    Args:
+        values: Wert für ``values``.
+        detailed: Wert für ``detailed``.
+
+    Returns:
+        Rückgabewert vom Typ ``list[dict]``.
+    """
     groups = {}
     for value in values:
         key = value.analyte.group.key
@@ -120,7 +171,14 @@ def group_summary(values: list[LabValue], detailed: bool = False) -> list[dict]:
 
 
 def trend_series(values: list[LabValue]) -> list[dict]:
-    """Erzeugt Dashboard-Trendserien für auffällige oder wichtige Werte."""
+    """Erzeugt Dashboard-Trendserien für auffällige oder wichtige Werte.
+
+    Args:
+        values: Wert für ``values``.
+
+    Returns:
+        Rückgabewert vom Typ ``list[dict]``.
+    """
     selected = sorted(values, key=lambda item: (item.priority != 'hoch', item.status == 'normal', item.analyte.display_name))[:4]
     return [
         {
@@ -137,7 +195,14 @@ def trend_series(values: list[LabValue]) -> list[dict]:
 
 
 def review_candidate_to_frontend(candidate: ReviewCandidate) -> dict:
-    """Gibt einen Review-Kandidaten im vollständigen Review-ViewModel aus."""
+    """Gibt einen Review-Kandidaten im vollständigen Review-ViewModel aus.
+
+    Args:
+        candidate: Betroffener Review-Kandidat.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     return {
         'id': candidate.public_id,
         'patientId': candidate.report.patient.public_id,
@@ -164,7 +229,14 @@ def review_candidate_to_frontend(candidate: ReviewCandidate) -> dict:
 
 
 def review_entry_to_frontend(candidate: ReviewCandidate) -> dict:
-    """Gibt den kompakten Review-Eintrag für die Startansicht aus."""
+    """Gibt den kompakten Review-Eintrag für die Startansicht aus.
+
+    Args:
+        candidate: Betroffener Review-Kandidat.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     return {
         'id': candidate.public_id,
         'laborwertKey': candidate.analyte.key,
@@ -179,7 +251,14 @@ def review_entry_to_frontend(candidate: ReviewCandidate) -> dict:
 
 
 def latest_report(patient_id: str | None = None) -> LabReport | None:
-    """Lädt den neuesten nicht-leeren Befund mit allen relevanten Relationen."""
+    """Lädt den neuesten nicht-leeren Befund mit allen relevanten Relationen.
+
+    Args:
+        patient_id: Wert für ``patient_id``.
+
+    Returns:
+        Rückgabewert vom Typ ``LabReport | None``.
+    """
     queryset = LabReport.objects.select_related('patient').prefetch_related('values__analyte__group', 'values__analyte__knowledge_entry', 'values__unit', 'values__reference_range').filter(values__isnull=False).distinct()
     if patient_id:
         queryset = queryset.filter(patient__public_id=patient_id)
@@ -187,14 +266,28 @@ def latest_report(patient_id: str | None = None) -> LabReport | None:
 
 
 def average_confidence(values: list[LabValue]) -> int:
-    """Berechnet eine gerundete Durchschnittsconfidence."""
+    """Berechnet eine gerundete Durchschnittsconfidence.
+
+    Args:
+        values: Wert für ``values``.
+
+    Returns:
+        Rückgabewert vom Typ ``int``.
+    """
     if not values:
         return 0
     return round(mean(value.confidence for value in values))
 
 
 def build_evaluation_view(report: LabReport | None = None) -> dict:
-    """Baut die Auswertungsansicht aus normalisierten Laborwerten."""
+    """Baut die Auswertungsansicht aus normalisierten Laborwerten.
+
+    Args:
+        report: Betroffener Labor- oder Patientenbericht.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     report = report or latest_report()
     if not report:
         return {'aktuellerBefund': '', 'vergleichsBefund': '', 'hatVergleich': False, 'zeitraum': '0 Monate', 'werte': [], 'gruppen': []}

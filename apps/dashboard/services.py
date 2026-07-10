@@ -22,7 +22,14 @@ UNCHECKED_IMPORT_STATUSES = [ImportJob.Status.WAITING, ImportJob.Status.ANALYZIN
 
 
 def tag_offset(value) -> int:
-    """Berechnet einen kompakten Tagabstand für Frontend-Filter."""
+    """Berechnet einen kompakten Tagabstand für Frontend-Filter.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+
+    Returns:
+        Rückgabewert vom Typ ``int``.
+    """
     if value is None:
         return 0
     local_date = timezone.localtime(value).date() if hasattr(value, 'tzinfo') else value
@@ -30,19 +37,31 @@ def tag_offset(value) -> int:
 
 
 def zeit_label(value) -> str:
-    """Formatiert einen Zeitpunkt für das Aktivitätsprotokoll."""
+    """Formatiert einen Zeitpunkt für das Aktivitätsprotokoll.
+
+    Args:
+        value: Zu verarbeitender Eingabewert.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     if value is None:
         return 'unbekannt'
     return timezone.localtime(value).strftime('%d.%m.%Y · %H:%M')
 
 
 def non_empty_reports():
-    """Lädt nur Befunde, die Laborwerte oder Reviewarbeit enthalten."""
+    """Lädt nur Befunde, die Laborwerte oder Reviewarbeit enthalten.
+    """
     return LabReport.objects.annotate(value_count=Count('values', distinct=True), review_count=Count('review_candidates', distinct=True)).filter(Q(value_count__gt=0) | Q(review_count__gt=0))
 
 
 def latest_values() -> list[LabValue]:
-    """Lädt die Werte aus dem neuesten nicht-leeren Befund."""
+    """Lädt die Werte aus dem neuesten nicht-leeren Befund.
+
+    Returns:
+        Rückgabewert vom Typ ``list[LabValue]``.
+    """
     report = non_empty_reports().prefetch_related('values__analyte__group', 'values__unit', 'values__reference_range').order_by('-report_date', '-created_at').first()
     if not report:
         return []
@@ -50,17 +69,27 @@ def latest_values() -> list[LabValue]:
 
 
 def review_queryset():
-    """Lädt offene oder blockierende Review-Kandidaten."""
+    """Lädt offene oder blockierende Review-Kandidaten.
+    """
     return ReviewCandidate.objects.select_related('report__patient', 'analyte__group', 'corrected_unit', 'reference_range').filter(status__in=OPEN_REVIEW_STATUSES).order_by('status', 'confidence', '-updated_at')
 
 
 def unchecked_import_queryset():
-    """Lädt ungeprüfte, laufende oder fehlerhafte Importjobs."""
+    """Lädt ungeprüfte, laufende oder fehlerhafte Importjobs.
+    """
     return ImportJob.objects.select_related('patient').prefetch_related('steps', 'datasets', 'logs').filter(status__in=UNCHECKED_IMPORT_STATUSES).order_by('-created_at')
 
 
 def overview_detail_item(kind: str, item) -> dict:
-    """Formt Review- oder Importobjekte für KPI-Overlays."""
+    """Formt Review- oder Importobjekte für KPI-Overlays.
+
+    Args:
+        kind: Wert für ``kind``.
+        item: Wert für ``item``.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     if kind == 'review':
         patient = item.report.patient
         return {
@@ -90,7 +119,15 @@ def overview_detail_item(kind: str, item) -> dict:
 
 
 def build_dringende_hinweise(review_items: list[ReviewCandidate], import_items: list[ImportJob]) -> list[dict]:
-    """Erzeugt aktuelle Hinweise aus echten Review- und Importdaten."""
+    """Erzeugt aktuelle Hinweise aus echten Review- und Importdaten.
+
+    Args:
+        review_items: Wert für ``review_items``.
+        import_items: Wert für ``import_items``.
+
+    Returns:
+        Rückgabewert vom Typ ``list[dict]``.
+    """
     hinweise = []
     for candidate in review_items[:8]:
         patient = candidate.report.patient
@@ -125,7 +162,11 @@ def build_dringende_hinweise(review_items: list[ReviewCandidate], import_items: 
 
 
 def build_aktivitaeten() -> list[dict]:
-    """Erzeugt ein aktuelles Aktivitätsprotokoll aus Importen, Review und Berichten."""
+    """Erzeugt ein aktuelles Aktivitätsprotokoll aus Importen, Review und Berichten.
+
+    Returns:
+        Rückgabewert vom Typ ``list[dict]``.
+    """
     entries = []
 
     for log in ImportLog.objects.select_related('job__patient').order_by('-created_at')[:20]:
@@ -167,7 +208,11 @@ def build_aktivitaeten() -> list[dict]:
 
 
 def build_health_months() -> list[dict]:
-    """Berechnet Monatszahlen mit vollständigen Monatsachsen für stabile Verlaufsgrafiken."""
+    """Berechnet Monatszahlen mit vollständigen Monatsachsen für stabile Verlaufsgrafiken.
+
+    Returns:
+        Rückgabewert vom Typ ``list[dict]``.
+    """
     month_labels = {1: 'Jan', 2: 'Feb', 3: 'Mär', 4: 'Apr', 5: 'Mai', 6: 'Jun', 7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Okt', 11: 'Nov', 12: 'Dez'}
     current_year = date.today().year
     years = {current_year - 2, current_year - 1, current_year}
@@ -195,7 +240,11 @@ def build_health_months() -> list[dict]:
 
 
 def build_dashboard_view() -> dict:
-    """Baut die komplette Startansicht für das bestehende Frontend."""
+    """Baut die komplette Startansicht für das bestehende Frontend.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     values = latest_values()
     review_candidates = review_queryset()[:10]
     knowledge_entries = KnowledgeEntry.objects.select_related('analyte__group').prefetch_related('sources', 'versions')[:50]
@@ -219,7 +268,11 @@ def build_dashboard_view() -> dict:
 
 
 def build_overview_view() -> dict:
-    """Baut die aggregierte Praxisübersicht aus aktuellen DB-Daten."""
+    """Baut die aggregierte Praxisübersicht aus aktuellen DB-Daten.
+
+    Returns:
+        Rückgabewert vom Typ ``dict``.
+    """
     review_items = list(review_queryset()[:30])
     import_items = unchecked_import_queryset()
     import_items_list = list(import_items[:30])
@@ -243,6 +296,10 @@ def build_overview_view() -> dict:
 
 
 def build_patient_list() -> list[dict]:
-    """Gibt Patienten im Frontendformat aus."""
+    """Gibt Patienten im Frontendformat aus.
+
+    Returns:
+        Rückgabewert vom Typ ``list[dict]``.
+    """
     queryset = Patient.objects.prefetch_related('lab_reports__values', 'lab_reports__review_candidates', 'patient_reports')
     return PatientFrontendSerializer(queryset, many=True).data

@@ -11,6 +11,8 @@ class ImportJob(TimeStampedModel):
     """Speichert einen lokalen Importjob für PDF-Textanalyse oder OCR."""
 
     class Status(models.TextChoices):
+        """Lebenszyklus eines Importjobs von Annahme bis Abschluss."""
+
         WAITING = 'wartet', 'Wartet'
         ANALYZING = 'analysiert', 'Analysiert'
         REVIEW = 'review', 'Review'
@@ -18,11 +20,15 @@ class ImportJob(TimeStampedModel):
         ERROR = 'fehler', 'Fehler'
 
     class AnalysisType(models.TextChoices):
+        """Lokale Quelle der Texterkennung eines Importjobs."""
+
         TEXT_LAYER = 'textschicht', 'Textschicht'
         OCR = 'ocr', 'OCR'
         DEMO = 'demo', 'Demo'
 
     class OcrStatus(models.TextChoices):
+        """Technischer Zustand des optionalen OCR-Fallbacks."""
+
         NOT_REQUIRED = 'nicht_erforderlich', 'Nicht erforderlich'
         REQUIRED = 'erforderlich', 'Erforderlich'
         ACTIVE = 'aktiv', 'Aktiv'
@@ -56,6 +62,8 @@ class ImportStep(TimeStampedModel):
     """Speichert einen einzelnen Pipeline-Schritt."""
 
     class Status(models.TextChoices):
+        """Zustand eines einzelnen Verarbeitungsschritts."""
+
         DONE = 'erledigt', 'Erledigt'
         ACTIVE = 'aktiv', 'Aktiv'
         WAITING = 'wartet', 'Wartet'
@@ -79,6 +87,8 @@ class ImportDataset(TimeStampedModel):
     """Speichert erkannte Datengruppen eines Imports."""
 
     class Status(models.TextChoices):
+        """Qualitätszustand einer erkannten Importdatengruppe."""
+
         NORMAL = 'normal', 'Normal'
         REVIEW = 'review', 'Review'
         ERROR = 'fehler', 'Fehler'

@@ -56,6 +56,8 @@ class ReferenceRange(TimeStampedModel):
     """Speichert einen wiederverwendbaren Referenzbereich für einen Laborwert."""
 
     class Sex(models.TextChoices):
+        """Geschlechtsbezug eines wiederverwendbaren Referenzbereichs."""
+
         FEMALE = 'weiblich', 'Weiblich'
         MALE = 'maennlich', 'Männlich'
         DIVERSE = 'divers', 'Divers'
@@ -83,6 +85,8 @@ class LabReport(TimeStampedModel):
     """Speichert den Befundkopf eines Laborberichts."""
 
     class Status(models.TextChoices):
+        """Fachlicher Lebenszyklus eines Laborbefunds."""
+
         IMPORTED = 'importiert', 'Importiert'
         REVIEW_OPEN = 'review_offen', 'Review offen'
         RELEASED = 'freigegeben', 'Freigegeben'
@@ -109,17 +113,23 @@ class LabValue(TimeStampedModel):
     """Speichert einen normalisierten Laborwert zu genau einem Befund."""
 
     class Status(models.TextChoices):
+        """Bewertung eines Laborwerts relativ zum Referenzbereich."""
+
         NORMAL = 'normal', 'Normal'
         HIGH = 'hoch', 'Hoch'
         LOW = 'niedrig', 'Niedrig'
         REVIEW = 'review', 'Review'
 
     class Priority(models.TextChoices):
+        """Darstellungspriorität eines Laborwerts in Übersichten."""
+
         LOW = 'niedrig', 'Niedrig'
         MEDIUM = 'mittel', 'Mittel'
         HIGH = 'hoch', 'Hoch'
 
     class ReviewStatus(models.TextChoices):
+        """Prüfzustand eines normalisierten Laborwerts."""
+
         CHECKED = 'geprueft', 'Geprüft'
         REVIEW = 'review', 'Review'
 
@@ -149,6 +159,8 @@ class ReviewCandidate(TimeStampedModel):
     """Speichert einen prüfpflichtigen Wert aus Parser, OCR oder manueller Eingabe."""
 
     class Status(models.TextChoices):
+        """Bearbeitungszustand eines Review-Kandidaten."""
+
         OPEN = 'offen', 'Offen'
         CORRECTED = 'korrigiert', 'Korrigiert'
         CONFIRMED = 'bestaetigt', 'Bestätigt'
@@ -156,6 +168,8 @@ class ReviewCandidate(TimeStampedModel):
         BLOCKED = 'blockiert', 'Blockiert'
 
     class Source(models.TextChoices):
+        """Ursprung eines prüfpflichtigen Review-Kandidaten."""
+
         PDF_TEXT = 'pdf_text', 'PDF-Text'
         OCR = 'ocr', 'OCR'
         MANUAL = 'manuell', 'Manuell'

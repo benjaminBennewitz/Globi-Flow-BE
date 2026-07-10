@@ -20,16 +20,19 @@ def latest_visible_report_for_patient(patient_id: str) -> LabReport | None:
 
 def report_from_request(request) -> PatientReport | None:
     """Lädt oder erzeugt den Bericht passend zu Query-Parametern."""
-    report_id = request.query_params.get('reportId') or request.query_params.get('befundId')
+    report_id = request.query_params.get(
+        'reportId') or request.query_params.get('befundId')
     patient_id = request.query_params.get('patientId')
     if report_id:
-        lab_report = LabReport.objects.select_related('patient').filter(public_id=report_id).first()
+        lab_report = LabReport.objects.select_related(
+            'patient').filter(public_id=report_id).first()
         if lab_report:
             if patient_id and lab_report.patient.public_id != patient_id:
                 fallback_report = latest_visible_report_for_patient(patient_id)
                 return ensure_patient_report(fallback_report) if fallback_report else None
             return ensure_patient_report(lab_report)
-        patient_report = PatientReport.objects.select_related('patient', 'lab_report').filter(public_id=report_id).first()
+        patient_report = PatientReport.objects.select_related(
+            'patient', 'lab_report').filter(public_id=report_id).first()
         if patient_report:
             if patient_id and patient_report.patient.public_id != patient_id:
                 fallback_report = latest_visible_report_for_patient(patient_id)

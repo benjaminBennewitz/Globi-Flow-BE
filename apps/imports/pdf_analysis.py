@@ -19,7 +19,14 @@ class PdfAnalysisResult:
 
 
 def extract_pdf_text(path: str | Path) -> str:
-    """Extrahiert die vorhandene PDF-Textschicht lokal."""
+    """Extrahiert die vorhandene PDF-Textschicht lokal.
+
+    Args:
+        path: Wert für ``path``.
+
+    Returns:
+        Rückgabewert vom Typ ``str``.
+    """
     try:
         from pypdf import PdfReader
     except Exception:
@@ -33,7 +40,11 @@ def extract_pdf_text(path: str | Path) -> str:
 
 
 def prepare_ocr_image(image):
-    """Optimiert eine PDF-Seite für Tabellen-OCR."""
+    """Optimiert eine PDF-Seite für Tabellen-OCR.
+
+    Args:
+        image: Wert für ``image``.
+    """
     from PIL import ImageEnhance, ImageFilter, ImageOps
 
     prepared = ImageOps.grayscale(image)
@@ -44,7 +55,14 @@ def prepare_ocr_image(image):
 
 
 def extract_ocr_text(path: str | Path) -> tuple[str, str]:
-    """Extrahiert Text per lokalem Tesseract-OCR-Fallback."""
+    """Extrahiert Text per lokalem Tesseract-OCR-Fallback.
+
+    Args:
+        path: Wert für ``path``.
+
+    Returns:
+        Rückgabewert vom Typ ``tuple[str, str]``.
+    """
     if not getattr(settings, "OCR_ENABLED", False):
         return "", "OCR ist in den Backend-Settings deaktiviert."
 
@@ -82,7 +100,20 @@ def extract_ocr_text(path: str | Path) -> tuple[str, str]:
 
 
 def analyze_pdf(path: str | Path, ocr_started_callback: Callable[[], None] | None = None) -> PdfAnalysisResult:
-    """Führt Textschichtanalyse aus und nutzt OCR nur bei Bedarf."""
+    """Analysiert eine PDF lokal und verwendet OCR nur bei Bedarf.
+
+    Args:
+        file_path: Lokaler Pfad zur bereits validierten PDF-Datei.
+        ocr_started_callback: Optionale Statusfunktion, die vor Beginn des
+            OCR-Fallbacks aufgerufen wird.
+
+    Returns:
+        Analyseergebnis mit Text, Analyseart und OCR-Metadaten.
+
+    Raises:
+        RuntimeError: Wenn weder Textschicht noch lokaler OCR-Workflow einen
+            verwertbaren Text liefern können.
+    """
     text = extract_pdf_text(path)
     if len(text) >= 80:
         return PdfAnalysisResult(text=text, analysis_type="textschicht", ocr_required=False)
