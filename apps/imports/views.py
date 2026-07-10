@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers, status
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from apps.core.utils import public_id
 from apps.imports.async_runner import start_import_job_processing
@@ -169,6 +170,7 @@ class ImportJobDetailView(APIView):
 class UploadImportView(APIView):
     """Nimmt lokale PDF-Uploads entgegen."""
 
+    throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'upload'
 
     def post(self, request):

@@ -6,6 +6,7 @@ from apps.core.utils import decimal_to_number, format_date
 from apps.labs.models import LabValue, ReviewCandidate
 from apps.labs.presenters import group_summary, trend_direction, value_history, previous_value
 from apps.reports.models import PatientReport
+from apps.reports.report_template import get_report_template
 from apps.reports.services import open_review_candidates, report_counts, review_value_ids
 
 
@@ -84,7 +85,7 @@ def build_print_report(report: PatientReport | None = None) -> dict:
     """Baut die druckfertige Berichtsvorschau."""
     report = report or PatientReport.objects.select_related('patient', 'lab_report').prefetch_related('sections', 'questions', 'recommendations', 'sources').order_by('-report_date').first()
     if report is None:
-        return {'id': '', 'berichtsdatum': '', 'version': '1.0', 'gesamtstatus': '', 'gesamttext': '', 'gesamtWerte': 0, 'gepruefteWerte': 0, 'normaleWerte': 0, 'auffaelligeWerte': 0, 'reviewWerte': 0, 'werte': [], 'kategorien': [], 'empfehlungen': [], 'fragen': [], 'quellen': [], 'disclaimer': '', 'istDruckbar': False, 'wissensbasisVollstaendig': True, 'fehlendeWissensbasisTexte': [], 'offeneReviewEintraege': []}
+        return {'template': get_report_template(), 'id': '', 'berichtsdatum': '', 'version': '1.0', 'gesamtstatus': '', 'gesamttext': '', 'gesamtWerte': 0, 'gepruefteWerte': 0, 'normaleWerte': 0, 'auffaelligeWerte': 0, 'reviewWerte': 0, 'werte': [], 'kategorien': [], 'empfehlungen': [], 'fragen': [], 'quellen': [], 'disclaimer': '', 'istDruckbar': False, 'wissensbasisVollstaendig': True, 'fehlendeWissensbasisTexte': [], 'offeneReviewEintraege': []}
     values = list(report.lab_report.values.select_related('analyte__group', 'unit', 'reference_range', 'analyte__knowledge_entry')) if report.lab_report else []
     counts = report_counts(report.lab_report) if report.lab_report else {'total': 0, 'checked': 0, 'normal': 0, 'abnormal': 0, 'review': 0}
     review_ids = review_value_ids(report.lab_report) if report.lab_report else set()
@@ -92,6 +93,7 @@ def build_print_report(report: PatientReport | None = None) -> dict:
     missing_entries = missing_knowledge_entries(visible_values)
     review_entries = open_review_entries(report)
     return {
+        'template': get_report_template(),
         'id': report.public_id,
         'berichtsdatum': format_date(report.report_date),
         'version': report.version,
@@ -121,6 +123,7 @@ def build_patient_report_preview(report: PatientReport | None = None) -> dict:
     if report is None:
         return {'id': '', 'testperson': '', 'berichtsdatum': '', 'zusammenfassung': '', 'abschnitte': [], 'fragen': [], 'disclaimer': ''}
     return {
+        'template': get_report_template(),
         'id': report.public_id,
         'testperson': report.patient.display_name,
         'berichtsdatum': format_date(report.report_date),

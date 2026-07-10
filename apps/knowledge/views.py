@@ -8,6 +8,7 @@ import re
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from apps.core.input_validation import clean_key, clean_name, clean_text
 from apps.knowledge.models import KnowledgeEntry, KnowledgeSource, KnowledgeVersion
 from apps.knowledge.presenters import knowledge_to_frontend
 from apps.knowledge.services import normalize_chart_color, reset_default_knowledge
@@ -49,10 +50,10 @@ def knowledge_queryset():
 
 def ensure_analyte(data: dict, existing: LabAnalyte | None = None) -> LabAnalyte:
     """Lädt oder erstellt den Laborwert für einen Wissenseintrag."""
-    category_name = str(data.get('kategorie') or (existing.group.name if existing else 'Neue Kategorie')).strip() or 'Neue Kategorie'
+    category_name = clean_name(data.get('kategorie') or (existing.group.name if existing else 'Neue Kategorie'), field='kategorie', max_length=100, allow_blank=False)
     group, _ = LabGroup.objects.get_or_create(key=slug(category_name), defaults={'name': category_name})
-    key = slug(data.get('laborwertKey') or (existing.key if existing else 'neuer_laborwert'), 'neuer_laborwert')
-    display_name = str(data.get('anzeigename') or (existing.display_name if existing else 'Neuer Laborwert')).strip() or 'Neuer Laborwert'
+    key = slug(clean_key(data.get('laborwertKey') or (existing.key if existing else 'neuer_laborwert'), field='laborwertKey', max_length=100), 'neuer_laborwert')
+    display_name = clean_name(data.get('anzeigename') or (existing.display_name if existing else 'Neuer Laborwert'), field='anzeigename', max_length=160, allow_blank=False)
     if existing:
         conflict = LabAnalyte.objects.filter(key=key).exclude(id=existing.id).first()
         if conflict:
@@ -72,26 +73,26 @@ def sync_sources(entry: KnowledgeEntry, sources: list[dict]) -> None:
         return
     entry.sources.all().delete()
     for index, source in enumerate(sources, start=1):
-        KnowledgeSource.objects.create(public_id=source.get('id') or f'quelle-{entry.id}-{index}', entry=entry, title=source.get('titel', 'Quelle ohne Titel'), source_type=source.get('typ', 'demo'), source_date=normalize_source_date(source.get('stand', '')), reference=source.get('referenz', ''), note=source.get('hinweis', ''))
+        KnowledgeSource.objects.create(public_id=source.get('id') or f'quelle-{entry.id}-{index}', entry=entry, title=clean_text(source.get('titel', 'Quelle ohne Titel'), field='quellen.titel', max_length=300, multiline=False, allow_blank=False), source_type=source.get('typ', 'demo'), source_date=normalize_source_date(clean_text(source.get('stand', ''), field='quellen.stand', max_length=20, multiline=False)), reference=clean_text(source.get('referenz', ''), field='quellen.referenz', max_length=500, multiline=False), note=clean_text(source.get('hinweis', ''), field='quellen.hinweis', max_length=1000))
 
 
 def update_entry_from_data(entry: KnowledgeEntry, data: dict) -> KnowledgeEntry:
     """Überträgt Frontendfelder auf den normalisierten Wissenseintrag."""
     entry.analyte = ensure_analyte(data, entry.analyte)
-    entry.patient_short_text = data.get('patientKurztext', entry.patient_short_text)
-    entry.patient_long_text = data.get('patientLangtext', entry.patient_long_text)
-    entry.doctor_information = data.get('arztinformation', entry.doctor_information)
-    entry.causes_low = data.get('ursachenNiedrig', entry.causes_low)
-    entry.causes_high = data.get('ursachenHoch', entry.causes_high)
-    entry.influencing_factors = data.get('einflussfaktoren', entry.influencing_factors)
-    entry.notes = data.get('hinweise', entry.notes)
-    entry.disclaimer = data.get('disclaimer', entry.disclaimer)
+    entry.patient_short_text = clean_text(data.get('patientKurztext', entry.patient_short_text), field='patientKurztext', max_length=500)
+    entry.patient_long_text = clean_text(data.get('patientLangtext', entry.patient_long_text), field='patientLangtext', max_length=4000)
+    entry.doctor_information = clean_text(data.get('arztinformation', entry.doctor_information), field='arztinformation', max_length=4000)
+    entry.causes_low = clean_text(data.get('ursachenNiedrig', entry.causes_low), field='ursachenNiedrig', max_length=2000)
+    entry.causes_high = clean_text(data.get('ursachenHoch', entry.causes_high), field='ursachenHoch', max_length=2000)
+    entry.influencing_factors = clean_text(data.get('einflussfaktoren', entry.influencing_factors), field='einflussfaktoren', max_length=2000)
+    entry.notes = clean_text(data.get('hinweise', entry.notes), field='hinweise', max_length=4000)
+    entry.disclaimer = clean_text(data.get('disclaimer', entry.disclaimer), field='disclaimer', max_length=2000)
     entry.status = data.get('status', entry.status)
-    entry.changed_by = data.get('geaendertVon', entry.changed_by) or 'Admin'
+    entry.changed_by = clean_name(data.get('geaendertVon', entry.changed_by) or 'Admin', field='geaendertVon', max_length=120, allow_blank=False)
     entry.changed_at_label = data.get('geaendertAm', timezone.localdate().strftime('%d.%m.%Y'))
     entry.chart_color = normalize_chart_color(data.get('farbe', entry.chart_color), entry.analyte.key)
     requested_version = data.get('version')
-    note = data.get('aenderungsnotiz', '').strip() or 'Text aktualisiert.'
+    note = clean_text(data.get('aenderungsnotiz', ''), field='aenderungsnotiz', max_length=500) or 'Text aktualisiert.'
     if requested_version:
         entry.version = max(entry.version, int(requested_version))
     entry.save()

@@ -4,11 +4,13 @@
 
 from django.db.models import Count, Q
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from apps.labs.models import LabReport
 from apps.reports.models import PatientReport
 from apps.reports.presenters import build_patient_report_preview, build_print_report
 from apps.reports.services import ensure_patient_report
+from apps.reports.translation import translate_report
 
 
 def latest_visible_report_for_patient(patient_id: str) -> LabReport | None:
@@ -54,3 +56,16 @@ class PatientReportPreviewView(APIView):
     def get(self, request):
         """Gibt eine patiententaugliche Kurzansicht zurück."""
         return Response(build_patient_report_preview(report_from_request(request)))
+
+
+class ReportTranslationView(APIView):
+    """Übersetzt einen druckfähigen Bericht lokal und nur auf Anforderung."""
+
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "translation"
+
+    def post(self, request):
+        """Gibt eine maschinell übersetzte Live-Vorschau zurück."""
+        report = report_from_request(request)
+        report_data = build_print_report(report)
+        return Response(translate_report(report_data, request.data.get("targetLanguage")))

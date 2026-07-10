@@ -13,7 +13,7 @@ Dieses Settings-Modul enthält:
 Empfohlen:
     - Für PROD Umgebungsvariablen über .env.prod oder OS setzen.
     - SECRET_KEY & Datenbankdaten niemals in öffentliche Repos committen.
-    - Redis/Celery erst aktivieren, wenn der synchrone Import stabil läuft.
+    - Redis/Celery für Importjobs über einen lokalen Worker betreiben.
 """
 
 from pathlib import Path
@@ -180,10 +180,22 @@ CSRF_COOKIE_NAME = os.getenv("CSRF_COOKIE_NAME", "XSRF-TOKEN")
 CSRF_HEADER_NAME = os.getenv("CSRF_HEADER_NAME", "HTTP_X_XSRF_TOKEN")
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_HTTPONLY = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+X_FRAME_OPTIONS = "DENY"
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+DATA_UPLOAD_MAX_MEMORY_SIZE = env_int("DATA_UPLOAD_MAX_MEMORY_SIZE", 2 * 1024 * 1024)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = env_int("DATA_UPLOAD_MAX_NUMBER_FIELDS", 500)
 
 if ENV == "production":
     CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", True)
     SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", True)
+    SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", True)
+    SECURE_HSTS_SECONDS = env_int("SECURE_HSTS_SECONDS", 31536000)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 else:
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
@@ -203,10 +215,17 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.FormParser",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
+        "rest_framework.permissions.AllowAny" if env_bool("GLOBI_DEMO_MODE", DEBUG) else "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "apps.core.throttles.DemoBurstRateThrottle",
+        "apps.core.throttles.DemoApiRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "upload": "20/hour",
+        "demo_burst": os.getenv("GLOBI_THROTTLE_BURST", "60/minute"),
+        "demo_api": os.getenv("GLOBI_THROTTLE_API", "1200/hour"),
+        "upload": os.getenv("GLOBI_THROTTLE_UPLOAD", "20/hour"),
+        "translation": os.getenv("GLOBI_THROTTLE_TRANSLATION", "30/hour"),
     },
 }
 
@@ -300,7 +319,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 GLOBI_MAX_UPLOAD_MB = env_int("GLOBI_MAX_UPLOAD_MB", 12)
 GLOBI_MAX_UPLOAD_BYTES = GLOBI_MAX_UPLOAD_MB * 1024 * 1024
-GLOBI_USE_CELERY = env_bool("GLOBI_USE_CELERY", False)
+GLOBI_USE_CELERY = env_bool("GLOBI_USE_CELERY", True)
 IMPORT_AUTO_REVIEW_CONFIDENCE_THRESHOLD = env_int("IMPORT_AUTO_REVIEW_CONFIDENCE_THRESHOLD", 90)
 
 OCR_ENABLED = env_bool("OCR_ENABLED", True)
@@ -309,6 +328,17 @@ OCR_DPI = env_int("OCR_DPI", 300)
 
 TESSERACT_CMD = env_path("TESSERACT_CMD")
 POPPLER_PATH = env_path("POPPLER_PATH")
+
+GLOBI_CLAMAV_ENABLED = env_bool("GLOBI_CLAMAV_ENABLED", False)
+GLOBI_CLAMAV_REQUIRED = env_bool("GLOBI_CLAMAV_REQUIRED", False)
+GLOBI_CLAMAV_HOST = os.getenv("GLOBI_CLAMAV_HOST", "127.0.0.1").strip()
+GLOBI_CLAMAV_PORT = env_int("GLOBI_CLAMAV_PORT", 3310)
+GLOBI_CLAMAV_TIMEOUT = env_float("GLOBI_CLAMAV_TIMEOUT", 8.0)
+
+GLOBI_TRANSLATION_ENABLED = env_bool("GLOBI_TRANSLATION_ENABLED", True)
+GLOBI_TRANSLATION_SOURCE_LANGUAGE = os.getenv("GLOBI_TRANSLATION_SOURCE_LANGUAGE", "de").strip() or "de"
+GLOBI_TRANSLATION_LANGUAGES = env_list("GLOBI_TRANSLATION_LANGUAGES", "en,fr,es,tr")
+GLOBI_TRANSLATION_GLOSSARY = env_path("GLOBI_TRANSLATION_GLOSSARY", str(BASE_DIR / "apps" / "reports" / "seeds" / "translation_glossary.json"))
 
 
 # ------------------------------------------------------------------------------

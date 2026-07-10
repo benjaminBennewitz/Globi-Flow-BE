@@ -1,0 +1,23 @@
+{
+  "de": {
+    "en": {
+      "Blutzucker": "blood glucose",
+      "Referenzbereich": "reference range",
+      "unauffällig": "within range",
+      "erhöht": "elevated",
+      "niedrig": "low"
+    },
+    "fr": {
+      "Blutzucker": "glycémie",
+      "Referenzbereich": "intervalle de référence"
+    },
+    "es": {
+      "Blutzucker": "glucemia",
+      "Referenzbereich": "intervalo de referencia"
+    },
+    "tr": {
+      "Blutzucker": "kan şekeri",
+      "Referenzbereich": "referans aralığı"
+    }
+  }
+}

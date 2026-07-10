@@ -14,8 +14,11 @@ Globi-Flow-BE/
 │   │   │   └── frontend_mocks.json
 │   │   ├── __init__.py
 │   │   ├── apps.py
+│   │   ├── input_validation.py
 │   │   ├── models.py
 │   │   ├── tests.py
+│   │   ├── tests_security.py
+│   │   ├── throttles.py
 │   │   ├── urls.py
 │   │   ├── utils.py
 │   │   └── views.py
@@ -36,12 +39,14 @@ Globi-Flow-BE/
 │   │   ├── admin.py
 │   │   ├── apps.py
 │   │   ├── async_runner.py
+│   │   ├── malware_scanner.py
 │   │   ├── models.py
 │   │   ├── parser.py
 │   │   ├── pdf_analysis.py
 │   │   ├── presenters.py
 │   │   ├── services.py
 │   │   ├── tasks.py
+│   │   ├── tests_security.py
 │   │   ├── urls.py
 │   │   ├── validators.py
 │   │   └── views.py
@@ -84,12 +89,17 @@ Globi-Flow-BE/
 │   ├── reports/
 │   │   ├── migrations/
 │   │   │   └── ...
+│   │   ├── seeds/
+│   │   │   └── translation_glossary.json
 │   │   ├── __init__.py
 │   │   ├── admin.py
 │   │   ├── apps.py
 │   │   ├── models.py
 │   │   ├── presenters.py
+│   │   ├── report_template.py
 │   │   ├── services.py
+│   │   ├── tests_translation.py
+│   │   ├── translation.py
 │   │   ├── urls.py
 │   │   └── views.py
 │   └── __init__.py
@@ -108,23 +118,14 @@ Globi-Flow-BE/
 ├── media/
 │   └── imports/
 │       └── 2026/
-│           └── 07/
-│               ├── Bluttest_Ergebnis.pdf
-│               ├── Bluttest_Ergebnis_8LL4YQk.pdf
-│               ├── Bluttest_Ergebnis_BUOv6Mc.pdf
-│               ├── Bluttest_Ergebnis_jV9YdNS.pdf
-│               ├── Bluttest_Ergebnis_t6uBkLT.pdf
-│               ├── Bluttest_Ergebnis_vFmwavL.pdf
-│               ├── testdaten-laborbefund-demo.pdf
-│               ├── testdaten-laborbefund-demo_5sYySEk.pdf
-│               ├── testdaten-laborbefund-demo_6Xv2g8m.pdf
-│               ├── testdaten-laborbefund-demo_DHukSv7.pdf
-│               └── testdaten-laborbefund-demo_Xi4iMak.pdf
+├── scripts/
+│   └── start_celery_windows.bat
 ├── .env.local
 ├── .env.prod
 ├── .gitignore
 ├── make-tree.ps1
 ├── manage.py
+├── pytest.ini
 ├── README.md
 ├── requirements.txt
 ├── tools.md

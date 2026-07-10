@@ -5,6 +5,7 @@
 from datetime import datetime
 from django.db.models import Count, Q
 from rest_framework import serializers
+from apps.core.input_validation import clean_key, clean_name, clean_text
 from apps.core.utils import decimal_to_number, format_date, public_id
 from apps.imports.models import ImportJob
 from apps.labs.models import LabReport, LabValue, ReviewCandidate
@@ -63,6 +64,27 @@ class PatientInputSerializer(serializers.Serializer):
     notiz = serializers.CharField(allow_blank=True, required=False)
     kontext = serializers.CharField(max_length=240, allow_blank=True, required=False)
     status = serializers.ChoiceField(choices=Patient.Status.choices, required=False)
+
+
+    def validate_vorname(self, value):
+        """Validiert den Vornamen defensiv."""
+        return clean_name(value, field='vorname', max_length=80)
+
+    def validate_nachname(self, value):
+        """Validiert den Nachnamen defensiv."""
+        return clean_name(value, field='nachname', max_length=80)
+
+    def validate_lebensstil(self, value):
+        """Validiert den Lebensstiltext ohne aktive Inhalte."""
+        return clean_text(value, field='lebensstil', max_length=240)
+
+    def validate_notiz(self, value):
+        """Validiert freie Notizen mit festem Größenlimit."""
+        return clean_text(value, field='notiz', max_length=2000)
+
+    def validate_kontext(self, value):
+        """Validiert den Patientenkontext."""
+        return clean_text(value, field='kontext', max_length=240)
 
     def validate_geburtsdatum(self, value):
         """Akzeptiert ISO- und deutsches Datumsformat aus der Oberfläche."""
